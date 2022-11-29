@@ -1,5 +1,6 @@
 import React from 'react';
 import HomeScreen from './app/screens/HomeScreen';
+import SignUpScreen from './app/screens/SignUpScreen';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import { NavigationContainer } from '@react-navigation/native';
 
@@ -16,6 +17,11 @@ export default function App() {
           component={HomeScreen}
           options={{ title: "eConomizer"}}
           />
+        {/* SIGN UP SCREEN*/}
+        <Stack.Screen 
+          name="SignUp"
+          component={SignUpScreen}
+          options={{title:'Create Account'}} />
       </Stack.Navigator>
     </NavigationContainer>
   );
