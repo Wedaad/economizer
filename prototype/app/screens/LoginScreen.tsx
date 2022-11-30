@@ -1,35 +1,63 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, Button } from 'react-native';
-
+import auth from '@react-native-firebase/auth';
 
 function LoginScreen({navigation}:any) {
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
 
     const onSignUpLinkPress = () => {
 
         navigation.navigate("SignUp");
     }
 
+    const onLoginPress = () => {
+
+        auth()
+        .signInWithEmailAndPassword(email, password)
+        .then((response) => {
+
+            const user = response.user.uid
+            navigation.navigate("LinkAccount", {user_id: user, 
+                username: username});
+        })
+        .catch(error => {
+
+            alert("Login Error: " + error)
+            console.log(error);
+        })
+    }
+
     return (
-
         <View style={styles.screenLayout}>
-            {/* <KeyboardAwareScrollView> */}
-                <Text style={styles.title}>Login</Text>
+            <Text style={styles.title}>Login</Text>
                 <View style={styles.formContainer}>
-                    <Text style={styles.labels}>Email</Text>
-                    <TextInput style={styles.textInput} 
-                    placeholder='Email'/>
+                    <Text style={styles.labels}>Username</Text>
+                        <TextInput 
+                        style={styles.textInput} 
+                        placeholder='Username'
+                        onChangeText={(text) => setUsername(text)} // setting the value of username to the username entered
+                        value={username}/>
+                        <Text style={styles.labels}>Email</Text>
+                        <TextInput style={styles.textInput} 
+                        placeholder='Email'
+                        onChangeText={(text) => setEmail(text)}
+                        value={email}/>
 
-                    <Text style={styles.labels}>Password</Text>
-                    <TextInput style={styles.textInput}
-                    secureTextEntry={true}
-                    placeholder='Password'/>
+                        <Text style={styles.labels}>Password</Text>
+                        <TextInput style={styles.textInput}
+                        secureTextEntry={true}
+                        placeholder='Password'
+                        onChangeText={(text) => setPassword(text)}
+                        value={password}/>
                 </View>
 
-                <View style={styles.loginBtn}>
-                    <Button title="Login" color="#BE7CFF"/>
-                </View>
-                <Text style={styles.text}>Don't have an account?<Text style={styles.signUpLink} onPress={onSignUpLinkPress}>Sign-Up Here</Text></Text>
-            {/* </KeyboardAwareScrollView> */}
+            <View style={styles.loginBtn}>
+                <Button title="Login" color="#BE7CFF" onPress={onLoginPress}/>
+            </View>
+            <Text style={styles.text}>Don't have an account?<Text style={styles.signUpLink} onPress={onSignUpLinkPress}>Sign-Up Here</Text></Text>
         </View>
 
     );
