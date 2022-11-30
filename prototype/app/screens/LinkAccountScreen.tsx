@@ -11,7 +11,7 @@ const LinkAccountScrceen = ({route}: any) => {
                 <Text style={styles.title}>Link eConomizer to your bank account</Text>
             </View>
 
-            <Button title="Link Account Now"/>
+            <Button title="Link Account Now" color="#BE7CFF"/>
 
         </View>
     );
