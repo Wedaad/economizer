@@ -1,7 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, View, Text, Button, TextInput } from 'react-native';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 function SignUpScreen({navigation}:any) {
+
+    const [name, setName] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
 
     const onLoginLinkPress = () => {
 
@@ -9,44 +16,85 @@ function SignUpScreen({navigation}:any) {
         navigation.navigate("Login")
     }
 
+    const onSignUpPress = () => {
+
+        if(password !== confirmPassword) {
+
+            alert("Passwords don't match");
+            return
+        }
+
+        auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then((userInfo) => {
+
+            const id = userInfo.user.uid;
+
+            const user_data = {
+
+                user_id: id,
+                email,
+                name,
+            };
+
+            const userCollection = firestore().collection('Users') // Users collection reference
+            .doc(id);
+            
+            userCollection.set(user_data) // adding the user info entered to the Users collection
+
+            .then(() => {
+                alert("Registration Successful");
+                navigation.navigate("Login"); // change the screen to the login screen once registration is successful 
+            })
+            .catch((error) => {
+                alert("SignUp Error: " + error)});
+        })
+        .catch((error) => {
+            alert("SignUp Error: " + error)});
+
+    }
+
     return (
         /* Holds main screen contents */
         <View style={styles.screenLayout}>
-            {/* <KeyboardAwareScrollView> */}
-                <View>
-                    <Text style={styles.title}>Create Account</Text>
-                    <View style={styles.formContainer}>
-                    <Text style={styles.labels}>Full Name</Text>
-                    <TextInput 
-                    style={styles.textInput} 
-                    placeholder='Full Name'
-                    />
+            <View>
+                <Text style={styles.title}>Create Account</Text>
+                <View style={styles.formContainer}>
+                <Text style={styles.labels}>Full Name</Text>
+                <TextInput 
+                style={styles.textInput} 
+                placeholder='Full Name'
+                onChangeText={(text) => setName(text)} // setting the value of fullname to the fullname entered
+                value={name}/>
 
-                    <Text style={styles.labels}>Email</Text>
-                    <TextInput style={styles.textInput} 
-                    placeholder='Email'
-                    />
+                <Text style={styles.labels}>Email</Text>
+                <TextInput style={styles.textInput} 
+                placeholder='Email'
+                onChangeText={(text) => setEmail(text)} // setting the value of email to the email entered
+                value={email}/>
 
-                    <Text style={styles.labels}>Password</Text>
-                    <TextInput style={styles.textInput} 
-                    secureTextEntry={true}
-                    placeholder='Password'
-                    />
+                <Text style={styles.labels}>Password</Text>
+                <TextInput style={styles.textInput} 
+                secureTextEntry={true}
+                placeholder='Password'
+                onChangeText={(text) => setPassword(text)} // setting the value of password to the password entered
+                value={password}/>
 
-                    <Text style={styles.labels}>Confirm Password</Text>
-                    <TextInput style={styles.textInput} 
-                    secureTextEntry={true}
-                    placeholder='Confirm Password'
-                    />
-                </View>
+                <Text style={styles.labels}>Confirm Password</Text>
+                <TextInput style={styles.textInput} 
+                secureTextEntry={true}
+                placeholder='Confirm Password'
+                onChangeText={(text) => setConfirmPassword(text)} // setting the value of confirm password to the password entered
+                value={confirmPassword}/>
 
-                <View style={styles.signUpBtn}>
-                    <Button title="Sign Up" color="#BE7CFF"/>
-                </View>
+            </View>
 
-                <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
-                </View>
-            {/* </KeyboardAwareScrollView>  */}
+            <View style={styles.signUpBtn}>
+                <Button title="Sign Up" color="#BE7CFF" onPress={onSignUpPress}/>
+            </View>
+
+            <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
+            </View>
         </View>
     );
 }
