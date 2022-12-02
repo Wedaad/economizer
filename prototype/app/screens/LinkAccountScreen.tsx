@@ -1,5 +1,6 @@
 import React from 'react';
 import {Text, View, StyleSheet, Button} from 'react-native';
+import { PlaidLink, LinkSuccess, LinkExit } from 'react-native-plaid-link-sdk';
 
 const LinkAccountScrceen = ({route}: any) => {
 
@@ -11,8 +12,14 @@ const LinkAccountScrceen = ({route}: any) => {
                 <Text style={styles.title}>Link eConomizer to your bank account</Text>
             </View>
 
-            <Button title="Link Account Now" color="#BE7CFF"/>
-
+            <PlaidLink
+                tokenConfig={{ token: '#GENERATED_LINK_TOKEN#', noLoadingState: false }}
+                onSuccess={(success: LinkSuccess) => console.log(success)}
+                onExit={(exit: LinkExit) => console.log(exit)}
+            >
+                <Text>Link Account</Text>
+                {/* <Button title="Link Account Now" color="#BE7CFF"/> */}
+            </PlaidLink>
         </View>
     );
 };
