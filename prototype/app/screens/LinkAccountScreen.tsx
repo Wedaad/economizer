@@ -1,9 +1,43 @@
-import React from 'react';
-import {Text, View, StyleSheet } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Text, View, StyleSheet, Platform } from 'react-native';
 import { PlaidLink, LinkSuccess, LinkExit } from 'react-native-plaid-link-sdk';
 
-const LinkAccountScrceen = ({route}: any) => {
+const LinkAccountScrceen = ({navigation, route}: any) => {
 
+    const [linkToken, setLinkToken] = useState("");
+    // const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
+
+    const generateLinkToken = useCallback(async () => {
+        console.log("Awaiting generating of token");
+        await fetch('http://192.168.1.15:8085/link/token/create', {
+
+            method: 'POST',
+            headers: {
+
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({ address: "192.168.1.15" })
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Setting token to: " + data);
+                setLinkToken(data);
+            })
+            .catch((err) => {
+
+                console.log("Generating token error: " + err);
+            });
+        }, [setLinkToken])
+
+            useEffect(() => {
+
+                if (linkToken == "") {
+                    console.log("Token = ''");
+                    generateLinkToken();
+                }
+            }, [linkToken]);
+    
     return (
 
         <View style={styles.screenLayout}>
@@ -13,9 +47,30 @@ const LinkAccountScrceen = ({route}: any) => {
             </View>
 
             <PlaidLink
-                tokenConfig={{ token: "link-sandbox-6393e454-76ec-4bf4-b212-b9db2cdcc035", noLoadingState: false }}
-                onSuccess={(success: LinkSuccess) => console.log(success)}
-                onExit={(exit: LinkExit) => console.log(exit)}
+                tokenConfig={{ token: linkToken, noLoadingState: false }}
+                onSuccess={ async (success: LinkSuccess) => {
+                    console.log("Awating exchange of tokens");
+
+                    await fetch("http://192.168.1.15:8085/item/public/exchange", {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+
+                        body: JSON.stringify({ public_token: success.publicToken }),
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+
+                    console.log(success + ": " + success.publicToken);   
+                    // navigation.navigate('Success', success); // Switch the trasaction screen
+                }}
+                onExit={(response: LinkExit) => {
+                    console.log(response);
+                }}
             >
                 <Text style={styles.linkAccountText}>Link Account</Text>
                 {/* <Button title="Link Account Now" color="#BE7CFF"/> */}
