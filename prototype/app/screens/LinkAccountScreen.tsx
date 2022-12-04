@@ -5,7 +5,6 @@ import { PlaidLink, LinkSuccess, LinkExit } from 'react-native-plaid-link-sdk';
 const LinkAccountScrceen = ({navigation, route}: any) => {
 
     const [linkToken, setLinkToken] = useState("");
-    // const address = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
 
     const generateLinkToken = useCallback(async () => {
         console.log("Awaiting generating of token");
@@ -73,7 +72,6 @@ const LinkAccountScrceen = ({navigation, route}: any) => {
                 }}
             >
                 <Text style={styles.linkAccountText}>Link Account</Text>
-                {/* <Button title="Link Account Now" color="#BE7CFF"/> */}
             </PlaidLink>
         </View>
     );
