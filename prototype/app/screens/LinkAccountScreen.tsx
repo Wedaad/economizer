@@ -9,15 +9,15 @@ const LinkAccountScrceen = ({route}: any) => {
         <View style={styles.screenLayout}>
             <View>
                 <Text style={styles.subTitle}>Hi <Text style={styles.subTitle}>{route.params.username}</Text></Text>
-                <Text style={styles.title}>Link eConomizer to your bank account</Text>
+                <Text style={styles.title}>Link eConomizer to your bank account by presing the button below</Text>
             </View>
 
             <PlaidLink
-                tokenConfig={{ token: '#GENERATED_LINK_TOKEN#', noLoadingState: false }}
+                tokenConfig={{ token: "link-sandbox-6393e454-76ec-4bf4-b212-b9db2cdcc035", noLoadingState: false }}
                 onSuccess={(success: LinkSuccess) => console.log(success)}
                 onExit={(exit: LinkExit) => console.log(exit)}
             >
-                <Text>Link Account</Text>
+                <Text style={styles.linkAccountText}>Link Account</Text>
                 {/* <Button title="Link Account Now" color="#BE7CFF"/> */}
             </PlaidLink>
         </View>
@@ -36,9 +36,10 @@ const styles = StyleSheet.create({
     title: {
         // borderWidth: 4,
         // borderColor: 'red',
-        margin: 10, 
+        marginTop: 50, 
         fontSize: 22,
-        fontWeight: "bold",
+        textAlign: "center",
+        
     },
 
     subTitle: {
@@ -46,7 +47,22 @@ const styles = StyleSheet.create({
         margin: 10, 
         fontSize: 22,
         textAlign: "center",
+        fontWeight: "bold",
 
+    },
+
+    linkAccountText: {
+
+        marginTop: 100, 
+        fontSize: 22,
+        fontWeight: "bold",
+        textAlign: "center",
+        borderWidth: 5,
+        borderColor: "#BE7CFF",
+        backgroundColor: "#BE7CFF",
+        color: "white",
+        paddingTop: 10,
+        padding: 5,
     },
 
   });
