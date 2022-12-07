@@ -50,7 +50,7 @@ const LinkAccountScrceen = ({navigation, route}: any) => {
                 onSuccess={ async (success: LinkSuccess) => {
                     console.log("Awating exchange of tokens");
 
-                    await fetch("http://192.168.1.15:8085/item/public/exchange", {
+                    await fetch("http://192.168.1.15:8085/item/public_token/exchange", {
 
                         method: "POST",
 
