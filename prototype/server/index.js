@@ -55,18 +55,46 @@ app.post('/link/token/create', async (req, res) => {
 
     const tokenResponse = await client.linkTokenCreate(payload);
     res.json(tokenResponse.data.link_token);
-    console.log("TOKEN ACQUIRED!!" + tokenResponse.data.link_token);
+    console.log("TOKEN ACQUIRED!! " + tokenResponse.data.link_token);
 });
 
 // Exchanges the public token from Plaid Link for an access token
 app.post('/item/public_token/exchange', async (req, res ) => {
     console.log("Exchanging token for access token!!");
     const exchangeResponse = await client.itemPublicTokenExchange({
+
       public_token: req.body.public_token,
+      access_token: req.body.access_token
     });
-    
+
+    console.log("Public token: " + exchangeResponse.public_token);
+
+    // FOR DEMO PURPOSES ONLY
+    // Store access_token in DB instead of session storage
+    req.session.access_token = exchangeResponse.data.access_token;
+    res.json(true);
     console.log("TOKEN EXCHANGED!!");
-}); 
+    console.log("ACCESS TOKEN: " + req.session.access_token);
+  }); 
+
+// Retrieving user transactions
+app.post('/transactions/get', async(req, res) => {
+  console.log("Retrieving transactions...");
+
+  const access_token = req.session.access_token;
+  let start_date = '2022-09-01';
+  let end_date = '2022-10-31'
+
+  const transactions = await client.transactionsGet({
+
+    access_token: access_token,
+    startDate: start_date,
+    endDate: end_date
+  })
+
+  res.json({Transactions: transactions.data});
+
+});
   
 app.listen(PORT, () => {
 console.log(`Server running on ${PORT}`);
