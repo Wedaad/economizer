@@ -13,12 +13,16 @@
     "@react-native-firebase/firestore": "^16.4.6",
     "@react-navigation/native": "^6.0.14",
     "@react-navigation/native-stack": "^6.9.2",
+    "body-parser": "^1.20.1",
+    "dotenv": "^16.0.3",
     "expo": "~47.0.8",
     "expo-dev-client": "~2.0.1",
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "nodemon": "^2.0.20",
+    "plaid": "^12.1.0",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "react-native": "0.70.5",
@@ -34,5 +38,5 @@
     "typescript": "^4.9.3"
   },
   "private": true,
-  "proxy": "http://localhost:8085"
+  "proxy": "http://192.168.1.15:8085"
 }
