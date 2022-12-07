@@ -1,12 +1,54 @@
-import React from 'react';
-import { Text, View, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { Text, View, StyleSheet } from 'react-native';
 
-const ViewTransactions = () => {
+const ViewTransactions = ({route}: any) => {
+
+    const [transactions, setTransactions] = useState(null);
+
+    const getTransactions = (async () => {
+
+        console.log("Awaiting transaction data");
+
+        await fetch('http://192.168.1.15:8085/transactions/get', {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        .then((response) => response.json())
+        .then((data) => {
+
+            setTransactions(data);
+        })
+        .catch((err) => { console.log("getTrasaction Error: " + err)});
+    });
+
+    useEffect(() => {
+
+        if(transactions == null) {
+            getTransactions();
+            
+        }
+    }, [transactions])
 
     return(
 
-        <View>
-            <Text style={styles.screenLayout}>Your Transactions:</Text>
+        <View style={styles.screenLayout}>
+            <Text>Your Transactions:</Text>
+
+            <View>
+                <Text>
+
+                    {
+                        JSON.stringify(transactions)
+
+                    }
+                </Text>
+
+            </View>
         </View>
 
     );
