@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Text, View, StyleSheet, Platform } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { PlaidLink, LinkSuccess, LinkExit } from 'react-native-plaid-link-sdk';
 
 const LinkAccountScrceen = ({navigation, route}: any) => {
@@ -58,14 +58,14 @@ const LinkAccountScrceen = ({navigation, route}: any) => {
                             "Content-Type": "application/json",
                         },
 
-                        body: JSON.stringify({ public_token: success.publicToken }),
+                        body: JSON.stringify({ public_token: success.publicToken}),
                     })
                     .catch((err) => {
                         console.log(err);
                     });
 
                     console.log(success + ": " + success.publicToken);   
-                    // navigation.navigate('Success', success); // Switch the trasaction screen
+                    navigation.navigate('Trasactions', {public_token: success.publicToken}); // Switch the trasaction screen
                 }}
                 onExit={(response: LinkExit) => {
                     console.log(response);
@@ -118,5 +118,5 @@ const styles = StyleSheet.create({
         padding: 5,
     },
 
-  });
-  export default LinkAccountScrceen;
+});
+export default LinkAccountScrceen;
