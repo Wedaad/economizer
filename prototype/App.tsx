@@ -40,7 +40,7 @@ export default function App() {
          <Stack.Screen
           name="Trasactions"
           component={ViewTransactions}
-          options={{ title: "Link Your Bank Account" }}
+          options={{ title: "Transactions"}}
         />
       </Stack.Navigator>
     </NavigationContainer>
