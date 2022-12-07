@@ -67,7 +67,7 @@ app.post('/item/public_token/exchange', async (req, res ) => {
       access_token: req.body.access_token
     });
 
-    console.log("Public token: " + exchangeResponse.public_token);
+    console.log("Public token: " + req.body.public_token);
 
     // FOR DEMO PURPOSES ONLY
     // Store access_token in DB instead of session storage
@@ -82,14 +82,15 @@ app.post('/transactions/get', async(req, res) => {
   console.log("Retrieving transactions...");
 
   const access_token = req.session.access_token;
-  let start_date = '2022-09-01';
-  let end_date = '2022-10-31'
+  console.log(access_token);
+  let startDate = '2022-09-01';
+  let endDate = '2022-10-31'
 
   const transactions = await client.transactionsGet({
 
     access_token: access_token,
-    startDate: start_date,
-    endDate: end_date
+    start_date: startDate,
+    end_date: endDate
   })
 
   res.json({Transactions: transactions.data});
