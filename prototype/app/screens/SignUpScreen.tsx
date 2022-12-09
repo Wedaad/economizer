@@ -1,3 +1,9 @@
+/*
+    User registration screen. User enters in their details and their information
+    is written to the User firestore collection and the Authentication service in Firebase
+
+*/ 
+
 import React, {useState} from 'react';
 import {StyleSheet, View, Text, Button, TextInput } from 'react-native';
 import auth from '@react-native-firebase/auth';
@@ -102,7 +108,7 @@ function SignUpScreen({navigation}:any) {
                 <Button title="Sign Up" color="#BE7CFF" onPress={onSignUpPress}/>
             </View>
 
-            <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
+                <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
             </View>
         </View>
     );

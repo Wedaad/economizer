@@ -1,3 +1,7 @@
+/*
+    User Login screen. If the details entered are the same as the details stored 
+    in Firebase's Auth service then the user will login successfully
+*/ 
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, Button } from 'react-native';
 import auth from '@react-native-firebase/auth';
