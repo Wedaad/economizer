@@ -1,3 +1,7 @@
+/*
+  App.tsx holds all the different screens which make up this prototype application
+*/
+
 import React from 'react';
 import HomeScreen from './app/screens/HomeScreen';
 import SignUpScreen from './app/screens/SignUpScreen';
