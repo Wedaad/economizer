@@ -22,7 +22,7 @@ const ViewTransactions = () => {
 
         console.log("Awaiting transaction data");
 
-        await fetch("http://192.168.1.15:8085/transactions/get", {
+        await fetch("http://192.168.1.5:8085/transactions/get", {
 
             method: "POST",
 

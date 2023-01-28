@@ -19,7 +19,7 @@ const LinkAccountScrceen = ({navigation, route}: any) => {
 
     const generateLinkToken = useCallback(async () => {
         console.log("Awaiting generating of token");
-        await fetch('http://192.168.1.15:8085/link/token/create', {
+        await fetch('http://192.168.1.5:8085/link/token/create', {
 
             method: 'POST',
             headers: {
@@ -27,7 +27,7 @@ const LinkAccountScrceen = ({navigation, route}: any) => {
                 "Content-Type": "application/json"
             },
 
-            body: JSON.stringify({ address: "192.168.1.15" })
+            body: JSON.stringify({ address: "192.168.1.5" })
             })
             .then((response) => response.json())
             .then((data) => {
@@ -61,7 +61,7 @@ const LinkAccountScrceen = ({navigation, route}: any) => {
                 onSuccess={ async (success: LinkSuccess) => {
                     console.log("Awating exchange of tokens");
 
-                    await fetch("http://192.168.1.15:8085/item/public_token/exchange", {
+                    await fetch("http://192.168.1.5:8085/item/public_token/exchange", {
 
                         method: "POST",
 
