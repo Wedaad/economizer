@@ -3,14 +3,20 @@
     in Firebase's Auth service then the user will login successfully
 */ 
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, Button } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Button, ImageBackground, ScrollView, SafeAreaView, Alert} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
+const screenBackground = require("../assets/LRScreenBackground3.png")
 function LoginScreen({navigation}:any) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
+    const [isVisible, setIsVisible] = useState(false);
+
+    const displayErrorMsg = () => {
+        setIsVisible(true);
+    }
 
     const onSignUpLinkPress = () => {
 
@@ -19,50 +25,83 @@ function LoginScreen({navigation}:any) {
 
     const onLoginPress = () => {
 
+        if(!email){
+
+            Alert.alert(
+                'Login Error',
+                'Please enter your email.'
+            ) 
+            displayErrorMsg();
+        }
+
+        if(!password){
+            Alert.alert(
+                'Login Error',
+                'Please enter your password.'
+            )  
+        }
+
+        if(!email && !password){
+
+            Alert.alert(
+                'Login Error',
+                'Please enter your login details.'
+            )  
+        }
+
         auth()
         .signInWithEmailAndPassword(email, password)
         .then((response) => {
 
             const user = response.user.uid
             navigation.navigate("LinkAccount", {user_id: user, 
-                username: username});
+                username: username});    
         })
         .catch(error => {
 
             alert("Login Error: " + error)
-            console.log(error);
+            console.log(error.code);
+
         })
     }
 
     return (
-        <View style={styles.screenLayout}>
-            <Text style={styles.title}>Login</Text>
-                <View style={styles.formContainer}>
-                    <Text style={styles.labels}>Username</Text>
-                        <TextInput 
-                        style={styles.textInput} 
-                        placeholder='Username'
-                        onChangeText={(text) => setUsername(text)} // setting the value of username to the username entered
-                        value={username}/>
-                        <Text style={styles.labels}>Email</Text>
-                        <TextInput style={styles.textInput} 
-                        placeholder='Email'
-                        onChangeText={(text) => setEmail(text)}
-                        value={email}/>
+        <SafeAreaView style={styles.screenLayout}>
+            {/* <ScrollView style={styles.scrollable}> */}
+                <ImageBackground source={screenBackground} style={styles.background}>
+                <Text style={styles.title}>Login</Text>
 
-                        <Text style={styles.labels}>Password</Text>
-                        <TextInput style={styles.textInput}
-                        secureTextEntry={true}
-                        placeholder='Password'
-                        onChangeText={(text) => setPassword(text)}
-                        value={password}/>
+                <View style={styles.formContainer}>
+                
+                    <Text style={styles.labels}>Email</Text>
+                    <TextInput style={styles.textInput} 
+                    placeholder='Email'
+                    onChangeText={(text) => setEmail(text)}
+                    value={email}/>
+
+                    {isVisible && (
+                        <Text style={styles.errorMsg}>Email field can't be empty.</Text>
+                    )}
+            
+                    <Text style={styles.labels}>Password</Text>
+                    <TextInput style={styles.textInput}
+                    secureTextEntry={true}
+                    placeholder='Password'
+                    onChangeText={(text) => setPassword(text)}
+                    value={password}/>
+
+                    {isVisible && (
+                        <Text style={styles.errorMsg}>Password field can't be empty.</Text>
+                    )}
                 </View>
 
-            <View style={styles.loginBtn}>
-                <Button title="Login" color="#BE7CFF" onPress={onLoginPress}/>
-            </View>
-            <Text style={styles.text}>Don't have an account?<Text style={styles.signUpLink} onPress={onSignUpLinkPress}>Sign-Up Here</Text></Text>
-        </View>
+                <View style={styles.loginBtnView}>
+                    <Button title="Login" color="#BE7CFF" onPress={onLoginPress}/>
+                </View>
+                <Text style={styles.text}>Don't have an account?<Text style={styles.signUpLink} onPress={onSignUpLinkPress}> Sign-Up Here</Text></Text>
+                </ImageBackground>
+            {/* </ScrollView> */}
+        </SafeAreaView>
 
     );
 
@@ -74,60 +113,85 @@ const styles = StyleSheet.create({
         flex: 1,
         // borderWidth: 4,
         // borderColor: 'orange',
-        backgroundColor: 'white',
+        // backgroundColor: 'white',
+    },
+
+    background: {
+        flex: 1,
+        // borderWidth: 4,
+        // borderColor: 'pink',
+    },
+
+    scrollable: {
+        flex: 1,
+        // borderWidth: 4,
+        // borderColor: 'purple',
+
     },
 
     title: {
 
-        fontWeight: 'bold',
+        // fontWeight: 'bold',
         marginLeft: 30,
-        marginTop: 80, 
+        marginTop: 125, 
         padding: 10,
-        fontSize: 25,
+        fontSize: 35,
     },
 
     formContainer: {
 
         margin: 20,
+        // borderWidth: 4,
+        // borderColor: 'green',
     },
 
     textInput: {
 
-        alignSelf: 'auto',
+        alignSelf: 'center',
         height: 50,
         marginBottom: 15,
         borderColor: '#9B9B9B',
         color: 'black',
         borderWidth: 1.5,
         borderRadius: 4,
-        padding: 10
+        padding: 10,
+        width: 300,
     },
 
     labels: {
 
         fontSize: 15,
         padding: 10,
+        marginLeft: 25,
     },
 
     text: {
 
-        textAlign: 'center'
+        textAlign: 'center',
+        fontSize: 13
     },
 
-    loginBtn: {
+    loginBtnView: {
 
-        width: 120,
-        alignSelf: 'flex-end',
+        width: 300,
+        alignSelf: 'center',
         marginBottom: 15,
-        marginRight: 20,
+        // marginRight: 20,
+      
 
     },
     signUpLink: {
         color: "#BE7CFF",
         fontWeight: "bold",
-        fontSize: 14
+        fontSize: 13
 
     },
+    errorMsg: {
+
+        color: "red",
+        fontSize: 10,
+        marginLeft: 35,
+    }
 
 }); 
 
