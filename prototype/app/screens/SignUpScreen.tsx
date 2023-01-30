@@ -5,7 +5,7 @@
 */ 
 
 import React, {useState} from 'react';
-import {StyleSheet, View, Text, Button, TextInput } from 'react-native';
+import {StyleSheet, View, Text, Button, TextInput, SafeAreaView, ImageBackground } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
@@ -16,6 +16,7 @@ function SignUpScreen({navigation}:any) {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [username, setUsername] = useState('');
+    const screenBackground = require("../assets/LRScreenBackground3.png")
 
     const onLoginLinkPress = () => {
 
@@ -64,7 +65,8 @@ function SignUpScreen({navigation}:any) {
 
     return (
         /* Holds main screen contents */
-        <View style={styles.screenLayout}>
+        <SafeAreaView style={styles.screenLayout}>
+            <ImageBackground source={screenBackground} style={styles.background}>
             <View>
                 <Text style={styles.title}>Create Account</Text>
                     <View style={styles.formContainer}>
@@ -110,7 +112,8 @@ function SignUpScreen({navigation}:any) {
 
                 <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
             </View>
-        </View>
+            </ImageBackground>
+        </SafeAreaView>
     );
 }
 
@@ -122,10 +125,16 @@ const styles = StyleSheet.create({
         // borderColor: 'orange',
         backgroundColor: 'white',
     },
+    
+    background: {
+        flex: 1,
+        // borderWidth: 4,
+        // borderColor: 'pink',
+    },
 
     title: {
 
-        fontWeight: 'bold',
+        // fontWeight: 'bold',
         marginLeft: 30,
         marginTop: 40, 
         padding: 10,
@@ -139,20 +148,22 @@ const styles = StyleSheet.create({
 
     textInput: {
 
-        alignSelf: 'auto',
+        alignSelf: 'center',
         height: 50,
         marginBottom: 15,
         borderColor: '#9B9B9B',
         color: 'black',
         borderWidth: 1.5,
         borderRadius: 4,
-        padding: 10
+        padding: 10,
+        width: 300,
     },
 
     labels: {
 
         fontSize: 15,
         padding: 10,
+        marginLeft: 25,
     },
 
     text: {
@@ -162,10 +173,9 @@ const styles = StyleSheet.create({
 
     signUpBtn: {
 
-        width: 120,
-        alignSelf: 'flex-end',
+        width: 300,
+        alignSelf: 'center',
         marginBottom: 15,
-        marginRight: 20,
 
     },
     
