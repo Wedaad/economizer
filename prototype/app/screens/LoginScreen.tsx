@@ -12,11 +12,8 @@ function LoginScreen({navigation}:any) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
+    const [errorMsg, setErrorMsg] = useState('');
     const [isVisible, setIsVisible] = useState(false);
-
-    const displayErrorMsg = () => {
-        setIsVisible(true);
-    }
 
     const onSignUpLinkPress = () => {
 
@@ -25,29 +22,23 @@ function LoginScreen({navigation}:any) {
 
     const onLoginPress = () => {
 
-        if(!email){
+        // if(!email) {
 
-            Alert.alert(
-                'Login Error',
-                'Please enter your email.'
-            ) 
-            displayErrorMsg();
-        }
+        //     setIsVisible(true);
+        //     setErrorMsg("Email field can't be empty.");
+        // }
 
-        if(!password){
-            Alert.alert(
-                'Login Error',
-                'Please enter your password.'
-            )  
-        }
+        // if(!password) {
 
-        if(!email && !password){
+        //     setIsVisible(true);
+        //     setErrorMsg("Password field can't be empty.");
+        // }
 
-            Alert.alert(
-                'Login Error',
-                'Please enter your login details.'
-            )  
-        }
+        // if(!email && password) {
+
+        //     setIsVisible(true);
+        //     setErrorMsg("Fill in the email and password to login.");
+        // }
 
         auth()
         .signInWithEmailAndPassword(email, password)
@@ -59,8 +50,34 @@ function LoginScreen({navigation}:any) {
         })
         .catch(error => {
 
-            alert("Login Error: " + error)
-            console.log(error.code);
+            if(error.code == 'auth/invalid-email') {
+
+                // Alert.alert('Login Error',
+                // 'Invalid email format. Please enter in a correct email address.')
+                setIsVisible(true);
+                setErrorMsg('Invalid email address. Please enter a correct email address.');
+
+            } 
+
+            if(error.code == 'auth/wrong-password') {
+
+                setIsVisible(true);
+                setErrorMsg('Incorrect password.');
+                // Alert.alert('Login Error',
+                // 'Incorrect password.')
+            }
+
+            if(error.code == 'auth/user-not-found') {
+
+                // Alert.alert('Login Error',
+                // 'User not Found. Create an account to login.')
+                setIsVisible(true);
+                setErrorMsg('User not Found. Create an account to login.');
+
+            }
+
+            console.log("Error: " + error.code);
+           
 
         })
     }
@@ -79,10 +96,6 @@ function LoginScreen({navigation}:any) {
                     onChangeText={(text) => setEmail(text)}
                     value={email}/>
 
-                    {isVisible && (
-                        <Text style={styles.errorMsg}>Email field can't be empty.</Text>
-                    )}
-            
                     <Text style={styles.labels}>Password</Text>
                     <TextInput style={styles.textInput}
                     secureTextEntry={true}
@@ -91,8 +104,9 @@ function LoginScreen({navigation}:any) {
                     value={password}/>
 
                     {isVisible && (
-                        <Text style={styles.errorMsg}>Password field can't be empty.</Text>
+                        <Text style={styles.errorMsg}>{errorMsg}</Text>
                     )}
+
                 </View>
 
                 <View style={styles.loginBtnView}>
