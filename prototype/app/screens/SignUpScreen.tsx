@@ -16,6 +16,8 @@ function SignUpScreen({navigation}:any) {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [username, setUsername] = useState('');
+    const [errorMsg, setErrorMsg] = useState('');
+    const [isVisible, setIsVisible] = useState(false);
     const screenBackground = require("../assets/LRScreenBackground3.png")
 
     const onLoginLinkPress = () => {
@@ -55,11 +57,29 @@ function SignUpScreen({navigation}:any) {
                 alert("Registration Successful");
                 navigation.navigate("Login"); // change the screen to the login screen once registration is successful 
             })
-            .catch((error) => {
-                alert("SignUp Error: " + error)});
         })
         .catch((error) => {
-            alert("SignUp Error: " + error)});
+
+            console.log(error.code)
+
+            if(error.code == 'auth/invalid-email') {
+
+                setIsVisible(true);
+                setErrorMsg('Invalid email address. Please enter a correct email address.');
+
+            } 
+            if(error.code == 'auth/email-already-in-use') {
+
+                setIsVisible(true);
+                setErrorMsg('An account already exists with this email address. Please Login.');
+            }
+            if(error.code == 'auth/weak-password') {
+
+                setIsVisible(true);
+                setErrorMsg('Password must be more than 6 characters long.');
+            }
+        
+        });
 
     }
 
@@ -103,6 +123,10 @@ function SignUpScreen({navigation}:any) {
                         placeholder='Confirm Password'
                         onChangeText={(text) => setConfirmPassword(text)} // setting the value of confirm password to the password entered
                         value={confirmPassword}/>
+
+                    {isVisible && (
+                        <Text style={styles.errorMsg}>{errorMsg}</Text>
+                    )}
 
             </View>
 
@@ -184,6 +208,12 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 14
     },
+    errorMsg: {
+
+        color: "red",
+        fontSize: 10,
+        marginLeft: 35,
+    }
 });
 
 
