@@ -15,19 +15,24 @@ const BudgetsScreen = () => {
     const getBudgetProgress = (amountSpent: number, amountAllocated: number) => {
 
         let ratioSpent = amountSpent / amountAllocated;
+        // console.log(ratioSpent);
 
-        // if the user has spent less than the amount allocated
+        // if the user has spent less than half of the amount allocated
         if(ratioSpent < 0.5) {
 
-            return ''
+            return 'blue';
 
         }
+        // if the user has spent less than 3/4 than the amount allocated
+        else if(ratioSpent < 0.75) {
 
-        if(ratioSpent > 0.5) {
-
-            return 'red'
+            return 'orange';
         }
+        // if the user has spent more than 3/4 or has gone over budget
+        else {
 
+            return 'red';
+        }
 
     }
 
@@ -61,10 +66,9 @@ const BudgetsScreen = () => {
                 {/* <Text>30 left</Text> */}
 
                 <View style={styles.progressBar}>
-
-                    <Progress.Bar progress={10/50} width={260} unfilledColor={'#eeeeee'}/>
-                    {/* color={getBudgetProgress(20, 50)} */}
-
+                    {/* GET RID OF HARD CODED VALUES */}
+                    <Progress.Bar progress={30/50} width={260} unfilledColor={'#eeeeee'} color={getBudgetProgress(30, 50)}/>
+                
                 </View>
                 
                 <View style={styles.budgetCardBtns}>
