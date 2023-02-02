@@ -28,9 +28,17 @@ function SignUpScreen({navigation}:any) {
 
     const onSignUpPress = () => {
 
-        if(password !== confirmPassword) {
+        if(!email) {
 
-            alert("Passwords don't match");
+            setIsVisible(true);
+            setErrorMsg("Email field must be filled in.");
+            return
+
+        }
+
+        if(password !== confirmPassword) {
+            setIsVisible(true);
+            setErrorMsg("Passwords don't match. Please try again.");
             return
         }
 
@@ -47,6 +55,8 @@ function SignUpScreen({navigation}:any) {
                 email,
                 username,
             };
+            
+            // console.log(username);
 
             const userCollection = firestore().collection('Users') // Users collection reference
             .doc(id);

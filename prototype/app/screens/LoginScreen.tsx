@@ -22,22 +22,25 @@ function LoginScreen({navigation}:any) {
 
     const onLoginPress = () => {
 
-        // if(!email) {
+        if(!email) {
+
+            setIsVisible(true);
+            setErrorMsg("Email field must be filled in.");
+            return
+        }
+
+        if (!password) {
+
+            setIsVisible(true);
+            setErrorMsg("Password must be filled.");
+            return
+        }
+
+        // if (!email && !password) {
 
         //     setIsVisible(true);
-        //     setErrorMsg("Email field can't be empty.");
-        // }
-
-        // if(!password) {
-
-        //     setIsVisible(true);
-        //     setErrorMsg("Password field can't be empty.");
-        // }
-
-        // if(!email && password) {
-
-        //     setIsVisible(true);
-        //     setErrorMsg("Fill in the email and password to login.");
+        //     setErrorMsg("Email and password fields must be filled to login.");
+        //     return
         // }
 
         auth()
