@@ -10,6 +10,7 @@ import LinkAccountScreen from './app/screens/LinkAccountScreen';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from '@react-navigation/native';
 import ViewTransactions from './app/screens/ViewTransactions';
+import BudgetsScreen from './app/screens/BudgetsScreen';
 
 export default function App() {
   console.log("App Running");
@@ -45,6 +46,12 @@ export default function App() {
           name="Trasactions"
           component={ViewTransactions}
           options={{ title: "Transactions"}}
+        />
+        {/* VIEW BUDGETS */}
+        <Stack.Screen
+          name="Budgets"
+          component={BudgetsScreen}
+          options={{ title: "Budgets"}}
         />
       </Stack.Navigator>
     </NavigationContainer>
