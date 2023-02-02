@@ -16,6 +16,12 @@ function HomeScreen({navigation}: any) {
     
     };
 
+    const handleBPress = () => {
+        console.log("Budgets button was just pressed")
+        navigation.navigate("Budgets");
+    
+    };
+
     return (
             /* Holds main screen contents */
             <View style={styles.screenLayout}>
@@ -27,6 +33,9 @@ function HomeScreen({navigation}: any) {
                     </View>
                     <View style={styles.btns}>
                     <Button title='Login' color="#BE7CFF" onPress={handleLPress} />
+                    </View>
+                    <View style={styles.btns}>
+                        <Button title='Budgets' color="#BE7CFF" onPress={handleBPress} />
                     </View>
                 </View>
             </View>
