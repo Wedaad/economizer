@@ -8,9 +8,8 @@ import React, { useState } from 'react';
 import { Text, StyleSheet, View, Button, TextInput } from 'react-native';
 import { Entypo } from '@expo/vector-icons'; 
 import { Ionicons } from '@expo/vector-icons'; 
-// import * as Progress from 'react-native-progress';
+import nextId from "react-id-generator";
 import Modal from 'react-native-modal';
-import { nanoid } from 'nanoid';
 import BudgetCard from '../components/BudgetCard';
  
 const BudgetsScreen = () => {
@@ -23,23 +22,25 @@ const BudgetsScreen = () => {
     const [amountSpent, setAmountSpent] = useState(0);
     const [amountAllocated, setAmountAllocated] = useState(0);
 
-    // budget name = category
-    // const addBudget = (budgetName, allocatedAmount, category) => {
+    // ADD ERROR HANDLING
     const addBudget = () => {
 
-        setBudgets(budgetList => {
+        toggleModal(); //closing the modal
 
-            // if the budget already exists 
-            if(budgetList.find(budget => budget.budgetName === budgetName)) {
+        const new_budget = {
 
-                return budgetList
-            }
+            budgetId: nextId("budget-id-"),
+            name: budgetName,
+            category: category,
+            amountAllocated: amountAllocated
+    
+        }
 
-            // return [...budgetList, {id: nanoid(), budgetName, amountAllocated, category}]
-            return [...budgetList, {budgetName, amountAllocated, category}]
-        })
+        const budgetList = [...budgets, new_budget];
 
-        console.log("Budget added, budgets: ", budgets);
+        setBudgets(budgetList);
+
+        console.log("Budget added, budgets: ", budgetList);
 
     }
 
@@ -55,8 +56,16 @@ const BudgetsScreen = () => {
         } else {
             
             console.log("The close icon has been pressed. Hiding modal!")
+            clearModalInputs();
         }
 
+    }
+
+    const clearModalInputs = () => {
+
+        setBudgetName('');
+        setCategory('');
+        setAmountAllocated(0);
     }
 
     // manually adding expenses to the budget
