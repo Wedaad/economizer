@@ -127,7 +127,6 @@ const BudgetsScreen = () => {
             {
                 budgets.map(({name, category, amountAllocated}) => {
                 
-                    console.log(budgetName)
                     return (
 
                         <BudgetCard budgetName={name} category={category} amountAllocated={amountAllocated}/>
