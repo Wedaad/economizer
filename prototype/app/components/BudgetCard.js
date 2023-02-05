@@ -34,12 +34,12 @@ export default function BudgetCard({budgetName, category, amountSpent, amountAll
 
             <View style={styles.budgetCardItems}>
 
-                <Text style={styles.budgetCardCategoryText}>Groceries</Text>
-                {/* <Text style={styles.budgetCardCategoryText}>{budgetName}</Text> */}
-                {/* <Text style={styles.budgetCardAmountText}>€{amountSpent}/€{amountAllocated}</Text> */}
-                <Text style={styles.budgetCardAmountText}>€10/€50</Text>
-
+                {/* <Text style={styles.budgetCardCategoryText}>Groceries</Text> */}
+                <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                <Text style={styles.budgetCardAmountText}>€{amountSpent}/€{amountAllocated}</Text>
+                {/* <Text style={styles.budgetCardAmountText}>€10/€50</Text> */}
             </View>
+            <Text>{category}</Text>
         
             {/* <Text>30 left</Text> */}
 
