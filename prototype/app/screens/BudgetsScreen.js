@@ -8,42 +8,24 @@ import React, { useState } from 'react';
 import { Text, StyleSheet, View, Button, TextInput } from 'react-native';
 import { Entypo } from '@expo/vector-icons'; 
 import { Ionicons } from '@expo/vector-icons'; 
-import * as Progress from 'react-native-progress';
+// import * as Progress from 'react-native-progress';
 import Modal from 'react-native-modal';
 import { nanoid } from 'nanoid';
+import BudgetCard from '../components/BudgetCard';
  
 const BudgetsScreen = () => {
 
     const [isModalVisible, setModalVisible] = useState(false);
     const [expenses, setExpenses] = useState([]);
     const [budgets, setBudgets] = useState([]);
-
-    const getBudgetProgress = (amountSpent, amountAllocated) => {
-
-        let ratioSpent = amountSpent / amountAllocated;
-        // console.log(ratioSpent);
-
-        // if the user has spent less than half of the amount allocated
-        if(ratioSpent < 0.5) {
-
-            return 'blue';
-
-        }
-        // if the user has spent less than 3/4 than the amount allocated
-        else if(ratioSpent < 0.75) {
-
-            return 'orange';
-        }
-        // if the user has spent more than 3/4 or has gone over budget
-        else {
-
-            return 'red';
-        }
-
-    }   
+    const [budgetName, setBudgetName] = useState('');
+    const [category, setCategory] = useState('');
+    const [amountSpent, setAmountSpent] = useState(0);
+    const [amountAllocated, setAmountAllocated] = useState(0);
 
     // budget name = category
-    const addBudget = (budgetName, allocatedAmount) => {
+    // const addBudget = (budgetName, allocatedAmount, category) => {
+    const addBudget = () => {
 
         setBudgets(budgetList => {
 
@@ -53,8 +35,11 @@ const BudgetsScreen = () => {
                 return budgetList
             }
 
-            return [...budgetList, {id: nanoid(), budgetName, allocatedAmount}]
+            // return [...budgetList, {id: nanoid(), budgetName, amountAllocated, category}]
+            return [...budgetList, {budgetName, amountAllocated, category}]
         })
+
+        console.log("Budget added, budgets: ", budgets);
 
     }
 
@@ -104,54 +89,35 @@ const BudgetsScreen = () => {
 
                     <View style={styles.addBudgetForm}>
                         <Text style={styles.labels}>Budget Name</Text>
-                        <TextInput style={styles.textInput}/>
+                        <TextInput style={styles.textInput}
+                        onChangeText={(name) => setBudgetName(name)}
+                        value={budgetName}/>
 
                         <Text style={styles.labels}>Amount Allocated</Text>
-                        <TextInput style={styles.textInput}/>
+                        <TextInput style={styles.textInput}
+                        onChangeText={(amount) => setAmountAllocated(amount)}
+                        keyboardType='numeric'
+                        value={amountAllocated}/>
 
                         <Text style={styles.labels}>Category</Text>
-                        <TextInput style={styles.textInput}/>
+                        <TextInput style={styles.textInput}
+                        onChangeText={(category) => setCategory(category)}
+                        value={category}/>
 
                         <View style={styles.addBudgetBtn}>
-                            <Button title='Create Budget'/>
+                            <Button title='Create Budget' onPress={addBudget}/>
                         </View>
                     </View>
-
-
+                           
                 </View>
             </Modal>
 
+            <BudgetCard/>
+            {/* <BudgetCard budgetName={"Test"} category={"Education"} amountSpent={60} amountAllocated={100}/> */}
+            {/* <BudgetCard budgetName={budgetName} category={category} amountSpent={amountSpent} amountAllocated={amountAllocated}/> */}
+
             {/* END OF ADDING BUDGET CODE */}
 
-            {/* VIEW THAT HOLDS THE BUDGETS */}
-            <View style={styles.budgetCard}>
-
-                <View style={styles.budgetCardItems}>
-
-                <Text style={styles.budgetCardCategoryText}>Groceries</Text>
-                <Text style={styles.budgetCardAmountText}>€10/€50</Text>
-
-                </View>
-        
-                {/* <Text>30 left</Text> */}
-
-                <View style={styles.progressBar}>
-                    {/* GET RID OF HARD CODED VALUES */}
-                    <Progress.Bar progress={10/50} width={260} unfilledColor={'white'} color={getBudgetProgress(10, 50)}/>
-                
-                </View>
-                
-                <View style={styles.budgetCardBtns}>
-                    <View style={styles.addExpenseBtn}>
-                        <Button title='Add Expense'/>
-                    </View>
-                    
-                    <View style={styles.viewExpenseBtn}>
-                        <Button title='View Expenses'/>
-                    </View>
-
-                </View>
-            </View>
         </View>
 
     );
@@ -268,7 +234,7 @@ const styles = StyleSheet.create({
         marginLeft: 15, 
         fontSize: 25,
         fontWeight: "bold",
-        marginTop: 15,
+        marginTop: 25,
     },
 
     closeIcon: {
