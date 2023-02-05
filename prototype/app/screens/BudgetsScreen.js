@@ -5,7 +5,7 @@
 */ 
 
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, Button, TextInput } from 'react-native';
+import { Text, StyleSheet, View, Button, TextInput, ScrollView} from 'react-native';
 import { Entypo } from '@expo/vector-icons'; 
 import { Ionicons } from '@expo/vector-icons'; 
 import nextId from "react-id-generator";
@@ -22,19 +22,19 @@ const BudgetsScreen = () => {
     const [amountSpent, setAmountSpent] = useState(0);
     const [amountAllocated, setAmountAllocated] = useState(0);
 
+    const new_budget = {
+
+        budgetId: nextId("budget-id-"),
+        name: budgetName,
+        category: category,
+        amountAllocated: amountAllocated
+
+    }
+
     // ADD ERROR HANDLING
     const addBudget = () => {
 
         toggleModal(); //closing the modal
-
-        const new_budget = {
-
-            budgetId: nextId("budget-id-"),
-            name: budgetName,
-            category: category,
-            amountAllocated: amountAllocated
-    
-        }
 
         const budgetList = [...budgets, new_budget];
 
@@ -83,6 +83,7 @@ const BudgetsScreen = () => {
     return (
 
         <View style={styles.screenLayout}> 
+            <ScrollView style={styles.scrollView}>
             <Text style={styles.title}>Budgets</Text>
 
             {/* ADDING BUDGET CODE */}
@@ -121,12 +122,22 @@ const BudgetsScreen = () => {
                 </View>
             </Modal>
 
-            <BudgetCard/>
-            {/* <BudgetCard budgetName={"Test"} category={"Education"} amountSpent={60} amountAllocated={100}/> */}
-            {/* <BudgetCard budgetName={budgetName} category={category} amountSpent={amountSpent} amountAllocated={amountAllocated}/> */}
+            {/* Adding budget details to budget card and generating budget card ui  */}
 
-            {/* END OF ADDING BUDGET CODE */}
+            {
+                budgets.map(({name, category, amountAllocated}) => {
+                
+                    console.log(budgetName)
+                    return (
 
+                        <BudgetCard budgetName={name} category={category} amountAllocated={amountAllocated}/>
+                        
+                    );
+                })
+
+            }
+
+            </ScrollView>
         </View>
 
     );
@@ -139,7 +150,12 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         paddingTop: 30,
-        paddingHorizontal: 20,
+        padding: 10,
+    },
+
+    scrollView: {
+
+
     },
 
     title: {
