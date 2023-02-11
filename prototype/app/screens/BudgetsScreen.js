@@ -11,16 +11,21 @@ import { Ionicons } from '@expo/vector-icons';
 import nextId from "react-id-generator";
 import Modal from 'react-native-modal';
 import BudgetCard from '../components/BudgetCard';
+import AddExpenseModal from '../components/AddExpenseModal';
  
-const BudgetsScreen = () => {
+export default function BudgetsScreen() {
 
     const [isModalVisible, setModalVisible] = useState(false);
+    const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
+    const [expenseModalBudgetId, setExpenseModalBudgetId] = useState();
     const [expenses, setExpenses] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [budgetName, setBudgetName] = useState('');
+    const [budgetId, setBudgetId] = useState("");
     const [category, setCategory] = useState('');
     const [amountSpent, setAmountSpent] = useState(0);
     const [amountAllocated, setAmountAllocated] = useState(0);
+
 
     const new_budget = {
 
@@ -31,17 +36,32 @@ const BudgetsScreen = () => {
 
     }
 
+    const toggleExpenseModal = (budgetId) => {
+
+        console.log("Add Expense button for the " + budgetId + " budget has been clicked");
+        setExpenseModalVisible(!isExpenseModalVisible);
+        console.log("ExpenseModalVisible: " + isExpenseModalVisible)
+        setExpenseModalBudgetId(budgetId);
+        // toggleModal();
+    }
+
     // ADD ERROR HANDLING
     const addBudget = () => {
 
         toggleModal(); //closing the modal
-
+        setBudgetId(budgetId);
         const budgetList = [...budgets, new_budget];
 
         setBudgets(budgetList);
 
         console.log("Budget added, budgets: ", budgetList);
 
+    }
+
+    const closeExpenseModal = () => {
+
+        console.log("Closing expense modal");
+        setExpenseModalVisible(!isExpenseModalVisible);
     }
 
     // when the add budget button is pressed
@@ -82,8 +102,8 @@ const BudgetsScreen = () => {
 
     return (
 
-        <View style={styles.screenLayout}> 
-            <ScrollView style={styles.scrollView}>
+        // <View style={styles.screenLayout}> 
+            <ScrollView style={styles.screenLayout}>
             <Text style={styles.title}>Budgets</Text>
 
             {/* ADDING BUDGET CODE */}
@@ -122,22 +142,25 @@ const BudgetsScreen = () => {
                 </View>
             </Modal>
 
-            {/* Adding budget details to budget card and generating budget card ui  */}
+            {/* Adding budget details to budget card and generating budget card UI  */}
 
             {
                 budgets.map(({name, category, amountAllocated}) => {
                 
                     return (
 
-                        <BudgetCard budgetName={name} category={category} amountAllocated={amountAllocated}/>
+                        <BudgetCard key={budgetId} budgetName={name} category={category} 
+                        amountAllocated={amountAllocated} amountSpent={amountSpent}
+                        onAddExpenseClick={() => toggleExpenseModal(name)}/>
                         
                     );
                 })
 
             }
 
+            <AddExpenseModal isVisible={isExpenseModalVisible} closeModal={() => closeExpenseModal()}/>
             </ScrollView>
-        </View>
+        // </View>
 
     );
 
@@ -148,13 +171,8 @@ const styles = StyleSheet.create({
     screenLayout: {
         flex: 1,
         backgroundColor: 'white',
-        paddingTop: 30,
+        // paddingTop: 20,
         padding: 10,
-    },
-
-    scrollView: {
-
-
     },
 
     title: {
@@ -296,5 +314,3 @@ const styles = StyleSheet.create({
 
 
 });
-
-export default BudgetsScreen;

@@ -1,9 +1,11 @@
-import React from 'react'; 
-import { Text, StyleSheet, View, Button, TextInput } from 'react-native';
+import React, {useState} from 'react'; 
+import { Text, StyleSheet, View, Button } from 'react-native';
 import * as Progress from 'react-native-progress';
+import AddExpenseModal from './AddExpenseModal';
 
-export default function BudgetCard({budgetName, category, amountSpent, amountAllocated}) {
+export default function BudgetCard({budgetName, category, amountSpent, amountAllocated, onAddExpenseClick}) {
 
+    // console.log(amountSpent);
     const getBudgetProgress = (amountSpent, amountAllocated) => {
 
         let ratioSpent = amountSpent / amountAllocated;
@@ -45,14 +47,14 @@ export default function BudgetCard({budgetName, category, amountSpent, amountAll
 
             <View style={styles.progressBar}>
                 {/* GET RID OF HARD CODED VALUES */}
-                <Progress.Bar progress={10/50} width={260} unfilledColor={'white'} color={getBudgetProgress(10, 50)}/>
-                {/* <Progress.Bar progress={amountSpent/amountAllocated} width={260} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/> */}
+                {/* <Progress.Bar progress={10/50} width={260} unfilledColor={'white'} color={getBudgetProgress(10, 50)}/> */}
+                <Progress.Bar progress={amountSpent/amountAllocated} width={260} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
                 
             </View>
                 
             <View style={styles.budgetCardBtns}>
                 <View style={styles.addExpenseBtn}>
-                    <Button title='Add Expense'/>
+                    <Button title='Add Expense' onPress={onAddExpenseClick} />
                 </View>
                     
                 <View style={styles.viewExpenseBtn}>
