@@ -4,17 +4,17 @@
     (Envelope budgeting method)
 */ 
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Text, StyleSheet, View, Button, TextInput, ScrollView} from 'react-native';
-import { Entypo } from '@expo/vector-icons'; 
 import { Ionicons } from '@expo/vector-icons'; 
 import nextId from "react-id-generator";
 import Modal from 'react-native-modal';
 import BudgetCard from '../components/BudgetCard';
 import AddExpenseModal from '../components/AddExpenseModal';
+import firestore from '@react-native-firebase/firestore';
  
 export default function BudgetsScreen() {
-
+    
     const [isModalVisible, setModalVisible] = useState(false);
     const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
     const [expenseModalBudgetId, setExpenseModalBudgetId] = useState();
@@ -25,8 +25,9 @@ export default function BudgetsScreen() {
     const [category, setCategory] = useState('');
     const [amountSpent, setAmountSpent] = useState(0);
     const [amountAllocated, setAmountAllocated] = useState(0);
+    let totalSpent = 0;
 
-
+    // Budget object template
     const new_budget = {
 
         budgetId: nextId("budget-id-"),
@@ -36,13 +37,19 @@ export default function BudgetsScreen() {
 
     }
 
+    // expense object template
+    const expense = {
+        description: '',
+        amount: amountSpent,
+        budgetId: budgetId
+
+    }
+
     const toggleExpenseModal = (budgetId) => {
 
         console.log("Add Expense button for the " + budgetId + " budget has been clicked");
         setExpenseModalVisible(!isExpenseModalVisible);
-        console.log("ExpenseModalVisible: " + isExpenseModalVisible)
         setExpenseModalBudgetId(budgetId);
-        // toggleModal();
     }
 
     // ADD ERROR HANDLING
@@ -55,6 +62,19 @@ export default function BudgetsScreen() {
         setBudgets(budgetList);
 
         console.log("Budget added, budgets: ", budgetList);
+
+        //writing the budget data to firebase
+        // const budgetCollection = firestore().collection('Budgets');
+        // budgetCollection.add({
+        //     budgetId: budgetId, 
+        //     budgetName: budgetName,
+        //     category: category,
+        //     amountAllocated: amountAllocated
+        // })
+        // .then(() => {
+
+        //     console.log("Budget added to firestore!");
+        // })
 
     }
 
@@ -89,16 +109,21 @@ export default function BudgetsScreen() {
     }
 
     // manually adding expenses to the budget
-    const addExpense = (desc, amount, budgetId) => {
-        setExpenses(expenseList => {
-            return [...expenseList, {id: nanoid(), desc, amount, budgetId}]
-        })
+    const addExpense = (inputAmount, budgetId) => {
+
+        console.log("The input amount is: " + parseInt(inputAmount));
+        console.log("The set amount is " + amountSpent);
+        totalSpent = parseInt(inputAmount) + amountSpent;
+        setAmountSpent(totalSpent);
+        console.log("The total spent amount is " + totalSpent);
+        // setExpenses()
+        setExpenseModalVisible(!isExpenseModalVisible);
     }
 
-    const viewBudgetExpenses = (budgetId) => {
-        return expenses.filter(expense => expense.budgetId === budgetId)
+    // const viewBudgetExpenses = (budgetId) => {
+    //     return expenses.filter(expense => expense.budgetId === budgetId)
 
-    }
+    // }
 
     return (
 
@@ -123,16 +148,16 @@ export default function BudgetsScreen() {
                         onChangeText={(name) => setBudgetName(name)}
                         value={budgetName}/>
 
+                        <Text style={styles.labels}>Category</Text>
+                        <TextInput style={styles.textInput}
+                        onChangeText={(category) => setCategory(category)}
+                        value={category}/>
+
                         <Text style={styles.labels}>Amount Allocated</Text>
                         <TextInput style={styles.textInput}
                         onChangeText={(amount) => setAmountAllocated(amount)}
                         keyboardType='numeric'
                         value={amountAllocated}/>
-
-                        <Text style={styles.labels}>Category</Text>
-                        <TextInput style={styles.textInput}
-                        onChangeText={(category) => setCategory(category)}
-                        value={category}/>
 
                         <View style={styles.addBudgetBtn}>
                             <Button title='Create Budget' onPress={addBudget}/>
@@ -143,22 +168,24 @@ export default function BudgetsScreen() {
             </Modal>
 
             {/* Adding budget details to budget card and generating budget card UI  */}
+                {
 
-            {
-                budgets.map(({name, category, amountAllocated}) => {
-                
-                    return (
+                    budgets.map(({name, category, amountAllocated, budgetId}) => {
+                    
+                        return (
+                            
+                    
+                            <BudgetCard key={budgetId} budgetName={name} category={category} 
+                            amountAllocated={amountAllocated} amountSpent={amountSpent}
+                            onAddExpenseClick={() => toggleExpenseModal(name)}/>
+                        );
+                    })
 
-                        <BudgetCard key={budgetId} budgetName={name} category={category} 
-                        amountAllocated={amountAllocated} amountSpent={amountSpent}
-                        onAddExpenseClick={() => toggleExpenseModal(name)}/>
-                        
-                    );
-                })
+                }
 
-            }
+                <AddExpenseModal isVisible={isExpenseModalVisible} closeModal={() => closeExpenseModal()}
+                     onAddExpenseClick={addExpense}/>
 
-            <AddExpenseModal isVisible={isExpenseModalVisible} closeModal={() => closeExpenseModal()}/>
             </ScrollView>
         // </View>
 

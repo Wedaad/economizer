@@ -3,9 +3,11 @@ import { Text, StyleSheet, View, Button } from 'react-native';
 import * as Progress from 'react-native-progress';
 import AddExpenseModal from './AddExpenseModal';
 
-export default function BudgetCard({budgetName, category, amountSpent, amountAllocated, onAddExpenseClick}) {
+export default function BudgetCard({budgetName, category, amountSpent, amountAllocated, onAddExpenseClick }) {
 
-    // console.log(amountSpent);
+
+    // console.log("Amount Spent:", amountSpent);
+    // amountInput(amountSpent);
     const getBudgetProgress = (amountSpent, amountAllocated) => {
 
         let ratioSpent = amountSpent / amountAllocated;

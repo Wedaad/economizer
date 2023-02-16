@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons, AntDesign } from '@expo/vector-icons'; 
+import { set } from 'react-native-reanimated';
 
-export default function AddExpenseModal({isVisible, closeModal}) {
-    const addExpense = () => {
+export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick}) {
 
-        console.log("Add Expense 2! button pressed");
-    }
+    const [amount, setAmount] = useState(0);
+    const [budgetID, setBudgetID] = useState('');
+    const [budgetCategory, setBudgetCategory] = useState('');
+
+    console.log("Amount: " + amount)
+    console.log("Amount: " + budgetID)
+    console.log("Amount: " + budgetCategory)
 
     return (
 
@@ -18,9 +23,28 @@ export default function AddExpenseModal({isVisible, closeModal}) {
                         <Ionicons name="close" size={30} color="black" style={styles.closeIcon} onPress={closeModal}/>
                     </View>
 
-                    <View style={styles.addBudgetForm}>
-                        <View style={styles.addBudgetBtn}>
-                            <Button title='Add Expense' onPress={addExpense}/>
+                    <View style={styles.addExpenseForm}>
+                        {/* <Text style={styles.labels}>Description Name</Text>
+                        <TextInput style={styles.textInput}
+                        onChangeText={(desc) => context.setDescription(desc)} 
+                        /> */}
+
+                        <Text style={styles.labels}>Amount Spent</Text>
+                        <TextInput style={styles.textInput}
+                        value={amount}
+                        onChangeText={(amount) => setAmount(amount)}
+                        keyboardType='numeric'
+                        />
+
+                        <Text style={styles.labels}>Budget</Text>
+                        
+
+                        
+                    </View>
+
+                    <View style={styles.addExpenseForm}>
+                        <View style={styles.addExpenseBtn}>
+                            <Button title='Add Expense' onPress={() => onAddExpenseClick(amount, budgetId)}/>
                         </View>
                     </View>
                            
@@ -63,11 +87,16 @@ const styles = StyleSheet.create({
         margin: 15,
     },
 
-    addBudgetForm: {
+    addExpenseForm: {
         // borderWidth: 5,
         // borderColor: 'navy',
         padding: 20,
 
+    },
+
+    addExpenseBtn: {
+
+        margin: 10,
     },
     
     labels: {
