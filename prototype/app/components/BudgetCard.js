@@ -3,7 +3,7 @@ import { Text, StyleSheet, View, Button } from 'react-native';
 import * as Progress from 'react-native-progress';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, onAddExpenseClick }) {
+export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, onAddExpenseClick, onDeleteBudgetClick }) {
 
     const getBudgetProgress = (amountSpent, amountAllocated) => {
 
@@ -49,7 +49,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
                 </View>
                     
                 <View style={styles.viewExpenseBtn}>
-                <MaterialCommunityIcons name="delete-forever" size={24} color="black" />
+                <MaterialCommunityIcons name="delete-forever" size={24} color="black" onPress={onDeleteBudgetClick}/>
                 </View>
 
              </View>
