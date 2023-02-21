@@ -2,15 +2,11 @@ import React from 'react';
 import { Text, StyleSheet, View, Button } from 'react-native';
 import * as Progress from 'react-native-progress';
 
-export default function BudgetCard({budgetName, category, amountSpent, amountAllocated, onAddExpenseClick }) {
+export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, onAddExpenseClick }) {
 
-
-    // console.log("Amount Spent:", amountSpent);
-    // amountInput(amountSpent);
     const getBudgetProgress = (amountSpent, amountAllocated) => {
 
         let ratioSpent = amountSpent / amountAllocated;
-        // console.log(ratioSpent);
 
         // if the user has spent less than half of the amount allocated
         if(ratioSpent < 0.5) {
@@ -36,21 +32,14 @@ export default function BudgetCard({budgetName, category, amountSpent, amountAll
         <View style={styles.budgetCard}>
 
             <View style={styles.budgetCardItems}>
-
-                {/* <Text style={styles.budgetCardCategoryText}>Groceries</Text> */}
                 <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
                 <Text style={styles.budgetCardAmountText}>€{amountSpent}/€{amountAllocated}</Text>
-                {/* <Text style={styles.budgetCardAmountText}>€10/€50</Text> */}
             </View>
             <Text>{category}</Text>
         
-            {/* <Text>30 left</Text> */}
 
             <View style={styles.progressBar}>
-                {/* GET RID OF HARD CODED VALUES */}
-                {/* <Progress.Bar progress={10/50} width={260} unfilledColor={'white'} color={getBudgetProgress(10, 50)}/> */}
                 <Progress.Bar progress={amountSpent/amountAllocated} width={260} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
-                
             </View>
                 
             <View style={styles.budgetCardBtns}>
