@@ -17,7 +17,6 @@ export default function AddExpenseModal({isVisible, closeModal, defaultId, onAdd
     console.log("id: " + defaultId) //atm defaultID is the budget name :
     console.log("budgetCategory: " + budgetCategory)
     console.log("description: " + description)
-    // console.log("catrgory: " + category)
 
     const newCategory = { label: defaultId, value: defaultId }
 
