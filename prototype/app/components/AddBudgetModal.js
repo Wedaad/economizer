@@ -2,24 +2,19 @@ import React, { useState, useRef } from 'react';
 import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons'; 
-import { useAppConext, AppProvider } from '../context/AppContext';
 
-export default function AddBudgetModal({isVisible, closeModal}) {
+export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetClick}) {
 
     const [budgetName, setBudgetName] = useState('');
     const [category, setCategory] = useState('');
     const [amountAllocated, setAmountAllocated] = useState(0);
-    const { addBudget }   = useAppConext();
 
-    const createBudget = (budgetName, category, amountAllocated) => {
+    const clearModalInputs = () => {
 
-        console.log("Creating Budget...");
-        console.log("budgetName: " + budgetName);
-        console.log("category: " + category);
-        console.log("amountAllocated: " + amountAllocated);
-        addBudget({budgetName, category, amountAllocated});
-
-    } 
+        setBudgetName('');
+        setCategory('');
+        setAmountAllocated(0);
+    }
 
     return (
         
@@ -48,7 +43,7 @@ export default function AddBudgetModal({isVisible, closeModal}) {
                         value={amountAllocated}/>
 
                         <View style={styles.addBudgetBtn}>
-                            <Button title='Create Budget' onPress={createBudget(budgetName, category, amountAllocated)}/>
+                            <Button title='Create Budget' onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, clearModalInputs())}/>
                         </View>
                     </View>
                         
