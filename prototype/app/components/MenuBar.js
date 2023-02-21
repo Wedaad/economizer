@@ -1,5 +1,4 @@
 import React from 'react';
-import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialIcons, FontAwesome5  } from '@expo/vector-icons';
@@ -43,8 +42,6 @@ export default function MenuBar() {
             iconName = focused ? 'money-bill-wave' : 'money-bill-wave';
             return <FontAwesome5 name={iconName} size={size} color={color} />
         }
-
-
 
           return <Ionicons name={iconName} size={size} color={color}/>
 
