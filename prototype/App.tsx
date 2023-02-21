@@ -1,23 +1,13 @@
-/*
-  App.tsx holds all the different screens which make up this prototype application
-*/
-
 import React, { useState, useEffect } from 'react';
 import 'react-native-gesture-handler';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { StyleSheet } from 'react-native';
 import HomeScreen from './app/screens/HomeScreen';
 import SignUpScreen from './app/screens/SignUpScreen';
 import LoginScreen from './app/screens/LoginScreen';
-import LinkAccountScreen from './app/screens/LinkAccountScreen';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from '@react-navigation/native';
-import ViewTransactions from './app/screens/ViewTransactions';
-import BudgetsScreen from './app/screens/BudgetsScreen';
-import BudgetScreen from './app/screens/BudgetScreen3';
-import UserDashboardScreen from './app/screens/UserDashboardScreen';
 import MenuBar from './app/components/MenuBar';
 import auth from '@react-native-firebase/auth';
-import SignOutScreen from './app/screens/SignOutScreen';
 import { AppProvider } from './app/context/AppContext';
 
 export default function App({navigation}: any) {
