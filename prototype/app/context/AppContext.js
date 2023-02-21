@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import nextId from "react-id-generator";
 
 const AppContext = React.createContext(); // creating the context
 
@@ -18,11 +19,13 @@ export function AppProvider({children}) {
         console.log("Context budgetName: " + budgetName);
         console.log("Context category: " + category);
         console.log("Context amountAllocated: " + amountAllocated);
+
+        setBudgets([...budgets, { budgetId: nextId("budget-id-"), budgetName: budgetName, category: category, amountAllocated: amountAllocated}])
     }
 
     return (
 
-        <AppContext.Provider value={{addBudget}}>
+        <AppContext.Provider value={{budgets, addBudget}}>
             {children}
         </AppContext.Provider>
 

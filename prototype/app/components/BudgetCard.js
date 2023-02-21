@@ -1,7 +1,6 @@
-import React, {useState} from 'react'; 
+import React from 'react'; 
 import { Text, StyleSheet, View, Button } from 'react-native';
 import * as Progress from 'react-native-progress';
-import AddExpenseModal from './AddExpenseModal';
 
 export default function BudgetCard({budgetName, category, amountSpent, amountAllocated, onAddExpenseClick }) {
 
