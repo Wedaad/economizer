@@ -20,16 +20,34 @@ export function AppProvider({children}) {
         console.log("Context category: " + category);
         console.log("Context amountAllocated: " + amountAllocated);
 
-        setBudgets([...budgets, { budgetId: nextId("budget-id-"), budgetName: budgetName, category: category, amountAllocated: amountAllocated}])
+        setBudgets([...budgets, { budgetId: nextId("budget-id-"), budgetName, category, amountAllocated}])
+    }
+
+    //change to budgetId
+    function addExpense({ budgetName, amount, desc }) {
+
+        console.log("Adding expense from context :)");
+        console.log("Context budgetId: " + budgetName);
+        console.log("Context amount: " + amount);
+        console.log("Context desc: " + desc);
+
+        setExpenses([...expenses, { expenseId: nextId(), amount, desc, budgetName }])
+    }
+
+    function getExpenses(budgetName) {
+        // change to budgetId
+        console.log("Get expenses for budget: " + budgetName)
+        console.log("Expenses: " + expenses)
+        console.log("Filter: " + expenses.filter(expense => expense.budgetName === budgetName))
+        return expenses.filter(expense => expense.budgetName === budgetName);
     }
 
     return (
 
-        <AppContext.Provider value={{budgets, addBudget}}>
+        <AppContext.Provider value={{budgets, expenses, addBudget, addExpense,
+        getExpenses}}>
             {children}
         </AppContext.Provider>
 
     )
 }
-
-// export default AppContext;

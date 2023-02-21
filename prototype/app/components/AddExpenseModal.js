@@ -1,18 +1,39 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons'; 
-import { set } from 'react-native-reanimated';
+import { SelectList } from 'react-native-dropdown-select-list';
 
-export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick}) {
+export default function AddExpenseModal({isVisible, closeModal, defaultId, onAddExpenseClick}) {
 
     const [amount, setAmount] = useState(0);
-    const [budgetID, setBudgetID] = useState('');
-    const [budgetCategory, setBudgetCategory] = useState('');
+    // const [budgetID, setBudgetID] = useState('');
+    const [budgetCategory, setbudgetCategory] = useState('');
+    const [description, setDescription] = useState('');
+    
+
 
     console.log("Amount: " + amount)
-    console.log("Amount: " + budgetID)
-    console.log("Amount: " + budgetCategory)
+    console.log("id: " + defaultId) //atm defaultID is the budget name :
+    console.log("budgetCategory: " + budgetCategory)
+    console.log("description: " + description)
+    // console.log("catrgory: " + category)
+
+    const newCategory = { label: defaultId, value: defaultId }
+
+    const data = [
+        { label: 'Uncategorized', value: 'Uncategorized' },
+    ]
+    const categories = [...data, newCategory];
+
+    console.log(categories);
+
+    const clearModalInputs = () => {
+
+        console.log("CLEARING EXPENSE MODAL INPUTS!");
+        setDescription('');
+        setAmount(0);
+    }
 
     return (
 
@@ -24,10 +45,6 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
                     </View>
 
                     <View style={styles.addExpenseForm}>
-                        {/* <Text style={styles.labels}>Description Name</Text>
-                        <TextInput style={styles.textInput}
-                        onChangeText={(desc) => context.setDescription(desc)} 
-                        /> */}
 
                         <Text style={styles.labels}>Amount Spent</Text>
                         <TextInput style={styles.textInput}
@@ -36,15 +53,27 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
                         keyboardType='numeric'
                         />
 
-                        <Text style={styles.labels}>Budget</Text>
-                        
+                        <Text style={styles.labels}>Description</Text>
+                        <TextInput style={styles.textInput}
+                        value={description}
+                        onChangeText={(desc) => setDescription(desc)}
+                        />
 
+                        <Text style={styles.labels}>Budget</Text>
+                        <SelectList 
+                            setSelected={(budgetCategory) => setbudgetCategory(budgetCategory)} 
+                            data={categories} 
+                            placeholder={defaultId}
+                            defaultOption={defaultId}
+                            search={false}
+                            save="value"
+                        />
                         
                     </View>
 
                     <View style={styles.addExpenseForm}>
                         <View style={styles.addExpenseBtn}>
-                            <Button title='Add Expense' onPress={() => onAddExpenseClick(amount, budgetId)}/>
+                            <Button title='Add Expense' onPress={() => {onAddExpenseClick(amount, budgetCategory, description, clearModalInputs())}}/>
                         </View>
                     </View>
                            
@@ -58,7 +87,7 @@ const styles = StyleSheet.create({
 
     modalViewStyle: {
         // flex: 0.7,
-        height: 450,
+        height: 550,
         backgroundColor: 'white',
         borderRadius: 15,
         // position: 'absolute',
@@ -115,5 +144,31 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         padding: 10,
     },
+
+    dropdownContainer: {
+
+        backgroundColor: 'white',
+        padding: 16
+    },
+
+    dropdown: {
+
+        height: 50, 
+        borderColor: '#9B9B9B',
+        borderWidth: 0.5,
+        borderRadius: 8,
+        paddingHorizontal: 8
+    },
+
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+      
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
+    },
+
 
 });
