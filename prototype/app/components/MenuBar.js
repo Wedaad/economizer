@@ -53,7 +53,7 @@ export default function MenuBar() {
           return <Ionicons name={iconName} size={size} color={color}/>
 
         },
-          tabBarActiveTintColor: 'purple',
+          tabBarActiveTintColor: '#8B19FF',
           tabBarInactiveTintColor: 'gray',
       })}>
 
