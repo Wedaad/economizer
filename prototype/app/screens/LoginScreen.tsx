@@ -3,7 +3,7 @@
     in Firebase's Auth service then the user will login successfully
 */ 
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, Button, ImageBackground, ScrollView, SafeAreaView, Alert} from 'react-native';
+import { StyleSheet, View, Text, TextInput, Pressable, ImageBackground, ScrollView, SafeAreaView, Alert} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 const screenBackground = require("../assets/LRScreenBackground3.png")
@@ -48,8 +48,7 @@ function LoginScreen({navigation}:any) {
         .then((response) => {
 
             const user = response.user.uid
-            navigation.navigate("LinkAccount", {user_id: user, 
-                username: username});    
+            navigation.navigate("Dashboard", {user_id: user, username: username});  
         })
         .catch(error => {
 
@@ -111,10 +110,13 @@ function LoginScreen({navigation}:any) {
                     )}
 
                 </View>
-
+                
                 <View style={styles.loginBtnView}>
-                    <Button title="Login" color="#BE7CFF" onPress={onLoginPress}/>
+                    <Pressable style={styles.login_button} onPress={onLoginPress} >
+                        <Text style={styles.login_button_text}>Login</Text>
+                    </Pressable>
                 </View>
+                
                 <Text style={styles.text}>Don't have an account?<Text style={styles.signUpLink} onPress={onSignUpLinkPress}> Sign-Up Here</Text></Text>
                 </ImageBackground>
             {/* </ScrollView> */}
@@ -153,6 +155,7 @@ const styles = StyleSheet.create({
         marginTop: 125, 
         padding: 10,
         fontSize: 35,
+        fontWeight: 'bold',
     },
 
     formContainer: {
@@ -170,8 +173,8 @@ const styles = StyleSheet.create({
         borderColor: '#9B9B9B',
         color: 'black',
         borderWidth: 1.5,
-        borderRadius: 4,
-        padding: 10,
+        borderRadius: 40,
+        paddingHorizontal: 20,
         width: 300,
     },
 
@@ -188,6 +191,25 @@ const styles = StyleSheet.create({
         fontSize: 13
     },
 
+    login_button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 80,
+        borderRadius: 40,
+        elevation: 3,
+        backgroundColor: '#8B19FF',
+        marginBottom: 10,
+    },
+
+    login_button_text: {
+        fontSize: 16,
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+        color: 'white',
+    },
+
     loginBtnView: {
 
         width: 300,
@@ -197,8 +219,9 @@ const styles = StyleSheet.create({
       
 
     },
+
     signUpLink: {
-        color: "#BE7CFF",
+        color: "#8B19FF",
         fontWeight: "bold",
         fontSize: 13
 
