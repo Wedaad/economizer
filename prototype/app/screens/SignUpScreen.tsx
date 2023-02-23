@@ -5,7 +5,7 @@
 */ 
 
 import React, {useState} from 'react';
-import {StyleSheet, View, Text, Button, TextInput, SafeAreaView, ImageBackground } from 'react-native';
+import {StyleSheet, View, Text, Pressable, TextInput, SafeAreaView, ImageBackground } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
@@ -140,8 +140,10 @@ function SignUpScreen({navigation}:any) {
 
             </View>
 
-            <View style={styles.signUpBtn}>
-                <Button title="Sign Up" color="#BE7CFF" onPress={onSignUpPress}/>
+            <View style={styles.btn_container}>
+               <Pressable style={styles.signup_button} onPress={onSignUpPress}>
+                    <Text style={styles.signup_button_text}>Sign Up</Text>
+                </Pressable>
             </View>
 
                 <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
@@ -188,9 +190,9 @@ const styles = StyleSheet.create({
         borderColor: '#9B9B9B',
         color: 'black',
         borderWidth: 1.5,
-        borderRadius: 4,
-        padding: 10,
-        width: 300,
+        borderRadius: 40,
+        paddingHorizontal: 20,
+        width: 330,
     },
 
     labels: {
@@ -205,7 +207,7 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
 
-    signUpBtn: {
+    btn_container: {
 
         width: 300,
         alignSelf: 'center',
@@ -223,7 +225,26 @@ const styles = StyleSheet.create({
         color: "red",
         fontSize: 10,
         marginLeft: 35,
-    }
+    },
+
+    signup_button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 72,
+        borderRadius: 40,
+        elevation: 3,
+        backgroundColor: '#8B19FF',
+        marginTop: 10,
+    },
+
+    signup_button_text: {
+        fontSize: 16,
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+        color: 'white',
+    },
 });
 
 
