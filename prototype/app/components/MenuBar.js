@@ -28,7 +28,8 @@ export default function MenuBar() {
           let iconName;
           if(route.name === "Dashboard") {
 
-            iconName = focused ? 'home' : 'home-outline';
+            iconName = focused ? 'chart-pie' : 'chart-pie';
+            return <FontAwesome5 name={iconName} size={size} color={color} />
 
           } else if(route.name === "Budgets") {
 
