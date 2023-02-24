@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, Pressable, ImageBackground, ScrollView, SafeAreaView, Alert} from 'react-native';
 import auth from '@react-native-firebase/auth';
+// import { useFonts } from 'expo-font';
 
 const screenBackground = require("../assets/LRScreenBackground3.png")
 function LoginScreen({navigation}:any) {
@@ -14,6 +15,11 @@ function LoginScreen({navigation}:any) {
     const [username, setUsername] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [isVisible, setIsVisible] = useState(false);
+
+    // const [fontsLoaded] = useFonts({
+    //     'Rubik': require('../assets/fonts/Rubik-Bold.ttf'),
+
+    // });
 
     const onSignUpLinkPress = () => {
 
@@ -48,6 +54,8 @@ function LoginScreen({navigation}:any) {
         .then((response) => {
 
             const user = response.user.uid
+            // navigation.navigate("Home", {screen: 'Dashboard', params: {user_id: "user"}}); 
+            // console.log(user);
             navigation.navigate("Dashboard", {user_id: user, username: username});  
         })
         .catch(error => {
@@ -82,6 +90,12 @@ function LoginScreen({navigation}:any) {
            
 
         })
+
+        // if(!fontsLoaded) {
+
+        //     return null;
+        // }
+    
     }
 
     return (
@@ -150,12 +164,11 @@ const styles = StyleSheet.create({
 
     title: {
 
-        // fontWeight: 'bold',
         marginLeft: 30,
         marginTop: 125, 
         padding: 10,
-        fontSize: 35,
-        fontWeight: 'bold',
+        fontSize: 40,
+        fontFamily: 'Rubik-Regular',
     },
 
     formContainer: {
@@ -183,12 +196,14 @@ const styles = StyleSheet.create({
         fontSize: 15,
         padding: 10,
         marginLeft: 25,
+        fontFamily: 'Rubik-Regular',
     },
 
     text: {
 
         textAlign: 'center',
-        fontSize: 13
+        fontSize: 13,
+        fontFamily: 'Rubik-Regular',
     },
 
     login_button: {
@@ -215,8 +230,6 @@ const styles = StyleSheet.create({
         width: 300,
         alignSelf: 'center',
         marginBottom: 15,
-        // marginRight: 20,
-      
 
     },
 
@@ -231,6 +244,7 @@ const styles = StyleSheet.create({
         color: "red",
         fontSize: 10,
         marginLeft: 35,
+        fontFamily: 'Rubik-Regular',
     }
 
 }); 

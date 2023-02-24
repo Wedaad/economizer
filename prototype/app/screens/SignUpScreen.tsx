@@ -170,11 +170,11 @@ const styles = StyleSheet.create({
 
     title: {
 
-        // fontWeight: 'bold',
         marginLeft: 30,
         marginTop: 40, 
         padding: 10,
-        fontSize: 25,
+        fontSize: 30,
+        fontFamily: 'Rubik-Regular',
     },
 
     formContainer: {
@@ -200,11 +200,13 @@ const styles = StyleSheet.create({
         fontSize: 15,
         padding: 10,
         marginLeft: 25,
+        fontFamily: 'Rubik-Regular',
     },
 
     text: {
 
-        textAlign: 'center'
+        textAlign: 'center',
+        fontFamily: 'Rubik-Regular',
     },
 
     btn_container: {
@@ -225,6 +227,7 @@ const styles = StyleSheet.create({
         color: "red",
         fontSize: 10,
         marginLeft: 35,
+        fontFamily: 'Rubik-Regular',
     },
 
     signup_button: {
