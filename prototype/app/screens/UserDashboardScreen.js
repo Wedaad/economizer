@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import{ View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useAppConext } from '../context/AppContext';
-import firestore from '@react-native-firebase/firestore';
 
 
 export default function UserDashboardScreen({route}) {
