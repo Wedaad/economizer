@@ -1,10 +1,12 @@
 import React from 'react'; 
 import { Text, StyleSheet, View, Button } from 'react-native';
 import * as Progress from 'react-native-progress';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 
 export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, onAddExpenseClick, onDeleteBudgetClick }) {
+// export default function BudgetCard({budgetName, category, amountAllocated}) {
 
+    console.log("card:", amountAllocated, amountSpent)
     const getBudgetProgress = (amountSpent, amountAllocated) => {
 
         let ratioSpent = amountSpent / amountAllocated;
@@ -12,13 +14,13 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
         // if the user has spent less than half of the amount allocated
         if(ratioSpent < 0.5) {
 
-            return 'blue';
+            return '#8B19FF';
 
         }
         // if the user has spent less than 3/4 than the amount allocated
         else if(ratioSpent < 0.75) {
 
-            return 'orange';
+            return '#8B19FF';
         }
         // if the user has spent more than 3/4 or has gone over budget
         else {
@@ -30,29 +32,19 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     return (
 
-        <View style={styles.budgetCard}>
-
+        <View style={[styles.budgetCard, styles.shadow]}>
             <View style={styles.budgetCardItems}>
                 <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
-                <Text style={styles.budgetCardAmountText}>€{amountSpent}/€{amountAllocated}</Text>
             </View>
+            
             <Text>{category}</Text>
         
 
+            <Text style={styles.budgetCardAmountText}>€{amountSpent}/€{amountAllocated}</Text>
             <View style={styles.progressBar}>
-                <Progress.Bar progress={amountSpent/amountAllocated} width={260} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                <Progress.Bar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
             </View>
                 
-            <View style={styles.budgetCardBtns}>
-                <View style={styles.addExpenseBtn}>
-                    <Button title='Add Expense' onPress={onAddExpenseClick} />
-                </View>
-                    
-                <View style={styles.viewExpenseBtn}>
-                <MaterialCommunityIcons name="delete-forever" size={24} color="black" onPress={onDeleteBudgetClick}/>
-                </View>
-
-             </View>
         </View>
 
     );
@@ -63,28 +55,38 @@ const styles = StyleSheet.create({
     title: {
         padding: 8, 
         fontSize: 25,
-        fontWeight: "bold",
+        fontFamily: 'Rubik-Regular',
     },
 
     budgetCard: {
 
         // flexDirection: 'row',
         // justifyContent: 'space-between',
-        marginTop: 10,
-        borderColor: '#eeeeee',
-        borderRadius: 7,
-        backgroundColor: '#FAFBFF',
-        borderWidth: 1,
+        // marginTop: 10,
+        // borderColor: '#f5f5f5',
+        borderRadius: 15,
+        backgroundColor: '#fafafa',
+        // borderWidth: 1,
         paddingBottom: 50,
         paddingLeft: 10,
         paddingRight: 10,
         paddingTop: 5,
+        width: 150,
+        margin: 10,
+        
     },
 
     budgetCardItems: {
         flexDirection: 'row',
         justifyContent: 'space-between',
 
+    },
+
+    shadow: {
+        shadowColor: '#171717',
+        shadowOffset: {width: -2, height: 4},
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
     },
 
     budgetCardBtns: {
@@ -102,13 +104,15 @@ const styles = StyleSheet.create({
     budgetCardAmountText: {
 
         fontSize: 20,
+        fontFamily: 'Rubik-Regular',
 
     },
 
     budgetCardCategoryText: {
 
         fontSize: 20,
-        fontWeight: 'bold',
+        fontFamily: 'GTWalsheimPro-Regular',
+        // fontFamily: 'Rubik-Medium',
     },
 
     addExpenseBtn: {
@@ -131,8 +135,9 @@ const styles = StyleSheet.create({
 
         // borderColor: 'red',
         // borderWidth: 4,
-        marginBottom: 15,
-        marginTop: 10,
+        // marginBottom: 15,
+        marginTop: 90,
+        alignSelf: 'center'
         
 
     },
