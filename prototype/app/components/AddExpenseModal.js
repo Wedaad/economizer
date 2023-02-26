@@ -1,31 +1,32 @@
 import React, { useContext, useState } from 'react';
 import Modal from 'react-native-modal';
-import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons'; 
 import { SelectList } from 'react-native-dropdown-select-list';
 
-export default function AddExpenseModal({isVisible, closeModal, defaultId, onAddExpenseClick}) {
+// export default function AddExpenseModal({isVisible, closeModal, defaultId, onAddExpenseClick}) {
+export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick}) {
 
     const [amount, setAmount] = useState(0);
-    // const [budgetID, setBudgetID] = useState('');
+    const [budgetName, setBudgetName] = useState('');
     const [budgetCategory, setbudgetCategory] = useState('');
     const [description, setDescription] = useState('');
     
 
 
     console.log("Amount: " + amount)
-    console.log("id: " + defaultId) //atm defaultID is the budget name :
+    // console.log("id: " + defaultId) //atm defaultID is the budget name :
     console.log("budgetCategory: " + budgetCategory)
     console.log("description: " + description)
 
-    const newCategory = { label: defaultId, value: defaultId }
+    // const newCategory = { label: defaultId, value: defaultId }
 
-    const data = [
-        { label: 'Uncategorized', value: 'Uncategorized' },
-    ]
-    const categories = [...data, newCategory];
+    // const data = [
+    //     { label: 'Uncategorized', value: 'Uncategorized' },
+    // ]
+    // const categories = [...data, newCategory];
 
-    console.log(categories);
+    // console.log(categories);
 
     const clearModalInputs = () => {
 
@@ -59,21 +60,25 @@ export default function AddExpenseModal({isVisible, closeModal, defaultId, onAdd
                         />
 
                         <Text style={styles.labels}>Budget</Text>
-                        <SelectList 
+                        <TextInput style={styles.textInput}
+                        value={budgetName}
+                        onChangeText={(name) => setBudgetName(name)}
+                        />
+                        {/* <SelectList 
                             setSelected={(budgetCategory) => setbudgetCategory(budgetCategory)} 
                             data={categories} 
                             placeholder={defaultId}
                             defaultOption={defaultId}
                             search={false}
                             save="value"
-                        />
+                        /> */}
                         
                     </View>
 
-                    <View style={styles.addExpenseForm}>
-                        <View style={styles.addExpenseBtn}>
-                            <Button title='Add Expense' onPress={() => {onAddExpenseClick(amount, budgetCategory, description, clearModalInputs())}}/>
-                        </View>
+                    <View style={styles.addExpenseBtnView}>
+                        <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, budgetCategory, description, clearModalInputs())}}>
+                            <Text style={styles.addExpenseBtnText}>Add Expense</Text>
+                        </TouchableOpacity>
                     </View>
                            
                 </View>
@@ -86,7 +91,7 @@ const styles = StyleSheet.create({
 
     modalViewStyle: {
         // flex: 0.7,
-        height: 550,
+        height: 450,
         backgroundColor: 'white',
         borderRadius: 15,
         // position: 'absolute',
@@ -99,15 +104,12 @@ const styles = StyleSheet.create({
 
         flexDirection: 'row',
         justifyContent: 'space-between',
-        // borderWidth: 3,
-        // borderColor: 'yellow',
-
     },
 
     modalTitle: {
         marginLeft: 15, 
         fontSize: 25,
-        fontWeight: "bold",
+        fontFamily: 'GTWalsheimPro-Regular',
         marginTop: 25,
     },
 
@@ -116,26 +118,39 @@ const styles = StyleSheet.create({
     },
 
     addExpenseForm: {
-        // borderWidth: 5,
-        // borderColor: 'navy',
         padding: 20,
 
     },
 
     addExpenseBtn: {
 
-        margin: 10,
+        padding: 10,
+        color: 'white',
+        backgroundColor: '#8B19FF',
+        borderRadius: 10,
+    },
+
+    addExpenseBtnView: {
+
+        alignItems: 'center', 
+        margin: 20,
     },
     
+    addExpenseBtnText: {
+
+        color: 'white',
+        fontFamily: 'GTWalsheimPro-Regular',
+    },
+
     labels: {
 
         fontSize: 15,
         margin: 10,
+        fontFamily: 'GTWalsheimPro-Regular',
     },
 
     textInput: {
-
-        // marginLeft: 15,
+        
         height: 50,
         borderColor: '#9B9B9B',
         color: 'black',
