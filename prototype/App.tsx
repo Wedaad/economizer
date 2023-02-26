@@ -10,7 +10,7 @@ import MenuBar from './app/components/MenuBar';
 import auth from '@react-native-firebase/auth';
 import { AppProvider } from './app/context/AppContext';
 
-export default function App({navigation}: any) {
+export default function App() {
   console.log("App Running");
 
 
@@ -19,23 +19,12 @@ export default function App({navigation}: any) {
    const [user, setUser] = useState();
    const Stack = createNativeStackNavigator();
 
-   const handleSPress = () => {
-    console.log("SignUp button was just pressed")
-    navigation.navigate("SignUp");
-    // console.log(firebase);
-
-};
-
-const handleLPress = () => {
-    console.log("Login button was just pressed")
-    navigation.navigate("Login");
-
-};
-
-
   //  Handle user state changes
   function onAuthStateChanged(user: any) {
+
     setUser(user);
+    // console.log(user);
+   
     if (initializing) {
 
       setInitializing(false);
@@ -67,7 +56,8 @@ const handleLPress = () => {
             <Stack.Screen
               name="Home"
               component={HomeScreen}
-              options={{ title: "eConomizer" }}/>
+              options={{ title: "eConomizer" }}
+            />
             {/* SIGN UP SCREEN*/}
             <Stack.Screen
               name="SignUp"
@@ -85,9 +75,12 @@ const handleLPress = () => {
     );
 
   } else { // user is logged in
+    // console.log("Logged in user is: " + user.uid);
       return (
         <AppProvider>
-          <MenuBar/>
+          <NavigationContainer>
+            <MenuBar id={user.uid}/>
+          </NavigationContainer>
         </AppProvider>
       );
   }
