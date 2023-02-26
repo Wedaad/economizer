@@ -14,6 +14,8 @@ export function AppProvider({children}) {
     const [expenses, setExpenses] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [currentUser, setCurrentUser] = useState();
+    const [currentUserID, setCurrentUserID] = useState();
+
 
     // getting the logged in user details from firestore (User collection)
     const getCurrentUserDetails = async (userID) => {
@@ -21,8 +23,10 @@ export function AppProvider({children}) {
         await firestore().collection('Users').doc(userID).get()
         .then((user) => {
             // console.log(user);
-            setCurrentUser(user._data.username)
-            console.log("Current User: " + currentUser)
+            setCurrentUser(user._data.username);
+            setCurrentUserID(user._data.user_id);
+            console.log("Current User: " + currentUser);
+            console.log("CurrentUserID: " + currentUserID);
         })
     }
 
@@ -63,7 +67,7 @@ export function AppProvider({children}) {
 
     return (
 
-        <AppContext.Provider value={{budgets, expenses, currentUser, addBudget, addExpense,
+        <AppContext.Provider value={{budgets, expenses, currentUser, currentUserID, addBudget, addExpense,
         getExpenses, deleteBudget, getCurrentUserDetails}}>
             {children}
         </AppContext.Provider>
