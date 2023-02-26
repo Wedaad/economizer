@@ -40,17 +40,21 @@ const CustomAddBudgetButton = ({children, onPress}) => (
 );
 
 
-export default function MenuBar(userid) {
+export default function MenuBar(currentUser) {
 
-  // const user = JSON.stringify(userid);
-  // console.log("USER ID: ");
+  console.log("USER ID (menubar.js): " + currentUser.id);
   return (
-    // <NavigationContainer independent={true}>
       <Tab.Navigator
       screenOptions={{
           tabBarStyle: {
             position: 'absolute',
-            height: 60,
+            bottom: 20,
+            left: 15,
+            right: 15,
+            height: 65,
+            elevation: 3,
+            borderRadius: 15,
+            borderColor: 0,
           },
           tabBarShowLabel: false,
           tabBarActiveTintColor: '#8B19FF',
@@ -58,6 +62,7 @@ export default function MenuBar(userid) {
       }}>
 
         <Tab.Screen name="Dashboard" component={UserDashboardScreen} 
+        initialParams={{userID: currentUser.id}}
         options={{
           tabBarIcon: ({focused, size, color}) => (
             <View style={styles.tabIcon}>
@@ -129,7 +134,6 @@ export default function MenuBar(userid) {
         }}/>
 
       </Tab.Navigator>
-    // </NavigationContainer>
   );
 }
 
