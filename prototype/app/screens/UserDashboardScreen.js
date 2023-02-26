@@ -1,27 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import{ View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useAppConext } from '../context/AppContext';
 import firestore from '@react-native-firebase/firestore';
 
 
 export default function UserDashboardScreen({route}) {
 
   const userID = route.params.userID
-  const [currentUser, setCurrentUser] = useState();
+  const { getCurrentUserDetails, currentUser } = useAppConext();
   console.log("ID (dashboard screen): " + userID)
 
-  // getting the logged in user details from firestore (User collection)
-  const getCurrentUserDetails = async () => {
-
-    await firestore().collection('Users').doc(userID).get()
-      .then((user) => {
-        // console.log(user);
-        setCurrentUser(user._data.username)
-        console.log("Current User: " + currentUser)
-      })
-  }
-
   useEffect(() => {
-    getCurrentUserDetails();
+    getCurrentUserDetails(userID);
   }, [])
  
   return (

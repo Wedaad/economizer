@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import nextId from "react-id-generator";
+import firestore from '@react-native-firebase/firestore';
 
 const AppContext = React.createContext(); // creating the context
 
@@ -12,6 +13,18 @@ export function AppProvider({children}) {
 
     const [expenses, setExpenses] = useState([]);
     const [budgets, setBudgets] = useState([]);
+    const [currentUser, setCurrentUser] = useState();
+
+    // getting the logged in user details from firestore (User collection)
+    const getCurrentUserDetails = async (userID) => {
+        console.log("context userid: " + userID);
+        await firestore().collection('Users').doc(userID).get()
+        .then((user) => {
+            // console.log(user);
+            setCurrentUser(user._data.username)
+            console.log("Current User: " + currentUser)
+        })
+    }
 
     function addBudget({budgetName, category, amountAllocated}) {
 
@@ -36,16 +49,22 @@ export function AppProvider({children}) {
 
     function getExpenses(budgetName) {
         // change to budgetId
-        console.log("Get expenses for budget: " + budgetName)
-        console.log("Expenses: " + expenses)
-        console.log("Filter: " + expenses.filter(expense => expense.budgetName === budgetName))
         return expenses.filter(expense => expense.budgetName === budgetName);
+    }
+
+    function deleteBudget({budgetId}) {
+
+        console.log("ID in context: " + budgetId)
+        setBudgets(budgets => {
+            return budgets.filter(budget => budget.budgetId !== budgetId)
+        })
+
     }
 
     return (
 
-        <AppContext.Provider value={{budgets, expenses, addBudget, addExpense,
-        getExpenses}}>
+        <AppContext.Provider value={{budgets, expenses, currentUser, addBudget, addExpense,
+        getExpenses, deleteBudget, getCurrentUserDetails}}>
             {children}
         </AppContext.Provider>
 
