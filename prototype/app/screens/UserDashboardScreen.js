@@ -1,21 +1,79 @@
 import React, {useEffect, useState} from 'react';
-import{ View, Text, StyleSheet, ScrollView } from 'react-native';
+import{ View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useAppConext } from '../context/AppContext';
-
+import BudgetCard from '../components/BudgetCard';
+import firestore from '@react-native-firebase/firestore';
+import AddBudgetModal from '../components/AddBudgetModal';
+import AddExpenseModal from '../components/AddExpenseModal';
 
 export default function UserDashboardScreen({route}) {
 
   const userID = route.params.userID
-  const { getCurrentUserDetails, currentUser } = useAppConext();
+  const { getCurrentUserDetails, currentUser, getExpenses, addExpense } = useAppConext();
+  const [isAddBudgetModalVisible, setAddBudgetModalVisible] = useState(false);
+  const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
+  const [expenseModalBudgetId, setExpenseModalBudgetId] = useState();
+
+  const [budgets, setBudgets] = useState([]);
+
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const date = new Date()
+  let current_month = months[date.getMonth()];
   console.log("ID (dashboard screen): " + userID)
+
+  const displayAddBudgetModal = () => {
+    setAddBudgetModalVisible(!isAddBudgetModalVisible);
+    console.log("touchable opacity has been pressed!");
+
+  
+  }
+
+  // reading the budgets from the budgets subcollection in firestore
+  const getBudgets = async () => {
+    await firestore().collection('Users').doc(userID).collection('Budgets').get()
+    .then((budgetSnapshot) => {
+
+      console.log("Total number of budgets stored in firestore: " + budgetSnapshot.size);
+
+      const newData = budgetSnapshot.docs
+      .map((budget) => ({
+
+        ...budget.data(), id:budget.id
+
+      })) 
+      setBudgets(newData);
+      console.log("Dashboard budgets:", budgets);
+    })
+
+  }
 
   useEffect(() => {
     getCurrentUserDetails(userID);
+    getBudgets();
   }, [])
+
+  // toggles expense modal and the id of the budget pressed is passed
+  const toggleExpenseModal = () => {
+
+    // console.log("Add Expense button for the " + budgetId + " budget has been clicked");
+    setExpenseModalVisible(!isExpenseModalVisible);
+    // setExpenseModalBudgetId(budgetId);
+}
+
+  const submitAddExpense = (amount, budgetName, desc) => {
+
+    console.log("adding expense");
+    console.log("Add Expense button for the " + budgetId + " budget has been clicked");
+    // console.log("budgetName: " + budgetName);
+    // console.log("amount: " + amount);
+    // console.log("desc: " + desc);
+    addExpense({amount, budgetName, desc});
+    setExpenseModalVisible(!isExpenseModalVisible);
+}
  
   return (
     
-    <View style={styles.screenLayout}>
+    <ScrollView style={styles.screenLayout}>
         <Text style={styles.text}>Hello {currentUser}!</Text>
 
         <View style={styles.pieChartView}>
@@ -23,43 +81,113 @@ export default function UserDashboardScreen({route}) {
         </View>
 
         <View style={styles.monthView}>
-          <Text>Current Month goes here</Text>
+          <Text style={styles.monthText}>{current_month}</Text>
         </View>
 
         <View style={styles.budgetCardView}>
-          <Text style={styles.text}>Your Budgets</Text>
+
+          <View style={styles.textContainer}>
+            <View>
+              <Text style={styles.text}>Your Budgets</Text>
+            </View>
+
+            <View>
+              <TouchableOpacity style={styles.addBudgetButton} onPress={displayAddBudgetModal}>
+                <Text style={styles.subtitle}>Add Budget</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <ScrollView horizontal={true} style={styles.budgetCardSrollView}>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
-            <Text>Budget...</Text>
+
+            {/* Displaying the budgets using data from firebase */}
+            {
+              budgets.map((budget, i) => {
+
+                const amountSpent = getExpenses(budget.budgetName).reduce((total, expense) => parseInt(total) + parseInt(expense.amount), 0)
+                console.log(amountSpent)
+
+                console.log(budget.budgetName, budget.category, budget.allocatedAmount);
+                return (
+
+                  <BudgetCard key={i} budgetId={budget.budgetId} budgetName={budget.budgetName} category={budget.category} 
+                      amountAllocated={budget.allocatedAmount} amountSpent={amountSpent} />
+                );
+              })
+            }
           </ScrollView>
         </View>
 
-    </View>
+        <AddBudgetModal isVisible={isAddBudgetModalVisible} closeModal={() => {setAddBudgetModalVisible(false)}}
+        />
+
+        <AddExpenseModal isVisible={isExpenseModalVisible} closeModal={() => {setExpenseModalVisible(false)}}/>
+
+        <View style={styles.budgetCardView}>
+          <View style={styles.textContainer}>
+              <View>
+                <Text style={styles.text}>Recent Transactions</Text>
+              </View>
+
+              <View>
+                <TouchableOpacity style={styles.addTransactionButton} onPress={toggleExpenseModal}>
+                  <Text style={styles.subtitle}>Add Transaction</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+        </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
 
     screenLayout: {
-        borderWidth: 4,
-        borderColor: 'orange',
+        // borderWidth: 4,
+        // borderColor: 'orange',
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: '#fafafa',
         paddingTop: 30,
         paddingHorizontal: 20,
     },
 
+    textContainer: {
+      flexDirection: 'row',
+      // justifyContent: 'center'
+
+    },
+
+    subtitle: {
+      fontFamily: 'GTWalsheimPro-Regular',
+      fontSize: 15,
+      color: "white",
+      justifyContent: 'flex-end',
+      padding: 5,
+      // borderWidth: 1
+    
+    },
+
+    addBudgetButton: {
+
+      position: 'absolute',
+      left: 115,
+      padding: 5,
+      backgroundColor: '#8B19FF',
+      borderRadius: 10,
+    },
+
+    addTransactionButton: {
+
+      position: 'absolute',
+      left: 20,
+      padding: 5,
+      backgroundColor: '#8B19FF',
+      borderRadius: 10,
+    },
+
     text: {
 
+      // borderWidth: 1,
       fontFamily: 'GTWalsheimPro-Regular',
       fontSize: 25,
     },
@@ -71,20 +199,28 @@ const styles = StyleSheet.create({
 
     },
 
+    monthText: {
+      fontSize: 25,
+      fontFamily: 'GTWalsheimPro-Regular',
+
+    },
     budgetCardView: {
 
-      borderWidth: 3,
-      borderColor: 'yellow',
+      // borderWidth: 3,
+      borderRadius: 20,
+      backgroundColor: 'white',
+      // borderColor: 'yellow',
       height: 300,
-      paddingTop: 10,
+      padding: 10,
       marginTop: 20,
       
     },
 
     budgetCardSrollView: {
 
-      borderWidth: 3,
-      borderColor: 'green',
+      // borderWidth: 3,
+      // borderColor: 'green',
+      borderRadius: 20,
       padding: 10,
       marginTop: 5,
       
