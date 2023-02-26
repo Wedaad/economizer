@@ -1,37 +1,31 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons, AntDesign } from '@expo/vector-icons'; 
+import { Ionicons, AntDesign } from '@expo/vector-icons';
+import { useAppConext } from '../context/AppContext';
 import { SelectList } from 'react-native-dropdown-select-list';
 
 // export default function AddExpenseModal({isVisible, closeModal, defaultId, onAddExpenseClick}) {
-export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick}) {
+export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick, budgetNames}) {
 
+    console.log("Expense Modal budget names: " + budgetNames)
     const [amount, setAmount] = useState(0);
     const [budgetName, setBudgetName] = useState('');
-    const [budgetCategory, setbudgetCategory] = useState('');
     const [description, setDescription] = useState('');
+    let selectOptions = [];
+
+    budgetNames.forEach(name => {
+
+        selectOptions.push({label: name, value: name})
+        
+    });
     
-
-
-    console.log("Amount: " + amount)
-    // console.log("id: " + defaultId) //atm defaultID is the budget name :
-    console.log("budgetCategory: " + budgetCategory)
-    console.log("description: " + description)
-
-    // const newCategory = { label: defaultId, value: defaultId }
-
-    // const data = [
-    //     { label: 'Uncategorized', value: 'Uncategorized' },
-    // ]
-    // const categories = [...data, newCategory];
-
-    // console.log(categories);
-
+    console.log(selectOptions)
     const clearModalInputs = () => {
 
         console.log("CLEARING EXPENSE MODAL INPUTS!");
         setDescription('');
+        setBudgetName('');
         setAmount(0);
     }
 
@@ -59,24 +53,21 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
                         onChangeText={(desc) => setDescription(desc)}
                         />
 
-                        <Text style={styles.labels}>Budget</Text>
-                        <TextInput style={styles.textInput}
-                        value={budgetName}
-                        onChangeText={(name) => setBudgetName(name)}
-                        />
-                        {/* <SelectList 
-                            setSelected={(budgetCategory) => setbudgetCategory(budgetCategory)} 
-                            data={categories} 
-                            placeholder={defaultId}
-                            defaultOption={defaultId}
+                        <Text style={styles.labels}>Select a Budget</Text>
+                        <SelectList 
+                            setSelected={(value) => setBudgetName(value)} 
+                            data={selectOptions} 
+                            placeholder={"Select Budget Name"}
+                            // defaultOption={defaultId}
                             search={false}
+                            fontFamily="GTWalsheimPro-Regular"
                             save="value"
-                        /> */}
+                        />
                         
                     </View>
 
                     <View style={styles.addExpenseBtnView}>
-                        <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, budgetCategory, description, clearModalInputs())}}>
+                        <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, budgetName, description, clearModalInputs())}}>
                             <Text style={styles.addExpenseBtnText}>Add Expense</Text>
                         </TouchableOpacity>
                     </View>
@@ -91,7 +82,7 @@ const styles = StyleSheet.create({
 
     modalViewStyle: {
         // flex: 0.7,
-        height: 450,
+        height: 550,
         backgroundColor: 'white',
         borderRadius: 15,
         // position: 'absolute',
