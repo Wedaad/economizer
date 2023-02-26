@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link, NavigationContainer } from '@react-navigation/native';
+import { StyleSheet, TouchableOpacity, Image, View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialIcons, FontAwesome5, MaterialCommunityIcons  } from '@expo/vector-icons';
 
@@ -10,62 +11,152 @@ import SignOutScreen from '../screens/SignOutScreen';
 import ViewTransactions from '../screens/ViewTransactions';
 import SharedBudgets from '../screens/SharedBudgets';
 import LinkAccountScrceen from '../screens/LinkAccountScreen';
+import AddBudgetModal from './AddBudgetModal';
 
 // creating tab navigator
 const Tab = createBottomTabNavigator(); 
 
+// custom tab button for adding budget
+const CustomAddBudgetButton = ({children, onPress}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={{
+      top: -30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...styles.shadow}}
+  >
+    <View style={{
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      elevation: 5,
+      backgroundColor: '#8B19FF'
+    }}>
+      {children}
+    </View>
+  </TouchableOpacity>
 
-export default function MenuBar() {
+);
 
+
+export default function MenuBar(userid) {
+
+  // const user = JSON.stringify(userid);
+  // console.log("USER ID: ");
   return (
-    <NavigationContainer independent={true}>
+    // <NavigationContainer independent={true}>
       <Tab.Navigator
-      // initialRouteName={"home"}
-      // initialRouteName={userDashboard}
-      screenOptions={({route}) => ({
-        tabBarIcon: ({focused, color, size}) => {
-
-          let iconName;
-          if(route.name === "Dashboard") {
-
-            iconName = focused ? 'chart-pie' : 'chart-pie';
-            return <FontAwesome5 name={iconName} size={size} color={color} />
-
-          } else if(route.name === "Budgets") {
-
-            iconName = focused ? 'md-wallet' : 'md-wallet-outline';
-
-          } else if(route.name === "Logout") {
-
-              iconName = focused ? 'logout' : 'logout';
-              return <MaterialIcons name={iconName} size={size} color={color} />
-
-          } else if(route.name === "Transactions") {
-
-            iconName = focused ? 'money-bill-wave' : 'money-bill-wave';
-            return <FontAwesome5 name={iconName} size={size} color={color} />
-
-          } else if(route.name === "Shared Budgets") {
-
-            iconName = focused ? 'account-group' : 'account-group';
-            return <MaterialCommunityIcons name={iconName} size={size} color={color} />
-          }
-
-          return <Ionicons name={iconName} size={size} color={color}/>
-
-        },
+      screenOptions={{
+          tabBarStyle: {
+            position: 'absolute',
+            height: 60,
+          },
+          tabBarShowLabel: false,
           tabBarActiveTintColor: '#8B19FF',
           tabBarInactiveTintColor: 'gray',
-      })}>
+      }}>
 
-        <Tab.Screen name="Dashboard" component={UserDashboardScreen} />
-        <Tab.Screen name="Budgets" component={BudgetsScreen} />
-        <Tab.Screen name="Transactions" component={LinkAccountScrceen} />
-        <Tab.Screen name="Shared Budgets" component={SharedBudgets} />
+        <Tab.Screen name="Dashboard" component={UserDashboardScreen} 
+        options={{
+          tabBarIcon: ({focused, size, color}) => (
+            <View style={styles.tabIcon}>
+              <FontAwesome5 
+              name="chart-pie" 
+              size={size} 
+              color={color} />
+              <Text style={{color: focused ? '#8B19FF' : 'gray', fontSize: 11}}>DASHBOARD</Text>
+            </View>
+          )
+        }}/>
+        <Tab.Screen name="Transactions" component={LinkAccountScrceen}
+        options={{
+          tabBarIcon: ({focused, size, color}) => (
+            <View style={styles.tabIcon}>
+              <FontAwesome5 
+              name="money-bill-wave" 
+              size={size} 
+              color={color} />
+              <Text style={{color: focused ? '#8B19FF' : 'gray', fontSize: 11}}>TRANSACTIONS</Text>
+            </View>
+          )
+        }} />
+
+        {/* Custom Add Budget button */}
+        <Tab.Screen name="Budgets" component={BudgetsScreen}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={require("../assets/plus_png.png")}
+              resizeMode="contain"
+              style={{
+                    width: 55,
+                    height: 55,
+                    tintColor: '#fff',
+                  }}
+            />
+          ),
+          tabBarButton: (props) =>
+            
+            <CustomAddBudgetButton {...props} />
+          
+        }} 
+        />
+        <Tab.Screen name="Shared Budgets" component={SharedBudgets} 
+        options={{
+          tabBarIcon: ({focused, size, color}) => (
+            <View style={styles.tabIcon}>
+              <MaterialCommunityIcons 
+              name="account-group" 
+              size={size} 
+              color={color} />
+              <Text style={{color: focused ? '#8B19FF' : 'gray', fontSize: 11}}>SHARED BUDGETS</Text>
+            </View>
+          )
+        }}/>
         {/* <Tab.Screen name="Transactions" component={ViewTransactions} /> */}
-        <Tab.Screen name="Logout" component={SignOutScreen} />
+        <Tab.Screen name="Logout" component={SignOutScreen} 
+        options={{
+          tabBarIcon: ({focused, size, color}) => (
+            <View style={styles.tabIcon}>
+              <MaterialIcons 
+              name="logout" 
+              size={size} 
+              color={color} />
+              <Text style={{color: focused ? '#8B19FF' : 'gray', fontSize: 11}}>LOGOUT</Text>
+            </View>
+          )
+        }}/>
 
       </Tab.Navigator>
-    </NavigationContainer>
+    // </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+
+  menubar: {
+    position: 'absolute',
+
+  },
+
+  tabIcon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  shadow: {
+    shadowColor: '#7F5DF0',
+    shadowOffset: {
+
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 3.5,
+    elevation: 5,
+
+  },
+
+
+})
