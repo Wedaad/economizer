@@ -4,21 +4,22 @@
     (Envelope budgeting method)
 */ 
 
-import React, { useState, useContext } from 'react';
-import { Text, StyleSheet, View, Button, TextInput, ScrollView} from 'react-native';
+import React, { useState } from 'react';
+import { Text, StyleSheet, View, Button, } from 'react-native';
 import AddBudgetModal from '../components/AddBudgetModal';
 import { useAppConext } from '../context/AppContext';
 import BudgetCard from '../components/BudgetCard';
 import AddExpenseModal from '../components/AddExpenseModal';
+import firestore from '@react-native-firebase/firestore';
+import { Ionicons } from '@expo/vector-icons';
 
- 
 export default function BudgetScreen() {
 
     const [isAddBudgetModalVisible, setAddBudgetModalVisible] = useState(false);
     const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
     const [expenseModalBudgetId, setExpenseModalBudgetId] = useState();
-    const { addBudget, budgets, addExpense, getExpenses, expenses }   = useAppConext();
-
+    const { addBudget, budgets, addExpense, getExpenses, expenses, deleteBudget, currentUserID } = useAppConext();   
+    
     const createBudget = (budgetName, category, amountAllocated) => {
 
         console.log("Create budget from screen");
@@ -27,13 +28,39 @@ export default function BudgetScreen() {
         console.log("amountAllocated: " + amountAllocated);
         addBudget({budgetName, category, amountAllocated});
         setAddBudgetModalVisible(!isAddBudgetModalVisible);
+
+        // writing the budget to the database
+        try {
+    
+            const budgetCollection = firestore().collection('Users').doc(currentUserID)
+            .collection('Budgets');
+
+            budgetCollection.add({
+
+                allocatedAmount:  amountAllocated,
+                category: category,
+                // budgetId: 
+                budgetName: budgetName
+
+            })
+            .then(() => console.log("Budget added to firestore"));
+    
+        } catch (error) {
+    
+            console.log("Error adding budget to firestore: " + error);
+        }
+        
     }
 
     //change to budgetId
     const submitAddExpense = (amount, budgetName, desc) => {
 
         console.log("adding expense");
-        addExpense({budgetName, amount, desc});
+        // console.log("budgetName: " + budgetName);
+        // console.log("amount: " + amount);
+        // console.log("desc: " + desc);
+        addExpense({amount, budgetName, desc});
+        setExpenseModalVisible(!isExpenseModalVisible);
     }
 
     // when the add budget button is pressed
@@ -72,10 +99,25 @@ export default function BudgetScreen() {
 
     // }
 
+    const removeBudget = (budgetId) => {
+
+        // for(let i = 0; i < budgets.length; i++) {
+        //     console.log("IN LOOP ID IS: " + budgets[i].budgetId + " ID PASSED IS: " + budgetId);
+        //     if(budgets[i].budgetId === budgetId) {
+                
+        //         console.log("IN IF ID IS: " + budgets[i].budgetId);
+        //         console.log("Deleting budget: " + budgetId);
+        //         deleteBudget({budgetId});
+                
+        //     }
+
+        // }
+    }
+
     return (
 
         <View style={styles.screenLayout}>
-            <Text>Budgets</Text>
+            <Text style={styles.title}>Your Budgets</Text>
             <Button title="Add Budget" onPress={toggleModal}/>
 
             <AddBudgetModal
@@ -103,7 +145,7 @@ export default function BudgetScreen() {
                 // PRINTING THE EXPENSES
                 expenses.map(expense => {
                     
-                    console.log(expense);
+                    console.log("Expense: " +  expense);
                     
                 })
             }
@@ -113,11 +155,13 @@ export default function BudgetScreen() {
                 budgets.map(budget => {
                     
                     const amountSpent = getExpenses(budget.budgetName).reduce((total, expense) => parseInt(total) + parseInt(expense.amount), 0)
+                    console.log(amountSpent)
+
                     return (
 
                         <BudgetCard key={budget.budgetId} budgetId={budget.budgetId} budgetName={budget.budgetName} category={budget.category} 
                                 amountAllocated={budget.amountAllocated} amountSpent={amountSpent} 
-                                onAddExpenseClick={() => toggleExpenseModal(budget.budgetName)}/>
+                                onAddExpenseClick={() => toggleExpenseModal(budget.budgetName)} onDeleteBudgetClick={removeBudget}/>
                     );
 
                 })
@@ -141,7 +185,7 @@ const styles = StyleSheet.create({
     title: {
         padding: 8, 
         fontSize: 25,
-        fontWeight: "bold",
+        fontFamily: 'Rubik-Regular',
     },
 
     budgetCard: {
