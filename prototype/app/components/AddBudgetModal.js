@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import Modal from 'react-native-modal';
-import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons'; 
+import { color } from 'react-native-reanimated';
 
 export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetClick}) {
 
@@ -42,8 +43,11 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
                         keyboardType='numeric'
                         value={amountAllocated}/>
 
-                        <View style={styles.addBudgetBtn}>
-                            <Button title='Create Budget' onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, clearModalInputs())}/>
+                        <View style={styles.addBudgetBtnView}>
+                            <TouchableOpacity style={styles.addBudgetBtn} onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, clearModalInputs())}>
+                                <Text style={styles.addBudgetBtnText}>Create Budget</Text>
+                            </TouchableOpacity>
+                            {/* <Button title='Create Budget' onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, clearModalInputs())}/> */}
                         </View>
                     </View>
                         
@@ -78,7 +82,7 @@ const styles = StyleSheet.create({
     modalTitle: {
         marginLeft: 15, 
         fontSize: 25,
-        fontWeight: "bold",
+        fontFamily: 'GTWalsheimPro-Regular',
         marginTop: 25,
     },
 
@@ -97,6 +101,7 @@ const styles = StyleSheet.create({
 
         fontSize: 15,
         margin: 10,
+        fontFamily: 'GTWalsheimPro-Regular',
     },
 
     textInput: {
@@ -110,9 +115,25 @@ const styles = StyleSheet.create({
         padding: 10,
     },
 
+    addBudgetBtnView: {
+
+        alignItems: 'center', 
+        margin: 20,
+
+    },
+
+    addBudgetBtnText: {
+
+        color: 'white',
+        fontFamily: 'GTWalsheimPro-Regular',
+    },
+
     addBudgetBtn: {
 
-        margin: 10,
+        padding: 10,
+        color: 'white',
+        backgroundColor: '#8B19FF',
+        borderRadius: 10,
     },
 
 });
