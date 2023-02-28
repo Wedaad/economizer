@@ -9,27 +9,44 @@
     Plaid API Github repo (React Native): https://github.com/plaid/tiny-quickstart/tree/main/react_native 
 */
 require('dotenv').config();
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const admin = require('firebase-admin');
+const serviceAccount = require('../economizerServiceAccount.json');
 const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
 
+// adding firestore to the server
+admin.initializeApp({
+
+  credential: admin.credential.cert(serviceAccount)
+
+});
+
+const db = admin.firestore();
+
 const app = express();
+
 const PORT = 8085;
+const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
+const PLAID_SECRET = process.env.PLAID_SECRET;
+const PLAID_ENV = process.env.PLAID_ENV || 'development';
+const PLAID_ANDROID_PACKAGE_NAME = process.env.PLAID_ANDROID_PACKAGE_NAME ;
 
 app.use(
     // FOR DEMO PURPOSES ONLY
     // Use an actual secret key in production
-    session({secret: process.env.PLAID_SECRET, saveUninitialized: true, resave: true}),
+    session({secret: PLAID_SECRET, saveUninitialized: true, resave: true}),
 );
 
 // Configuration for the Plaid client
 const config = new Configuration({
-    basePath: PlaidEnvironments[process.env.PLAID_ENV],
+    basePath: PlaidEnvironments[PLAID_ENV],
     baseOptions: {
       headers: {
-        'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
-        'PLAID-SECRET': process.env.PLAID_SECRET,
+        'PLAID-CLIENT-ID': PLAID_CLIENT_ID,
+        'PLAID-SECRET': PLAID_SECRET,
         'Plaid-Version': '2020-09-14',
       },
     },
@@ -43,14 +60,15 @@ const client = new PlaidApi(config);
 
 //Creates a Link token and returns it to LinkAccountScreen
 app.post('/link/token/create', async (req, res) => {
+
     console.log("Creating link token!!");
     let payload = {
-        user: {client_user_id: req.sessionID},
+        user: {client_user_id: req.body.userID},
         client_name: 'eConomizer',
         language: 'en',
-        products: ['auth','transactions','identity'],
+        products: ['auth','transactions'],
         country_codes: ['US', 'IE'],
-        android_package_name: process.env.PLAID_ANDROID_PACKAGE_NAME,
+        android_package_name: PLAID_ANDROID_PACKAGE_NAME,
     };
 
     const tokenResponse = await client.linkTokenCreate(payload);
@@ -59,8 +77,9 @@ app.post('/link/token/create', async (req, res) => {
 });
 
 // Exchanges the public token from Plaid Link for an access token
-app.post('/item/public_token/exchange', async (req, res ) => {
+app.post('/item/public_token/exchange', async (req, res) => {
     console.log("Exchanging token for access token!!");
+
     const exchangeResponse = await client.itemPublicTokenExchange({
 
       public_token: req.body.public_token,
@@ -68,21 +87,26 @@ app.post('/item/public_token/exchange', async (req, res ) => {
     });
 
     console.log("Public token: " + req.body.public_token);
+    console.log("ACCESS TOKEN GENERATING FOR CURRENT USER ID:", req.body.userID)
 
-    // FOR DEMO PURPOSES ONLY
-    // Store access_token in DB instead of session storage
-    req.session.access_token = exchangeResponse.data.access_token;
+    // Store access_token in the logged in user's document
+    const currentUserDocument = db.collection('Users').doc(req.body.userID);
+    
     res.json(true);
     console.log("TOKEN EXCHANGED!!");
-    console.log("ACCESS TOKEN: " + req.session.access_token);
+    console.log("ACCESS TOKEN: " + exchangeResponse.data.access_token);
+    
+    // adding the access token to the current user's document
+    return currentUserDocument.update({access_token: exchangeResponse.data.access_token})
+    .then(() => console.log("Stored access token in Firestore"));
   }); 
 
 // Retrieving user transactions
 app.post('/transactions/get', async(req, res) => {
   console.log("Retrieving transactions...");
 
-  const access_token = req.session.access_token;
-  console.log(access_token);
+  const access_token = req.body.access_token;
+  console.log("ACCESS TOKEN ON SERVER SIDE:", access_token);
   let startDate = '2022-09-01';
   let endDate = '2022-10-31'
 
