@@ -8,6 +8,11 @@ import AddExpenseModal from '../components/AddExpenseModal';
 
 export default function UserDashboardScreen({route}) {
 
+  useEffect(() => {
+    getCurrentUserDetails(userID);
+    getBudgets();
+  }, [])
+
   const userID = route.params.userID
   const { getCurrentUserDetails, currentUser, getExpenses, addExpense, addBudget } = useAppConext();
   const [isAddBudgetModalVisible, setAddBudgetModalVisible] = useState(false);
@@ -80,14 +85,9 @@ export default function UserDashboardScreen({route}) {
     })
   }
   
-  // budgets.forEach(budget => {console.log("Pushing to budget names: " + budget.budgetName), budgetNames.push(budget.budgetName)});
+  budgets.forEach(budget => {console.log("Pushing to budget names: " + budget.budgetName), budgetNames.push(budget.budgetName)});
   // console.log("All budget Names: " + budgetNames);
 
-  useEffect(() => {
-    getCurrentUserDetails(userID);
-    getBudgets();
-  }, [])
-  
   // toggles expense modal and the id of the budget pressed is passed
   const toggleExpenseModal = () => {
 
@@ -134,18 +134,29 @@ export default function UserDashboardScreen({route}) {
             </View>
           </View>
 
+          { budgets.length == 0 && 
+              <View style={styles.emptyBudgetViewContainer}>
+                <View style={styles.emptyBudgetView}>
+                  <Text style={styles.screenTextStyle}>You haven't created any budgets.</Text>
+                  <Text style={styles.screenTextStyle}>Add a budget and get started!</Text>
+                </View>
+              </View>
+            }
+
           <ScrollView horizontal={true} style={styles.budgetCardSrollView}>
+
             {/* Displaying the budgets using data from firebase */}
+
             {
               budgets.map((budget, i) => {
 
                 const amountSpent = getExpenses(budget.budgetName).reduce((total, expense) => parseInt(total) + parseInt(expense.amount), 0)
-                console.log(amountSpent)
+                // console.log(amountSpent)
 
-                console.log(budget.budgetName, budget.category, budget.allocatedAmount);
+                // console.log(budget.budgetName, budget.category, budget.allocatedAmount);
                 return (
 
-                  <BudgetCard key={budget.budgetId} budgetName={budget.budgetName} category={budget.category} 
+                  <BudgetCard key={i} budgetName={budget.budgetName} category={budget.category} 
                       amountAllocated={budget.allocatedAmount} amountSpent={amountSpent} />
                 );
               })
@@ -268,7 +279,22 @@ const styles = StyleSheet.create({
     pieChartView: {
 
       borderWidth: 3,
-      borderColor: 'red'
+      borderColor: 'red',
+      
+    },
+
+    emptyBudgetViewContainer: {
+
+      alignSelf: 'center',
+      position: 'absolute',
+      top: 115,
+      padding: 20
+    }, 
+
+    screenTextStyle: {
+      fontFamily: 'GTWalsheimPro-Regular',
+      textAlign: 'center',
+      fontSize: 17,
 
     },
 
