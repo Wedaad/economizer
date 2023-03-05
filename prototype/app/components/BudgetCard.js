@@ -1,6 +1,6 @@
 import React from 'react'; 
 import { Text, StyleSheet, View, Button } from 'react-native';
-import * as Progress from 'react-native-progress';
+import { Bar as ProgressBar } from 'react-native-progress';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 
 export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, onAddExpenseClick, onDeleteBudgetClick }) {
@@ -42,7 +42,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
             <Text style={styles.budgetCardAmountText}>€{amountSpent}/€{amountAllocated}</Text>
             <View style={styles.progressBar}>
-                <Progress.Bar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
             </View>
                 
         </View>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     budgetCardAmountText: {
 
         fontSize: 20,
-        fontFamily: 'Rubik-Regular',
+        fontFamily: 'GTWalsheimPro-Regular',
 
     },
 
