@@ -116,9 +116,8 @@ const styles = StyleSheet.create({
     transactionCard: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderWidth: 1,
         padding: 15,
-        // borderRadius: 25, 
+        borderRadius: 10, 
         marginBottom: 10,
         backgroundColor: '#fafafa',
     },
