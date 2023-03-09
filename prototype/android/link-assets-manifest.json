@@ -2,6 +2,10 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "app/assets/fonts/GTWalsheimPro-Bold.ttf",
+      "sha1": "2ac909607bac7d402698c4d99cf39550fdb0ae29"
+    },
+    {
       "path": "app/assets/fonts/GTWalsheimPro-Regular.ttf",
       "sha1": "03b3aec5e961aa91f360aac8d990d456bbca0b5a"
     },
