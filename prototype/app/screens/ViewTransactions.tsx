@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useAppConext } from '../context/AppContext';
 import TransactionCard from '../components/TransactionCard';
+import firestore from '@react-native-firebase/firestore';
 
 const ViewTransactions = () => {
 
@@ -51,26 +52,16 @@ const ViewTransactions = () => {
                 category: "",
                 transaction_id: "" };
 
-                // console.log("TRANSACTION AMOUNT " + [i] + ": " + data.Transactions.transactions[i]["amount"]);
-                // console.log("TRANSACTION DATE " + [i] + ": " + data.Transactions.transactions[i]["date"]);
-                // console.log("TRANSACTION MERCHANT " + [i] + ": " + data.Transactions.transactions[i]["merchant_name"]);
-                // console.log("TRANSACTION CATEGORY " + [i] + ": " + data.Transactions.transactions[i]["category"]);
-                // console.log("TRANSACTION ID " + [i] + ": " + data.Transactions.transactions[i]["transaction_id"]);
-
                 transaction_data["amount"] = data.Transactions.transactions[i]["amount"];
                 transaction_data["date"] = data.Transactions.transactions[i]["date"];
                 transaction_data["merchant"] = data.Transactions.transactions[i]["merchant_name"];
                 transaction_data["name"] = data.Transactions.transactions[i]["name"];
                 transaction_data["category"] =  data.Transactions.transactions[i]["category"];
                 transaction_data["transaction_id"] =  data.Transactions.transactions[i]["transaction_id"];
-                
-                // console.log(transaction_data);
-                // console.log(myTransactions);
+
                 transaction_array.push(transaction_data);
             }
-            
-            // console.log(transaction_array);
-            // console.log(transaction_array.length);
+
             setMyTransactions(transaction_array);
             setTransactions(data);
          
@@ -83,6 +74,29 @@ const ViewTransactions = () => {
             getTransactions();
             
         }
+
+        // writing the transactions to the database
+        myTransactions.forEach((transaction) => {
+
+            try {
+
+                const transactionCollectionRef = firestore().collection('Transactions').doc(transaction.transaction_id.toString());
+                transactionCollectionRef.set({
+                    transaction_id: transaction.transaction_id,
+                    amount: transaction.amount,
+                    date: transaction.date,
+                    merchant: transaction.name,
+
+                })
+                // .then(() => console.log("Added transaction to firestore collection"))
+
+            } catch (error) {
+
+                console.log("Error adding transaction to Firestore:", error)
+
+            }
+
+        });
     }, [transactions])
 
     if(myTransactions.length === 0) { // if there are no transactions 
@@ -117,23 +131,9 @@ const ViewTransactions = () => {
                         return (
                             <>
                             
-                        
-                            <TransactionCard key={i} amount={amount} merchant={name} date={date}/>
-    
-                        {/* <View>
-        
-                            <Text style={styles.boldText}>Transaction ID:</Text><Text style={styles.bodyText}> {transaction_id}</Text>
-    
-                            <Text style={styles.boldText}>Amount:</Text><Text style={styles.bodyText}> {amount}</Text>
-                                
-                            <Text style={styles.boldText}>Date: </Text><Text style={styles.bodyText}>{date}</Text>
-                                
-                            <Text style={styles.boldText}>Merchant: </Text><Text style={styles.bodyText}>{merchant}</Text>
-                                
-                            <Text style={styles.boldText}>Category:  </Text><Text style={styles.bodyText}>{category}</Text>
-                            <Text>----------------------------------------------------------------</Text>
-                            
-                        </View> */}
+                            <TouchableOpacity onPress={(i) =>console.log(`Transaction ${name} card pressed.`)}>
+                                <TransactionCard key={i} amount={amount} merchant={name} date={date}/>
+                            </TouchableOpacity>
     
                         </>
     
