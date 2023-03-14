@@ -1,14 +1,32 @@
 import React, { useState, useRef } from 'react';
 import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
-import { Ionicons, AntDesign } from '@expo/vector-icons'; 
-import { color } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons'; 
+import IconPicker from "react-native-icon-picker";
+import RadioButtonRN from 'radio-buttons-react-native';
+
 
 export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetClick}) {
 
     const [budgetName, setBudgetName] = useState('');
     const [category, setCategory] = useState('');
+    const [budgetType, setBudgetType] = useState('');
     const [amountAllocated, setAmountAllocated] = useState(0);
+
+    const button_labels = [
+
+        {
+            label: 'weekly'
+        },
+
+        {
+            label: 'monthly'
+        },
+
+        {
+            label: 'annually'
+        }
+    ];
 
     const clearModalInputs = () => {
 
@@ -19,7 +37,7 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
 
     return (
         
-        <Modal isVisible={isVisible}>
+        <Modal isVisible={isVisible} avoidKeyboard={true}>
                 <View style={styles.modalViewStyle}>
                     <View style={styles.modalViewElements}>
                         <Text style={styles.modalTitle}>Add New Budget</Text>
@@ -42,12 +60,22 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
                         onChangeText={(amount) => setAmountAllocated(amount)}
                         keyboardType='numeric'
                         value={amountAllocated}/>
+                            
+                        <Text style={styles.labels}>Choose a Budget Type:</Text>
+                        <RadioButtonRN
+                            data={button_labels}
+                            selectedBtn={(e) => {
+                                console.log("Budget Type chosen is:", e.label)
+                                setBudgetType(e.label);
+                            }}
+                            box={false}
+                            circleSize={13}
+                        />
 
                         <View style={styles.addBudgetBtnView}>
-                            <TouchableOpacity style={styles.addBudgetBtn} onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, clearModalInputs())}>
+                            <TouchableOpacity style={styles.addBudgetBtn} onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, budgetType,clearModalInputs())}>
                                 <Text style={styles.addBudgetBtnText}>Create Budget</Text>
                             </TouchableOpacity>
-                            {/* <Button title='Create Budget' onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, clearModalInputs())}/> */}
                         </View>
                     </View>
                         
@@ -61,7 +89,7 @@ const styles = StyleSheet.create({
 
     modalViewStyle: {
         // flex: 0.7,
-        height: 450,
+        height: 600,
         backgroundColor: 'white',
         borderRadius: 15,
         // position: 'absolute',
@@ -135,5 +163,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#8B19FF',
         borderRadius: 10,
     },
+
+    iconSelectorPrompt: {
+
+        fontSize: 15,
+        margin: 10,
+        fontFamily: 'GTWalsheimPro-Regular',
+        borderRadius: 10,
+        backgroundColor: '#8B19FF',
+        color: "white",
+        padding: 10,
+        width: 165,
+    },
+
 
 });
