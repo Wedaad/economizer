@@ -8,16 +8,14 @@ import AddExpenseModal from '../components/AddExpenseModal';
 
 export default function UserDashboardScreen({route}) {
 
-  useEffect(() => {
-    getCurrentUserDetails(userID);
-    getBudgets();
-  }, [])
-
   const userID = route.params.userID
-  const { getCurrentUserDetails, currentUser, getExpenses, addExpense, addBudget } = useAppConext();
+  const { getCurrentUserDetails, currentUser, getExpenses, addExpense, addBudget, accessToken } = useAppConext();
   const [isAddBudgetModalVisible, setAddBudgetModalVisible] = useState(false);
   const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
   const [budgets, setBudgets] = useState([]);
+  let amountSpent = 0;
+  // const [budgetExpenses, setBudgetExpenses] = useState([]);
+  let currentAccountBalance = 0;
   let budgetNames = [];
 
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -33,13 +31,14 @@ export default function UserDashboardScreen({route}) {
   }
 
   // creating budgets 
-  const createBudget = (budgetName, category, amountAllocated) => {
+  const createBudget = (budgetName, category, amountAllocated, budgetType) => {
 
     // console.log("Create budget from screen");
     // console.log("budgetName: " + budgetName);
     // console.log("category: " + category);
     // console.log("amountAllocated: " + amountAllocated);
-    addBudget({budgetName, category, amountAllocated});
+    console.log("Budget Type in userdashboard:", budgetType)
+    addBudget({budgetName, category, amountAllocated, budgetType});
     setAddBudgetModalVisible(!isAddBudgetModalVisible);
 
     // writing the budget to the database
@@ -52,9 +51,11 @@ export default function UserDashboardScreen({route}) {
         budgetCollectionRef.set({
 
             allocatedAmount:  amountAllocated,
+            amountSpent: 0,
             category: category,
             budgetId: budgetCollectionRef.id,
-            budgetName: budgetName
+            budgetName: budgetName,
+            budgetType: budgetType
 
         })
         .then(() => console.log("Budget added to firestore, with document ID:", budgetCollectionRef.id));
@@ -85,7 +86,8 @@ export default function UserDashboardScreen({route}) {
     })
   }
   
-  budgets.forEach(budget => {console.log("Pushing to budget names: " + budget.budgetName), budgetNames.push(budget.budgetName)});
+  // budgets.forEach(budget => {console.log("Pushing to budget names: " + budget.budgetName), budgetNames.push(budget.budgetName)});
+  budgets.forEach(budget => {budgetNames.push(budget.budgetName)});
   // console.log("All budget Names: " + budgetNames);
 
   // toggles expense modal and the id of the budget pressed is passed
@@ -94,19 +96,70 @@ export default function UserDashboardScreen({route}) {
     // console.log("Add Expense button for the " + budgetId + " budget has been clicked");
     setExpenseModalVisible(!isExpenseModalVisible);
     // setExpenseModalBudgetId(budgetId);
-}
+  }
 
-  const submitAddExpense = (amount, budgetName, desc) => {
 
-    console.log("adding expense");
-    console.log("Add Expense button for the " + budgetName + " budget has been clicked");
-    // console.log("budgetName: " + budgetName);
-    // console.log("amount: " + amount);
-    // console.log("desc: " + desc);
+  const submitAddExpense = (amount, budgetName, desc, budgetId) => {
+
+    // console.log("adding expense for budget " + budgetName + " with ID " + budgetId);
+
+    amountSpent = parseInt(amount);
+    amountSpent += parseInt(amount);
+
+    // writing the amount spent to the database 
+    try {
+
+      const budgetCollectionRef = firestore().collection('Users').doc(userID)
+        .collection('Budgets').doc(budgetId);
+
+      budgetCollectionRef.set({
+        amountSpent: parseInt(amountSpent),
+
+      }, {merge: true})
+        
+    } catch (error) {
+        console.log("Error adding amount spent to firestore: " + error);
+      
+    }
+
     addExpense({amount, budgetName, desc});
     setExpenseModalVisible(!isExpenseModalVisible);
-}
- 
+  }
+
+  // function which retrieves the user's current account balance 
+  const getAccountBalance = async () => { 
+    console.log("getting account balance from server...");
+
+    await fetch("http://192.168.1.5:8085/accounts/balance/get", {
+
+    method: "POST",
+    
+    headers: {
+
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify({ access_token: accessToken })
+
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      // console.log("Current balance retrieved from server: ", data.Balance.accounts[0]["balances"]["current"]);
+      // console.log("Available balance retrieved from server: ", data.Balance.accounts[0]["balances"]["available"]);
+
+      currentAccountBalance = data.Balance.accounts[0]["balances"]["current"];
+      console.log("Current account balance 2: ", currentAccountBalance);
+
+    })
+
+  }
+  console.log("ACCESS TOKEN: " + accessToken);
+  useEffect(() => {
+    getCurrentUserDetails(userID);
+    getBudgets();
+    // getAccountBalance();
+  }, [])
+  
   return (
     
     <ScrollView style={styles.screenLayout}>
@@ -146,18 +199,16 @@ export default function UserDashboardScreen({route}) {
           <ScrollView horizontal={true} style={styles.budgetCardSrollView}>
 
             {/* Displaying the budgets using data from firebase */}
-
+        
             {
               budgets.map((budget, i) => {
 
+                console.log("budget details: name: " + budget.budgetName + " category: " + budget.category + " amount allocated: " + budget.amountAllocated + " Amomunt spent: " + budget.amountSpent + " budget type: " + budget.budgetType)
                 const amountSpent = getExpenses(budget.budgetName).reduce((total, expense) => parseInt(total) + parseInt(expense.amount), 0)
-                // console.log(amountSpent)
-
-                // console.log(budget.budgetName, budget.category, budget.allocatedAmount);
                 return (
-
                   <BudgetCard key={i} budgetName={budget.budgetName} category={budget.category} 
-                      amountAllocated={budget.allocatedAmount} amountSpent={amountSpent} />
+                  amountAllocated={budget.allocatedAmount} amountSpent={budget.amountSpent + amountSpent} 
+                  budgetType={budget.budgetType} budgets={budgets}/>
                 );
               })
             }
@@ -171,7 +222,7 @@ export default function UserDashboardScreen({route}) {
 
         <AddExpenseModal isVisible={isExpenseModalVisible} 
           closeModal={() => {setExpenseModalVisible(false)}} onAddExpenseClick={submitAddExpense}
-          budgetNames={budgetNames}/>
+          budgets={budgets}/>
 
         <View style={styles.budgetCardView}>
           <View style={styles.textContainer}>
