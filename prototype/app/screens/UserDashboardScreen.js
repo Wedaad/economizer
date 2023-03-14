@@ -101,11 +101,16 @@ export default function UserDashboardScreen({route}) {
 
   const submitAddExpense = (amount, budgetName, desc, budgetId) => {
 
-    // console.log("adding expense for budget " + budgetName + " with ID " + budgetId);
+    budgets.forEach(budget => {
 
-    amountSpent = parseInt(amount);
-    amountSpent += parseInt(amount);
+      if(budget.budgetId === budgetId) {
 
+        budget.amountSpent += parseInt(amount);
+        amountSpent = budget.amountSpent;
+       
+      }
+    })
+  
     // writing the amount spent to the database 
     try {
 
@@ -207,7 +212,7 @@ export default function UserDashboardScreen({route}) {
                 const amountSpent = getExpenses(budget.budgetName).reduce((total, expense) => parseInt(total) + parseInt(expense.amount), 0)
                 return (
                   <BudgetCard key={i} budgetName={budget.budgetName} category={budget.category} 
-                  amountAllocated={budget.allocatedAmount} amountSpent={budget.amountSpent + amountSpent} 
+                  amountAllocated={budget.allocatedAmount} amountSpent={budget.amountSpent} 
                   budgetType={budget.budgetType} budgets={budgets}/>
                 );
               })
