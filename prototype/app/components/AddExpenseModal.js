@@ -2,25 +2,20 @@ import React, { useState } from 'react';
 import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
-import { useAppConext } from '../context/AppContext';
 import { SelectList } from 'react-native-dropdown-select-list';
 
 // export default function AddExpenseModal({isVisible, closeModal, defaultId, onAddExpenseClick}) {
-export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick, budgetNames}) {
+export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick, budgets}) {
 
-    console.log("Expense Modal budget names: " + budgetNames)
     const [amount, setAmount] = useState(0);
     const [budgetName, setBudgetName] = useState('');
     const [description, setDescription] = useState('');
-    let selectOptions = [];
+    const [budgetId, setBudgetId] = useState('');
 
-    budgetNames.forEach(name => {
+    let selectOptions = budgets.map((budget) => {
+        return {key: budget.budgetId, value: budget.budgetName}
+    })
 
-        selectOptions.push({label: name, value: name})
-        
-    });
-    
-    console.log(selectOptions)
     const clearModalInputs = () => {
 
         console.log("CLEARING EXPENSE MODAL INPUTS!");
@@ -31,7 +26,7 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
 
     return (
 
-        <Modal isVisible={isVisible}>
+        <Modal isVisible={isVisible} avoidKeyboard={true}>
                 <View style={styles.modalViewStyle}>
                     <View style={styles.modalViewElements}>
                         <Text style={styles.modalTitle}>Add Expense</Text>
@@ -55,7 +50,17 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
 
                         <Text style={styles.labels}>Select a Budget</Text>
                         <SelectList 
-                            setSelected={(value) => setBudgetName(value)} 
+                            setSelected={(value) => {
+                                setBudgetName(value); 
+
+                                selectOptions.forEach((option) => {
+
+                                    if (option.value === value) {
+                                        setBudgetId(option.key)
+                                    }
+                                })
+                                
+                            }}
                             data={selectOptions} 
                             placeholder={"Select Budget Name"}
                             // defaultOption={defaultId}
@@ -67,7 +72,7 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
                     </View>
 
                     <View style={styles.addExpenseBtnView}>
-                        <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, budgetName, description, clearModalInputs())}}>
+                        <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, budgetName, description, budgetId, clearModalInputs())}}>
                             <Text style={styles.addExpenseBtnText}>Add Expense</Text>
                         </TouchableOpacity>
                     </View>
@@ -82,7 +87,7 @@ const styles = StyleSheet.create({
 
     modalViewStyle: {
         // flex: 0.7,
-        height: 550,
+        height: 650,
         backgroundColor: 'white',
         borderRadius: 15,
         // position: 'absolute',
