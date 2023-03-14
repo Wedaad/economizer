@@ -1,12 +1,67 @@
-import React from 'react'; 
+import React, {useEffect, useState} from 'react'; 
 import { Text, StyleSheet, View, Button } from 'react-native';
 import { Bar as ProgressBar } from 'react-native-progress';
-import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
+import firestore from '@react-native-firebase/firestore';
+import { useAppConext } from '../context/AppContext';
 
-export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, onAddExpenseClick, onDeleteBudgetClick }) {
-// export default function BudgetCard({budgetName, category, amountAllocated}) {
+export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, budgetType, budgets }) {
+// export default function BudgetCard({budgetName, category, amountAllocated, onDeleteBudgetClick}) {
 
-    console.log("card:", amountAllocated, amountSpent)
+    let current_date = new Date();
+    const { currentUserID } = useAppConext();
+
+    const initialState = {
+        budgetName: budgetName,
+        category: category,
+        amountAllocated: amountAllocated,
+        amountSpent: 0,
+        budgetType: budgetType,
+    };
+
+    console.log("Initial state:", initialState)
+
+    // function which returns true or false if the day of the week is Sunday
+    const isSunday = (date = new Date()) => {
+
+        const sunday = new Date(date)
+        return sunday.getDay() === 0
+
+    }
+
+    const resetBudgets = (budgetId) => {
+
+        try {
+
+            const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
+            .collection('Budgets').doc(budgetId);
+
+            budgetCollectionRef.update({
+                budgetName: budgetName,
+                category: category,
+                allocatedAmount: amountAllocated,
+                amountSpent: 0,
+                budgetType: budgetType,
+            })
+            .then(() => "SUCCESSFULLY UPDATED & RESET THE BUDGET")
+            
+        } catch (error) {
+            console.log("ERROR WHEN RESETTING & UPDATING BUDGET:", error)
+        }
+
+    }
+
+    useEffect (() => {
+        budgets.forEach(budget => {
+
+            if(budget.budgetType === 'weekly' && isSunday(current_date)) {
+                resetBudgets(budget.budgetId);
+                
+            }
+        })
+
+    }, [budgets])
+    
+
     const getBudgetProgress = (amountSpent, amountAllocated) => {
 
         let ratioSpent = amountSpent / amountAllocated;
@@ -24,7 +79,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
         }
         // if the user has spent more than 3/4 or has gone over budget
         else {
-
+            
             return 'red';
         }
 
@@ -40,7 +95,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
             <Text>{category}</Text>
         
 
-            <Text style={styles.budgetCardAmountText}>€{amountSpent}/€{amountAllocated}</Text>
+            <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
             <View style={styles.progressBar}>
                 <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
             </View>
