@@ -5,7 +5,6 @@ import firestore from '@react-native-firebase/firestore';
 import { useAppConext } from '../context/AppContext';
 
 export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, budgetType, budgets }) {
-// export default function BudgetCard({budgetName, category, amountAllocated, onDeleteBudgetClick}) {
 
     let current_date = new Date();
     const { currentUserID } = useAppConext();
@@ -18,6 +17,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     }
 
+    // resets budgets to their initial state on a weekly basis
     const resetBudgets = (budgetId) => {
 
         try {
@@ -103,7 +103,6 @@ const styles = StyleSheet.create({
         height: '95%',
         borderRadius: 15,
         backgroundColor: '#fafafa',
-        // borderWidth: 2,
         paddingBottom: 50,
         paddingLeft: 10,
         paddingRight: 10,
