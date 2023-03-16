@@ -3,14 +3,16 @@ import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { SelectList } from 'react-native-dropdown-select-list';
+import DatePicker from 'react-native-date-picker'
 
-// export default function AddExpenseModal({isVisible, closeModal, defaultId, onAddExpenseClick}) {
 export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick, budgets}) {
 
     const [amount, setAmount] = useState(0);
     const [budgetName, setBudgetName] = useState('');
     const [description, setDescription] = useState('');
     const [budgetId, setBudgetId] = useState('');
+    const [date, setDate] = useState(new Date())
+    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
     let selectOptions = budgets.map((budget) => {
         return {key: budget.budgetId, value: budget.budgetName}
@@ -25,61 +27,82 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
     }
 
     return (
+        <>
+            <Modal isVisible={isVisible} avoidKeyboard={true}>
+                    <View style={styles.modalViewStyle}>
+                        <View style={styles.modalViewElements}>
+                            <Text style={styles.modalTitle}>Add Expense</Text>
+                            <Ionicons name="close" size={30} color="black" style={styles.closeIcon} onPress={closeModal}/>
+                        </View>
 
-        <Modal isVisible={isVisible} avoidKeyboard={true}>
-                <View style={styles.modalViewStyle}>
-                    <View style={styles.modalViewElements}>
-                        <Text style={styles.modalTitle}>Add Expense</Text>
-                        <Ionicons name="close" size={30} color="black" style={styles.closeIcon} onPress={closeModal}/>
+                        <View style={styles.addExpenseForm}>
+
+                            <Text style={styles.labels}>Amount Spent</Text>
+                            <TextInput style={styles.textInput}
+                            value={amount}
+                            onChangeText={(amount) => setAmount(amount)}
+                            keyboardType='numeric'
+                            />
+
+                            <Text style={styles.labels}>Description</Text>
+                            <TextInput style={styles.textInput}
+                            value={description}
+                            onChangeText={(desc) => setDescription(desc)}
+                            />
+
+                            <Text style={styles.labels}>Select a Budget</Text>
+                            <SelectList 
+                                setSelected={(value) => {
+                                    setBudgetName(value); 
+
+                                    selectOptions.forEach((option) => {
+                                        
+                                        if (option.value === value) {
+                                            setBudgetId(option.key)
+                                        }
+                                    })
+                                    
+                                }}
+                                data={selectOptions} 
+                                placeholder={"Select Budget Name"}
+                                // defaultOption={defaultId}
+                                search={false}
+                                fontFamily="GTWalsheimPro-Regular"
+                                save="value"
+                                />
+
+                                <DatePicker
+                                        modal
+                                        mode='date'
+                                        open={isDatePickerOpen}
+                                        date={date}
+                                        onConfirm={(date) => {
+                                            setIsDatePickerOpen(false)
+                                            setDate(date)
+                                            console.log("DATE PICKED: ", date)
+                                        }}
+                                            onCancel={() => {
+                                            setIsDatePickerOpen(false)
+                                        }}
+                                    />
+                            
+                        </View>
+
+                        <View style={styles.addExpenseBtnView}>
+
+                            <TouchableOpacity onPress={() => setIsDatePickerOpen(true)} style={{backgroundColor: '#8B19FF', padding: 10, borderRadius: 10,}}>
+                                <Text style={{fontFamily:"GTWalsheimPro-Regular", color: 'white'}}>Pick a date for this transaction</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, budgetName, description, budgetId, date, clearModalInputs())}}>
+                                <Text style={styles.addExpenseBtnText}>Add Expense</Text>
+                            </TouchableOpacity>
+                        </View>
+                            
                     </View>
-
-                    <View style={styles.addExpenseForm}>
-
-                        <Text style={styles.labels}>Amount Spent</Text>
-                        <TextInput style={styles.textInput}
-                        value={amount}
-                        onChangeText={(amount) => setAmount(amount)}
-                        keyboardType='numeric'
-                        />
-
-                        <Text style={styles.labels}>Description</Text>
-                        <TextInput style={styles.textInput}
-                        value={description}
-                        onChangeText={(desc) => setDescription(desc)}
-                        />
-
-                        <Text style={styles.labels}>Select a Budget</Text>
-                        <SelectList 
-                            setSelected={(value) => {
-                                setBudgetName(value); 
-
-                                selectOptions.forEach((option) => {
-
-                                    if (option.value === value) {
-                                        setBudgetId(option.key)
-                                    }
-                                })
-                                
-                            }}
-                            data={selectOptions} 
-                            placeholder={"Select Budget Name"}
-                            // defaultOption={defaultId}
-                            search={false}
-                            fontFamily="GTWalsheimPro-Regular"
-                            save="value"
-                        />
-                        
-                    </View>
-
-                    <View style={styles.addExpenseBtnView}>
-                        <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, budgetName, description, budgetId, clearModalInputs())}}>
-                            <Text style={styles.addExpenseBtnText}>Add Expense</Text>
-                        </TouchableOpacity>
-                    </View>
-                           
-                </View>
             </Modal>
 
+        </>
     )
 }
 
@@ -87,7 +110,7 @@ const styles = StyleSheet.create({
 
     modalViewStyle: {
         // flex: 0.7,
-        height: 650,
+        height: '70%',
         backgroundColor: 'white',
         borderRadius: 15,
         // position: 'absolute',
@@ -129,6 +152,9 @@ const styles = StyleSheet.create({
     addExpenseBtnView: {
 
         alignItems: 'center', 
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent:'space-between',
         margin: 20,
     },
     
