@@ -5,6 +5,9 @@ import BudgetCard from '../components/BudgetCard';
 import firestore from '@react-native-firebase/firestore';
 import AddBudgetModal from '../components/AddBudgetModal';
 import AddExpenseModal from '../components/AddExpenseModal';
+import BudgetDetails from '../components/BudgetDetails';
+import BudgetTransactionCard from '../components/BudgetTransactionCard';
+
 
 export default function UserDashboardScreen({route}) {
 
@@ -12,32 +15,27 @@ export default function UserDashboardScreen({route}) {
   const { getCurrentUserDetails, currentUser, getExpenses, addExpense, addBudget, accessToken } = useAppConext();
   const [isAddBudgetModalVisible, setAddBudgetModalVisible] = useState(false);
   const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
+  const [isbudgetCardPressed, setIsBudgetCardPressed] = useState(false);
+  const [budgetDetailsModalVisible, setBudgetDetailsModalVisible]  = useState(false);
   const [budgets, setBudgets] = useState([]);
+  const [budgetExpenses, setBudgetExpenses] = useState([]);
+  const [filteredBudgetTransactions, setFilteredBudgetTransactions] = useState([]);
+
+  const [budgetNamePressed, setBudgetNamePressed] = useState('');
+  const [budgetAmountAllocatedPressed, setBudgetAmountAllocatedPressed] = useState(0);
+  const [budgetAmountSpentPressed, setBudgetAmountSpentPressed] = useState(0);
+  const [budgetIDPressed, setBudgetIDPressed] = useState('');
+
   let amountSpent = 0;
-  // const [budgetExpenses, setBudgetExpenses] = useState([]);
   let currentAccountBalance = 0;
-  let budgetNames = [];
 
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const date = new Date()
   let current_month = months[date.getMonth()];
-  // console.log("ID (dashboard screen): " + userID);
 
-  const displayAddBudgetModal = () => {
-    setAddBudgetModalVisible(!isAddBudgetModalVisible);
-    // console.log("touchable opacity has been pressed!");
-
-  
-  }
-
-  // creating budgets 
+  // function which creates budgets and writes the data to Firestore
   const createBudget = (budgetName, category, amountAllocated, budgetType) => {
 
-    // console.log("Create budget from screen");
-    // console.log("budgetName: " + budgetName);
-    // console.log("category: " + category);
-    // console.log("amountAllocated: " + amountAllocated);
-    console.log("Budget Type in userdashboard:", budgetType)
     addBudget({budgetName, category, amountAllocated, budgetType});
     setAddBudgetModalVisible(!isAddBudgetModalVisible);
 
@@ -69,6 +67,7 @@ export default function UserDashboardScreen({route}) {
 
   // reading the budgets from the budgets subcollection in firestore
   const getBudgets = async () => {
+
     await firestore().collection('Users').doc(userID).collection('Budgets').get()
     .then((budgetSnapshot) => {
 
@@ -82,13 +81,9 @@ export default function UserDashboardScreen({route}) {
       })) 
       // console.log("New data:", newData)
       setBudgets(newData);
-      // console.log("Dashboard budgets:", budgets);
+      console.log("Dashboard budgets:", budgets);
     })
   }
-  
-  // budgets.forEach(budget => {console.log("Pushing to budget names: " + budget.budgetName), budgetNames.push(budget.budgetName)});
-  budgets.forEach(budget => {budgetNames.push(budget.budgetName)});
-  // console.log("All budget Names: " + budgetNames);
 
   // toggles expense modal and the id of the budget pressed is passed
   const toggleExpenseModal = () => {
@@ -111,16 +106,33 @@ export default function UserDashboardScreen({route}) {
       }
     })
   
-    // writing the amount spent to the database 
+    // writing the amount spent to the Budgets subcollection in firestore 
     try {
 
       const budgetCollectionRef = firestore().collection('Users').doc(userID)
         .collection('Budgets').doc(budgetId);
 
       budgetCollectionRef.set({
-        amountSpent: parseInt(amountSpent),
+        amountSpent: parseFloat(amountSpent),
+        // expenses: [{
+
+        //   amountSpent: parseFloat(amount),
+        //   description: desc
+        // }
 
       }, {merge: true})
+      .then(() => console.log("Amount spent added to firestore"));
+
+      const expenseCollectionRef = firestore().collection('BudgetExpenses').doc();
+      
+      expenseCollectionRef.set({
+
+        amountSpent: parseFloat(amount),
+        budgetId: budgetId,
+        description: desc
+
+      }, {merge: true})
+      .then(() => console.log("Expense added to firestore with document ID:", expenseCollectionRef.id));
         
     } catch (error) {
         console.log("Error adding amount spent to firestore: " + error);
@@ -129,6 +141,25 @@ export default function UserDashboardScreen({route}) {
 
     addExpense({amount, budgetName, desc});
     setExpenseModalVisible(!isExpenseModalVisible);
+  }
+
+  const getBudgetExpenses = async () => {
+    console.log("Getting budget expenses");
+    await firestore().collection('BudgetExpenses').get()
+    .then((expenseSnapshot) => {
+
+      // console.log("Total number of budgets stored in firestore: " + expenseSnapshot.size);
+      const expenseData = expenseSnapshot.docs
+      .map((expense) => ({
+
+        ...expense.data(), id:expense.id
+      }))
+
+      // console.log("New EXPENSE data:", expenseData);
+      setBudgetExpenses(expenseData);
+      console.log("EXPENSE DATA:", expenseData);
+    })
+    
   }
 
   // function which retrieves the user's current account balance 
@@ -162,11 +193,51 @@ export default function UserDashboardScreen({route}) {
   useEffect(() => {
     getCurrentUserDetails(userID);
     getBudgets();
+    getBudgetExpenses();
     // getAccountBalance();
   }, [])
+
+  const getSpecificExpenses = (budgetId) => {
+
+      // retrieving transactions for a specific budget in Firestore
+      firestore().collection('BudgetExpenses').where('budgetId', '==', budgetId).get()
+      .then((querySnapshot) => {
+          
+          // console.log("TOTAL TRANSACTIONS", querySnapshot.size);
+          const transactions = querySnapshot.docs
+          .map((transaction) => ({
+  
+              // id: transaction.id,
+              // date: transaction.data().date,
+              description: transaction.data().description,
+              amount: transaction.data().amount,
+              budgetId: transaction.data().budgetId,
+              ...transaction.data(), id:transaction.id
+          }))
+  
+          setFilteredBudgetTransactions(transactions);
+          console.log("transactions length", transactions.length);
+      })
+  }
+
+
+  const onBudgetCardPress = (budgetId, budgetName, amountAllocated, amountSpent) => {
+
+    console.log("onBudgetCardPress for: " + budgetName);
+    setBudgetNamePressed(budgetName);
+    setBudgetAmountAllocatedPressed(amountAllocated);
+    setBudgetAmountSpentPressed(amountSpent);
+    setBudgetIDPressed(budgetId);
+    setIsBudgetCardPressed(!isbudgetCardPressed)
+    setBudgetDetailsModalVisible(true);
+    getSpecificExpenses(budgetId);
+
+  }
   
   return (
     
+    <>
+
     <ScrollView style={styles.screenLayout}>
         <Text style={styles.text}>Hello {currentUser}!</Text>
 
@@ -178,6 +249,7 @@ export default function UserDashboardScreen({route}) {
           <Text style={styles.monthText}>{current_month}</Text>
         </View>
 
+
         <View style={styles.budgetCardView}>
 
           <View style={styles.textContainer}>
@@ -186,7 +258,7 @@ export default function UserDashboardScreen({route}) {
             </View>
 
             <View>
-              <TouchableOpacity style={styles.addBudgetButton} onPress={displayAddBudgetModal}>
+              <TouchableOpacity style={styles.addBudgetButton} onPress={() => setAddBudgetModalVisible(!isAddBudgetModalVisible)}>
                 <Text style={styles.subtitle}>Add Budget</Text>
               </TouchableOpacity>
             </View>
@@ -207,16 +279,30 @@ export default function UserDashboardScreen({route}) {
         
             {
               budgets.map((budget, i) => {
-
-                console.log("budget details: name: " + budget.budgetName + " category: " + budget.category + " amount allocated: " + budget.amountAllocated + " Amomunt spent: " + budget.amountSpent + " budget type: " + budget.budgetType)
+                
+                // console.log("budget details: name: " + budget.budgetName + " ID: " + budget.budgetId  +" category: " + budget.category + " amount allocated: " + budget.allocatedAmount + " Amomunt spent: " + budget.amountSpent + " budget type: " + budget.budgetType)
                 const amountSpent = getExpenses(budget.budgetName).reduce((total, expense) => parseInt(total) + parseInt(expense.amount), 0)
                 return (
-                  <BudgetCard key={i} budgetName={budget.budgetName} category={budget.category} 
-                  amountAllocated={budget.allocatedAmount} amountSpent={budget.amountSpent} 
-                  budgetType={budget.budgetType} budgets={budgets}/>
+
+                    <TouchableOpacity onPress={() => onBudgetCardPress(budget.budgetId, budget.budgetName, budget.allocatedAmount, budget.amountSpent)}>
+
+                      <BudgetCard key={i} budgetName={budget.budgetName} category={budget.category} 
+                      amountAllocated={budget.allocatedAmount} amountSpent={budget.amountSpent} 
+                      budgetType={budget.budgetType} budgets={budgets}/>
+                    </TouchableOpacity>
                 );
               })
             }
+
+            {
+
+              isbudgetCardPressed && (
+                
+                <BudgetDetails isVisible={budgetDetailsModalVisible} budgetName={budgetNamePressed}
+                allocatedAmount={budgetAmountAllocatedPressed} budgetId={budgetIDPressed}
+                closeModal={() => {setBudgetDetailsModalVisible(!budgetDetailsModalVisible)}} amountSpent={budgetAmountSpentPressed} filteredExpenses={filteredBudgetTransactions}/>
+              )
+            } 
           </ScrollView>
         </View>
 
@@ -229,7 +315,7 @@ export default function UserDashboardScreen({route}) {
           closeModal={() => {setExpenseModalVisible(false)}} onAddExpenseClick={submitAddExpense}
           budgets={budgets}/>
 
-        <View style={styles.budgetCardView}>
+        <ScrollView style={styles.budgetCardView}>
           <View style={styles.textContainer}>
               <View>
                 <Text style={styles.text}>Recent Transactions</Text>
@@ -241,16 +327,38 @@ export default function UserDashboardScreen({route}) {
                 </TouchableOpacity>
               </View>
             </View>
-        </View>
+
+            {
+              // displaying the 5 recent transactions using data from firebase
+              budgetExpenses.slice(0,5).map((expense, i) => {
+
+                return (
+                  <View>
+                    <BudgetTransactionCard key={i} amount={expense.amountSpent} description={expense.description}/>
+                  </View>
+
+                )
+              })
+            }
+
+          {
+
+            budgetExpenses.length == 0 && 
+              <View style={styles.emptyBudgetViewContainer}>
+                <View style={styles.emptyBudgetView}>
+                  <Text style={styles.screenTextStyle}>There are no recent transactions to be displayed.</Text>
+                </View>
+              </View>
+          }
+        </ScrollView>
     </ScrollView>
+    </>
   )
 }
 
 const styles = StyleSheet.create({
 
     screenLayout: {
-        // borderWidth: 4,
-        // borderColor: 'orange',
         flex: 1,
         backgroundColor: '#fafafa',
         paddingTop: 30,
@@ -258,6 +366,7 @@ const styles = StyleSheet.create({
     },
 
     textContainer: {
+      // borderWidth: 5,
       flexDirection: 'row',
       // justifyContent: 'center'
 
