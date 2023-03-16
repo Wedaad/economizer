@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from'react-native';
-import { Ionicons, MaterialCommunityIcons, AntDesign   } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from'react-native';
+import { Ionicons, AntDesign   } from '@expo/vector-icons';
 import firestore from '@react-native-firebase/firestore';
 import { useAppConext } from '../context/AppContext';
 import Modal from 'react-native-modal';
@@ -10,18 +10,40 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
 
     const [editBudgetModalVisible, setEditBudgetModalVisible] = useState(false);
     const [deleteBudgetModalVisible, setDeleteBudgetModalVisible] = useState(false);
+    const [editBudgetName, setEditBudgetName] = useState('');
+    const [editAllocatedAmount, setEditAllocatedAmount] = useState(0);
     const { deleteBudget, currentUserID } = useAppConext();
+    const [isErrorVisible, setIsErrorVisible] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+
     console.log(budgetId);
 
-    const editBudget = () => {
+    const editBudget = (budgetId) => {
 
-        console.log('in editBudget');
+        if(editBudgetName === '' && editAllocatedAmount === 0){ // if the user has not entered a name or amount, then changes are not written to Firestore
+
+            setEditBudgetModalVisible(!editBudgetModalVisible);
+
+        } else {
+
+            const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
+            .collection('Budgets').doc(budgetId);
+
+            //updating the budget
+            budgetCollectionRef.update({
+                budgetName: editBudgetName,
+                allocatedAmount: editAllocatedAmount
+            })
+            .then(() => console.log('Budget updated successfully'))
+
+            clearModalInputs();
+            setEditBudgetModalVisible(!editBudgetModalVisible);
+        }
     }
 
-    // function which deletes a 
+    // function which deletes a budget
     const removeBudget = (budgetId) => {
 
-        console.log('in deleteBudget for budgetId:', budgetId);
         const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
         .collection('Budgets').doc(budgetId);
 
@@ -36,6 +58,14 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
         }) 
         deleteBudget({budgetId})
         setDeleteBudgetModalVisible(!deleteBudgetModalVisible);
+    }
+
+    // function that clears the input fields
+    const clearModalInputs = () => {
+
+        setEditBudgetName('');
+        setIsErrorVisible(false);
+        setEditAllocatedAmount(0);
     }
 
     return (
@@ -56,7 +86,7 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
                     </View>
 
                     <View style={styles.buttonViewContainer}>
-                        <TouchableOpacity style={styles.editBudgetButton} onPress={() => editBudget()}>
+                        <TouchableOpacity style={styles.editBudgetButton} onPress={() => setEditBudgetModalVisible(!editBudgetModalVisible)}>
                             <Text style={styles.buttonText}>Edit Budget</Text>
                         </TouchableOpacity>
 
@@ -71,20 +101,21 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
 
                     <View>
                         <Text style={{textAlign: 'center', fontSize: 25, fontFamily: "GTWalsheimPro-Bold"}}>Recent Budget Transactions</Text>
+                    
                         {
                             filteredExpenses.map((transaction, i) => {
-
+                                
                                 return (
+                                    
                                     <View key={i}>
                                         <BudgetTransactionCard amount={transaction.amountSpent} description={transaction.description}/>
                                     </View>
 
                                 )
-                            })
-
+                                })
 
                         }
-                        
+         
                         {
                             filteredExpenses.length === 0 &&
                             <View>
@@ -94,6 +125,15 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
                         }
     
                     </View>
+                    {amountSpent > allocatedAmount && (
+
+                        <View style={{position: 'absolute', bottom: 10, alignSelf: 'center'}}>
+                            <Text style={{textAlign: 'center', fontSize: 20, fontFamily: "GTWalsheimPro-Regular", color: 'red'}}>OVER BUDGET</Text>
+                            <Text style={{textAlign: 'center', fontSize: 20, fontFamily: "GTWalsheimPro-Regular"}}>TOTAL AMOUNT SPENT: &euro;{amountSpent}</Text>
+                        </View>
+
+                    )}
+
                     <View style={{position: 'absolute', bottom: 10, alignSelf: 'center'}}>
                         <Text style={{textAlign: 'center', fontSize: 20, fontFamily: "GTWalsheimPro-Regular"}}>TOTAL AMOUNT SPENT: &euro;{amountSpent}</Text>
                     </View>
@@ -116,7 +156,7 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
                         </View>
 
                         <View style={{marginTop: 50, alignSelf: 'center'}}>
-                            <TouchableOpacity style={styles.deleteBudgetButton}  onPress={() => removeBudget(budgetId)}>
+                            <TouchableOpacity style={styles.Button}  onPress={() => removeBudget(budgetId)}>
                                <Text style={styles.buttonText}>Delete Budget</Text>
                             </TouchableOpacity>
                         </View>
@@ -124,15 +164,83 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
                 </Modal>
                 )
             }
+
+            {
+                editBudgetModalVisible && (
+
+                    <Modal isVisible={editBudgetModalVisible} avoidKeyboard={true}>
+                        <View style={styles.editModal}> 
+                        
+                            <View style={{display: 'flex', flexDirection: 'row', justifyContent:'space-between'}}>
+                                <Text style={{fontSize: 30, fontFamily: "GTWalsheimPro-Regular", margin: 10}}>Edit Budget</Text>
+                                <Ionicons name="ios-close" size={24} color="black" onPress={() => {
+                                    setEditBudgetModalVisible(false)
+                                    clearModalInputs();
+                                    }}/>
+                            </View>
+                    
+                            <View>
+                                <Text style={styles.labels}>Edit Budget Name</Text>
+                                <TextInput style={styles.textInput}
+                                onChangeText={(newName) => {
+                                   
+                                    if(newName === '') { 
+                                        setEditBudgetName(budgetName);
+                                    }
+                                    else {
+                                        setEditBudgetName(newName)
+                                    }
+                                }}
+                                value={editBudgetName}
+                                />
+
+                                <Text style={styles.labels}>Edit Allocated Amount</Text>
+                                <TextInput style={styles.textInput}
+                                onChangeText={(newAmount) => {
+                                    if(newAmount < allocatedAmount) {
+                                        setErrorMsg('Allocated amount cannot be less than the amount previously allocated');
+                                        setIsErrorVisible(true);
+                                        return
+
+                                    } else if (newAmount === 0) {
+
+                                        newAmount = allocatedAmount;
+                                        setEditAllocatedAmount(allocatedAmount);
+                                        
+                                    } else {
+
+                                        setIsErrorVisible(false);
+                                        setEditAllocatedAmount(newAmount);
+                                    }
+                                }}
+                                keyboardType='numeric'
+                                value={editAllocatedAmount}
+                                />
+                            </View>
+
+                            {isErrorVisible && (<Text style={{color: 'red', fontFamily: 'GTWalsheimPro-Regular'}}>Error: {errorMsg}</Text>)}
+
+                            <View style={{marginTop: 20, alignSelf: 'center'}}>
+                                <TouchableOpacity style={styles.Button}  onPress={() => editBudget(budgetId)}>
+                                    <Text style={styles.buttonText}>Save Changes</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+                )
+
+
+            }
+
+
         </>
     )
 }
 
-
+// styling for budget details modal screen
 const styles = StyleSheet.create({
+
     screenLayout: {
-        // borderWidth: 4,
-        // borderColor: 'orange',
         padding: 20,
         flex: 1,
         backgroundColor: 'white'
@@ -170,7 +278,7 @@ const styles = StyleSheet.create({
 
     },
 
-    deleteBudgetButton: {
+    Button: {
         backgroundColor: '#8B19FF',
         padding: 10,
         borderRadius: 15,
@@ -190,6 +298,30 @@ const styles = StyleSheet.create({
         padding: 15,
         height: 200,
         borderRadius: 20
+    },
+
+    editModal: {
+
+        backgroundColor: 'white',
+        padding: 15,
+        borderRadius: 20
+    },
+
+    labels: {
+
+        fontSize: 15,
+        margin: 10,
+        fontFamily: 'GTWalsheimPro-Regular',
+    },
+
+    textInput: {
+
+        height: 50,
+        borderColor: '#9B9B9B',
+        color: 'black',
+        borderWidth: 1.5,
+        borderRadius: 4,
+        padding: 10,
     },
 
   });
