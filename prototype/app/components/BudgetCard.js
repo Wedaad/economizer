@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'; 
-import { Text, StyleSheet, View, Button, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, Button, Image } from 'react-native';
 import { Bar as ProgressBar } from 'react-native-progress';
 import firestore from '@react-native-firebase/firestore';
 import { useAppConext } from '../context/AppContext';
@@ -14,6 +14,77 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
         const sunday = new Date(date)
         return sunday.getDay() === 0
+
+    }
+
+
+    const renderCategoryIcon = (category) => {
+        switch (category) {
+
+            case 'Restaurants & Food':
+                return (
+                    
+                    <Image source={require('../assets/icons/restaurant.png')} style={{width: 90, height: 90, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                   
+                )
+
+            case 'Entertainment':
+                return (
+                   
+                    <Image source={require('../assets/icons/party-emoji.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                   
+                )
+            
+            case 'Shopping':
+                return (
+                   
+                    <Image source={require('../assets/icons/shopping.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                  
+                )
+            
+            case 'Groceries':
+                return (
+            
+                    <Image source={require('../assets/icons/groceries.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                   
+                )
+            
+            case 'Travel & Holidays':
+                return (
+                   
+                    <Image source={require('../assets/icons/plane.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                 
+                )
+            
+            case 'Health & Fitness':
+                return (
+                    
+                    <Image source={require('../assets/icons/gym.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                    
+                )
+
+            case 'Utilities & Bills':
+                return (
+                    
+                    <Image source={require('../assets/icons/bills.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                
+                )
+            
+            case 'Rent':
+                return (
+
+                    <Image source={require('../assets/icons/rent.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                    
+                )
+            
+            case 'Rent':
+                return (
+
+                    <Image source={require('../assets/icons/transport.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                    
+                )
+    }
+        
 
     }
 
@@ -86,6 +157,9 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
                 
 
             <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+
+            {renderCategoryIcon(category)}
+
             <View style={styles.progressBar}>
                 <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
             </View>
@@ -143,7 +217,7 @@ const styles = StyleSheet.create({
     progressBar: {
 
         position: 'absolute',
-        bottom: 20,
+        bottom: 10,
         alignSelf: 'center'
 
     },
