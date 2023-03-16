@@ -1,14 +1,13 @@
 import React, {useState} from 'react'; 
 import { Text, StyleSheet, View } from 'react-native';
 
-
 export default function BudgetTransactionCard({amount, description}) {
 
   return (
 
     <View style={styles.transactionCard}>
         <Text style={{fontFamily: "GTWalsheimPro-Regular", fontSize: 20}}>{description}</Text>
-        <Text>&euro;{amount}</Text>
+        <Text style={{fontFamily: "GTWalsheimPro-Regular", fontSize: 20}}>&euro;{amount}</Text>
     </View>
   )
 }
@@ -18,12 +17,13 @@ const styles = StyleSheet.create({
     transactionCard: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 15,
+        padding: 10,
         borderRadius: 10, 
-        // marginBottom: 10,
         backgroundColor: '#fafafa',
-        borderWidth: 1,
         marginTop: '5%',
+        elevation: 2,
+        marginRight: '2%',
+        marginLeft: '2%'
         
     },
 
