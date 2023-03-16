@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons, AntDesign } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { SelectList } from 'react-native-dropdown-select-list';
 import DatePicker from 'react-native-date-picker'
 
@@ -14,18 +14,19 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
     const [date, setDate] = useState(new Date())
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
+    // populates the dropdown list with all the budget names
     let selectOptions = budgets.map((budget) => {
         return {key: budget.budgetId, value: budget.budgetName}
     })
 
+    // clears modal fields when modal is closed
     const clearModalInputs = () => {
-
-        console.log("CLEARING EXPENSE MODAL INPUTS!");
         setDescription('');
         setBudgetName('');
         setAmount(0);
     }
 
+    // displays the expense modal
     return (
         <>
             <Modal isVisible={isVisible} avoidKeyboard={true}>
@@ -65,7 +66,6 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
                                 }}
                                 data={selectOptions} 
                                 placeholder={"Select Budget Name"}
-                                // defaultOption={defaultId}
                                 search={false}
                                 fontFamily="GTWalsheimPro-Regular"
                                 save="value"
@@ -79,7 +79,6 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
                                         onConfirm={(date) => {
                                             setIsDatePickerOpen(false)
                                             setDate(date)
-                                            console.log("DATE PICKED: ", date)
                                         }}
                                             onCancel={() => {
                                             setIsDatePickerOpen(false)
@@ -109,13 +108,9 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
 const styles = StyleSheet.create({
 
     modalViewStyle: {
-        // flex: 0.7,
         height: '70%',
         backgroundColor: 'white',
         borderRadius: 15,
-        // position: 'absolute',
-        // borderWidth: 3,
-        // borderColor: 'brown',
 
     },
 
@@ -180,31 +175,5 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         padding: 10,
     },
-
-    dropdownContainer: {
-
-        backgroundColor: 'white',
-        padding: 16
-    },
-
-    dropdown: {
-
-        height: 50, 
-        borderColor: '#9B9B9B',
-        borderWidth: 0.5,
-        borderRadius: 8,
-        paddingHorizontal: 8
-    },
-
-    iconStyle: {
-        width: 20,
-        height: 20,
-    },
-      
-    inputSearchStyle: {
-        height: 40,
-        fontSize: 16,
-    },
-
 
 });
