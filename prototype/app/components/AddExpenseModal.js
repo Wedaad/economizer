@@ -108,7 +108,7 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
 const styles = StyleSheet.create({
 
     modalViewStyle: {
-        height: '70%',
+        height: 600,
         backgroundColor: 'white',
         borderRadius: 15,
 
