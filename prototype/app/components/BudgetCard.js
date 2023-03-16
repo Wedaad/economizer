@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'; 
-import { Text, StyleSheet, View, Button } from 'react-native';
+import { Text, StyleSheet, View, Button, TouchableOpacity } from 'react-native';
 import { Bar as ProgressBar } from 'react-native-progress';
 import firestore from '@react-native-firebase/firestore';
 import { useAppConext } from '../context/AppContext';
@@ -9,16 +9,6 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     let current_date = new Date();
     const { currentUserID } = useAppConext();
-
-    const initialState = {
-        budgetName: budgetName,
-        category: category,
-        amountAllocated: amountAllocated,
-        amountSpent: 0,
-        budgetType: budgetType,
-    };
-
-    console.log("Initial state:", initialState)
 
     // function which returns true or false if the day of the week is Sunday
     const isSunday = (date = new Date()) => {
@@ -83,17 +73,17 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
             return 'red';
         }
 
-    }   
+    } 
 
     return (
 
         <View style={[styles.budgetCard, styles.shadow]}>
+            <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category}</Text>
+
             <View style={styles.budgetCardItems}>
                 <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
             </View>
-            
-            <Text>{category}</Text>
-        
+                
 
             <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
             <View style={styles.progressBar}>
@@ -101,33 +91,26 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
             </View>
                 
         </View>
+       
 
     );
 }
 
 const styles = StyleSheet.create({
 
-    title: {
-        padding: 8, 
-        fontSize: 25,
-        fontFamily: 'Rubik-Regular',
-    },
-
     budgetCard: {
 
-        // flexDirection: 'row',
-        // justifyContent: 'space-between',
-        // marginTop: 10,
-        // borderColor: '#f5f5f5',
+        height: '95%',
         borderRadius: 15,
         backgroundColor: '#fafafa',
-        // borderWidth: 1,
+        // borderWidth: 2,
         paddingBottom: 50,
         paddingLeft: 10,
         paddingRight: 10,
         paddingTop: 5,
-        width: 150,
+        width: 170,
         margin: 10,
+        elevation: 3,
         
     },
 
@@ -144,18 +127,6 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
     },
 
-    budgetCardBtns: {
-
-        // borderColor: 'purple',
-        // borderWidth: 4,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-    },
-
     budgetCardAmountText: {
 
         fontSize: 20,
@@ -167,33 +138,14 @@ const styles = StyleSheet.create({
 
         fontSize: 20,
         fontFamily: 'GTWalsheimPro-Regular',
-        // fontFamily: 'Rubik-Medium',
+
     },
 
-    addExpenseBtn: {
-
-        // borderColor: 'green',
-        // borderWidth: 4,
-        marginRight: 10,
-        marginBottom: 10,
-    },
-
-    viewExpenseBtn: {
-
-        // borderColor: 'pink',
-        // borderWidth: 4,
-        marginRight: 10,
-        marginBottom: 10,
-    },
-    
     progressBar: {
 
-        // borderColor: 'red',
-        // borderWidth: 4,
-        // marginBottom: 15,
-        marginTop: 90,
+        position: 'absolute',
+        bottom: 20,
         alignSelf: 'center'
-        
 
     },
 
