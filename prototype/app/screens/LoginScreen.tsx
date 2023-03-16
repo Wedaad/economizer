@@ -36,19 +36,12 @@ function LoginScreen({navigation}:any) {
             return
         }
 
-        // if (!email && !password) {
-
-        //     setIsVisible(true);
-        //     setErrorMsg("Email and password fields must be filled to login.");
-        //     return
-        // }
 
         auth()
         .signInWithEmailAndPassword(email, password)
         .then((response) => {
 
             const user = response.user.uid
-            // navigation.navigate("Home", {screen: 'Dashboard', params: {user_id: "user"}}); 
             console.log(user);
             navigation.navigate("Dashboard", {user_id: user, username: username});  
         })
@@ -129,25 +122,20 @@ function LoginScreen({navigation}:any) {
 
 }
 
+// styling for login screen
 const styles = StyleSheet.create({
 
     screenLayout: {
         flex: 1,
-        // borderWidth: 4,
-        // borderColor: 'orange',
-        // backgroundColor: 'white',
     },
 
     background: {
         flex: 1,
-        // borderWidth: 4,
-        // borderColor: 'pink',
+
     },
 
     scrollable: {
         flex: 1,
-        // borderWidth: 4,
-        // borderColor: 'purple',
 
     },
 
@@ -163,8 +151,7 @@ const styles = StyleSheet.create({
     formContainer: {
 
         margin: 20,
-        // borderWidth: 4,
-        // borderColor: 'green',
+
     },
 
     textInput: {
