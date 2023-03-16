@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import Modal from 'react-native-modal';
 import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
-import IconPicker from "react-native-icon-picker";
 import RadioButtonRN from 'radio-buttons-react-native';
 
 
@@ -23,11 +22,9 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
             label: 'monthly'
         },
 
-        {
-            label: 'annually'
-        }
     ];
 
+    // function that clears the input fields
     const clearModalInputs = () => {
 
         setBudgetName('');
@@ -85,16 +82,13 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
     )
 }
 
+// styling for the add budget modal component
 const styles = StyleSheet.create({
 
     modalViewStyle: {
-        // flex: 0.7,
-        height: 600,
+        height: 550,
         backgroundColor: 'white',
         borderRadius: 15,
-        // position: 'absolute',
-        // borderWidth: 3,
-        // borderColor: 'brown',
 
     },
 
@@ -102,9 +96,6 @@ const styles = StyleSheet.create({
 
         flexDirection: 'row',
         justifyContent: 'space-between',
-        // borderWidth: 3,
-        // borderColor: 'yellow',
-
     },
 
     modalTitle: {
@@ -119,8 +110,6 @@ const styles = StyleSheet.create({
     },
 
     addBudgetForm: {
-        // borderWidth: 5,
-        // borderColor: 'navy',
         padding: 20,
 
     },
@@ -134,7 +123,6 @@ const styles = StyleSheet.create({
 
     textInput: {
 
-        // marginLeft: 15,
         height: 50,
         borderColor: '#9B9B9B',
         color: 'black',
@@ -163,18 +151,5 @@ const styles = StyleSheet.create({
         backgroundColor: '#8B19FF',
         borderRadius: 10,
     },
-
-    iconSelectorPrompt: {
-
-        fontSize: 15,
-        margin: 10,
-        fontFamily: 'GTWalsheimPro-Regular',
-        borderRadius: 10,
-        backgroundColor: '#8B19FF',
-        color: "white",
-        padding: 10,
-        width: 165,
-    },
-
 
 });
