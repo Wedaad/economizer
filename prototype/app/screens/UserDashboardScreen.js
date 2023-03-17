@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import{ View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import{ View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { useAppConext } from '../context/AppContext';
 import BudgetCard from '../components/BudgetCard';
 import firestore from '@react-native-firebase/firestore';
@@ -7,6 +7,7 @@ import AddBudgetModal from '../components/AddBudgetModal';
 import AddExpenseModal from '../components/AddExpenseModal';
 import BudgetDetails from '../components/BudgetDetails';
 import BudgetTransactionCard from '../components/BudgetTransactionCard';
+import { VictoryPie } from 'victory-native';
 
 
 export default function UserDashboardScreen({route}) {
@@ -27,7 +28,9 @@ export default function UserDashboardScreen({route}) {
   const [budgetIDPressed, setBudgetIDPressed] = useState('');
 
   let amountSpent = 0;
-  let currentAccountBalance = 0;
+  let total = 0;
+  const [totalBudgetExpenses, setTotalBudgetExpenses] = useState(0);
+  const [currentAccountBalance, setCurrentAccountBalance] = useState(0);
 
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const date = new Date()
@@ -53,7 +56,8 @@ export default function UserDashboardScreen({route}) {
             category: category,
             budgetId: budgetCollectionRef.id,
             budgetName: budgetName,
-            budgetType: budgetType
+            budgetType: budgetType,
+            totalExpenses: 0
 
         })
         .then(() => console.log("Budget added to firestore, with document ID:", budgetCollectionRef.id));
@@ -94,7 +98,10 @@ export default function UserDashboardScreen({route}) {
   }
 
 
-  const submitAddExpense = (amount, budgetName, desc, budgetId) => {
+  const submitAddExpense = (amount, budgetName, desc, budgetId, date) => {
+
+    // let expenseDate = new Date(date);
+    // expenseDate = `${expenseDate.getDate()}/${expenseDate.getMonth() + 1}/${expenseDate.getFullYear()}`;
 
     budgets.forEach(budget => {
 
@@ -102,23 +109,21 @@ export default function UserDashboardScreen({route}) {
 
         budget.amountSpent += parseInt(amount);
         amountSpent = budget.amountSpent;
+        budget.totalExpenses += 1
+        total = budget.totalExpenses;
        
       }
     })
   
     // writing the amount spent to the Budgets subcollection in firestore 
     try {
-
+      console.log("inside submitAddExpense");
       const budgetCollectionRef = firestore().collection('Users').doc(userID)
         .collection('Budgets').doc(budgetId);
 
       budgetCollectionRef.set({
         amountSpent: parseFloat(amountSpent),
-        // expenses: [{
-
-        //   amountSpent: parseFloat(amount),
-        //   description: desc
-        // }
+        totalExpenses: total
 
       }, {merge: true})
       .then(() => console.log("Amount spent added to firestore"));
@@ -129,7 +134,8 @@ export default function UserDashboardScreen({route}) {
 
         amountSpent: parseFloat(amount),
         budgetId: budgetId,
-        description: desc
+        description: desc,
+        date: date
 
       }, {merge: true})
       .then(() => console.log("Expense added to firestore with document ID:", expenseCollectionRef.id));
@@ -144,8 +150,9 @@ export default function UserDashboardScreen({route}) {
   }
 
   const getBudgetExpenses = async () => {
-    console.log("Getting budget expenses");
-    await firestore().collection('BudgetExpenses').get()
+
+    // retrieving the 4 most recent transactions from the BudgetExpenses collection
+    await firestore().collection('BudgetExpenses').orderBy('date').limit(4).get()
     .then((expenseSnapshot) => {
 
       // console.log("Total number of budgets stored in firestore: " + expenseSnapshot.size);
@@ -155,9 +162,8 @@ export default function UserDashboardScreen({route}) {
         ...expense.data(), id:expense.id
       }))
 
-      // console.log("New EXPENSE data:", expenseData);
       setBudgetExpenses(expenseData);
-      console.log("EXPENSE DATA:", expenseData);
+  
     })
     
   }
@@ -183,46 +189,39 @@ export default function UserDashboardScreen({route}) {
       // console.log("Current balance retrieved from server: ", data.Balance.accounts[0]["balances"]["current"]);
       // console.log("Available balance retrieved from server: ", data.Balance.accounts[0]["balances"]["available"]);
 
-      currentAccountBalance = data.Balance.accounts[0]["balances"]["current"];
+      // currentAccountBalance = data.Balance.accounts[0]["balances"]["current"];
+      setCurrentAccountBalance(data);
       console.log("Current account balance 2: ", currentAccountBalance);
 
     })
 
   }
-  console.log("ACCESS TOKEN: " + accessToken);
-  useEffect(() => {
-    getCurrentUserDetails(userID);
-    getBudgets();
-    getBudgetExpenses();
-    // getAccountBalance();
-  }, [])
 
+  
   const getSpecificExpenses = (budgetId) => {
 
-      // retrieving transactions for a specific budget in Firestore
-      firestore().collection('BudgetExpenses').where('budgetId', '==', budgetId).get()
+      // retrieving the 4 most recent transactions for a specific budget in Firestore
+      firestore().collection('BudgetExpenses').where('budgetId', '==', budgetId).orderBy('date')
+      .limit(4).get()
       .then((querySnapshot) => {
+        
+        const transactions = querySnapshot.docs
+        .map((transaction) => ({
           
-          // console.log("TOTAL TRANSACTIONS", querySnapshot.size);
-          const transactions = querySnapshot.docs
-          .map((transaction) => ({
-  
-              // id: transaction.id,
-              // date: transaction.data().date,
               description: transaction.data().description,
               amount: transaction.data().amount,
               budgetId: transaction.data().budgetId,
               ...transaction.data(), id:transaction.id
-          }))
-  
-          setFilteredBudgetTransactions(transactions);
-          console.log("transactions length", transactions.length);
+            }))
+            
+            setFilteredBudgetTransactions(transactions);
+            console.log("transactions length", transactions.length);
       })
+
   }
-
-
+            
   const onBudgetCardPress = (budgetId, budgetName, amountAllocated, amountSpent) => {
-
+          
     console.log("onBudgetCardPress for: " + budgetName);
     setBudgetNamePressed(budgetName);
     setBudgetAmountAllocatedPressed(amountAllocated);
@@ -231,8 +230,97 @@ export default function UserDashboardScreen({route}) {
     setIsBudgetCardPressed(!isbudgetCardPressed)
     setBudgetDetailsModalVisible(true);
     getSpecificExpenses(budgetId);
+          
+  }
+
+  const getChartData = () => {
+
+    let chartData = budgets.map((budget) => {
+
+      return {
+        
+          category: budget.category,
+          expenseCount: budget.totalExpenses,
+          amountSpent: budget.amountSpent,
+          budgetId: budget.budgetId
+        }
+        
+        
+    })
+
+    // filtering out the expenses which have no transactions
+    let filteredExpenses = chartData.filter(expense => expense.amountSpent > 0);
+
+    // calculating total amount spent across all expenses
+    let totalExpense = filteredExpenses.reduce((total, expense) => total + (expense.amountSpent || 0), 0);
+
+    // calculate percentage and repopulate the chartData
+    let finalChartData = filteredExpenses.map((data) => {
+
+      let percentage = (data.amountSpent / totalExpense * 100).toFixed(0);
+
+      return {
+
+        label: `${percentage}%`,
+        y: parseInt(data.amountSpent),
+        expenseCount: data.expenseCount,
+        budgetId: data.budgetId
+      }
+
+    })
+
+    return finalChartData;
 
   }
+
+
+  const renderPieChart = () => {
+
+    let chartData = getChartData();
+    let totalExpenseCount = chartData.reduce((total, data) => total + (data.expenseCount || 0), 0);
+
+      return (
+        <>
+          <VictoryPie
+            data={chartData}
+            colorScale={['#EA40DB', '#74EB4A', '#F5E423', '#32FABA', '#32A3FA', '#D66D65', '#F5E423', '#D62965', '#E3B4FF']}
+            labels={({datum}) => `${datum.y}`}
+            // radius={}
+            innerRadius={110}
+            style={{
+              data: {
+                fillOpacity: 0.9, stroke: "black", strokeWidth: 2
+              },
+              labels: {
+                fontSize: 15,fontFamily: "GTWalsheimPro-Regular"
+              },
+            }}
+            labelRadius={150*0.4+100}
+            width={390}
+            />
+
+            <View style={styles.monthView}>
+              <Text style={styles.monthText}>Total Expenses in</Text>
+              <Text style={styles.monthText}>{current_month}:</Text>
+              <Text style={{textAlign: 'center', fontFamily: 'GTWalsheimPro-Bold', fontSize: 40}}>{totalExpenseCount}</Text>
+
+            </View>
+
+            {/* <View>
+              <Text>Categories</Text>
+            </View> */}
+          </>
+      )
+  }
+
+      
+  console.log("ACCESS TOKEN: " + accessToken);
+  useEffect(() => {
+    getCurrentUserDetails(userID);
+    getBudgets();
+    getBudgetExpenses();
+    // getAccountBalance();
+  }, [])
   
   return (
     
@@ -240,13 +328,18 @@ export default function UserDashboardScreen({route}) {
 
     <ScrollView style={styles.screenLayout}>
         <Text style={styles.text}>Hello {currentUser}!</Text>
+        <Text style={{textAlign: 'center', fontFamily: 'GTWalsheimPro-Bold', fontSize: 35}}>Spending Overview</Text>
 
         <View style={styles.pieChartView}>
-          <Text>Pie chart goes here</Text>
-        </View>
+          {budgets && renderPieChart()}
 
-        <View style={styles.monthView}>
-          <Text style={styles.monthText}>{current_month}</Text>
+          { budgets.length == 0 && 
+            <Text style={{textAlign: 'center', fontFamily: 'GTWalsheimPro-Regular', fontSize:20}}>
+            You haven't created any budgets yet.
+            Create budgets to see a summary of your spending.
+            </Text>
+          }
+        
         </View>
 
 
@@ -280,11 +373,10 @@ export default function UserDashboardScreen({route}) {
             {
               budgets.map((budget, i) => {
                 
-                // console.log("budget details: name: " + budget.budgetName + " ID: " + budget.budgetId  +" category: " + budget.category + " amount allocated: " + budget.allocatedAmount + " Amomunt spent: " + budget.amountSpent + " budget type: " + budget.budgetType)
                 const amountSpent = getExpenses(budget.budgetName).reduce((total, expense) => parseInt(total) + parseInt(expense.amount), 0)
                 return (
 
-                    <TouchableOpacity onPress={() => onBudgetCardPress(budget.budgetId, budget.budgetName, budget.allocatedAmount, budget.amountSpent)}>
+                    <TouchableOpacity onPress={() => onBudgetCardPress(budget.budgetId, budget.budgetName, budget.allocatedAmount, budget.amountSpent)} activeOpacity={1}>
 
                       <BudgetCard key={i} budgetName={budget.budgetName} category={budget.category} 
                       amountAllocated={budget.allocatedAmount} amountSpent={budget.amountSpent} 
@@ -315,7 +407,7 @@ export default function UserDashboardScreen({route}) {
           closeModal={() => {setExpenseModalVisible(false)}} onAddExpenseClick={submitAddExpense}
           budgets={budgets}/>
 
-        <ScrollView style={styles.budgetCardView}>
+        <View style={styles.budgetCardView}>
           <View style={styles.textContainer}>
               <View>
                 <Text style={styles.text}>Recent Transactions</Text>
@@ -330,7 +422,7 @@ export default function UserDashboardScreen({route}) {
 
             {
               // displaying the 5 recent transactions using data from firebase
-              budgetExpenses.slice(0,5).map((expense, i) => {
+              budgetExpenses.map((expense, i) => {
 
                 return (
                   <View>
@@ -350,7 +442,7 @@ export default function UserDashboardScreen({route}) {
                 </View>
               </View>
           }
-        </ScrollView>
+        </View>
     </ScrollView>
     </>
   )
@@ -361,8 +453,7 @@ const styles = StyleSheet.create({
     screenLayout: {
         flex: 1,
         backgroundColor: '#fafafa',
-        paddingTop: 30,
-        paddingHorizontal: 20,
+        padding: 20,
     },
 
     textContainer: {
@@ -409,16 +500,20 @@ const styles = StyleSheet.create({
 
     monthView: {
 
-      borderWidth: 3,
-      borderColor: 'purple',
+      alignSelf: 'center',
+      // borderWidth: 3,
+      // borderColor: 'purple',
+      position: 'absolute',
+      padding: 20,
 
     },
 
     monthText: {
+      textAlign: 'center',
       fontSize: 25,
       fontFamily: 'GTWalsheimPro-Regular',
-
     },
+
     budgetCardView: {
 
       // borderWidth: 3,
@@ -432,9 +527,6 @@ const styles = StyleSheet.create({
     },
 
     budgetCardSrollView: {
-
-      // borderWidth: 3,
-      // borderColor: 'green',
       borderRadius: 20,
       padding: 10,
       marginTop: 5,
@@ -442,9 +534,12 @@ const styles = StyleSheet.create({
     },
 
     pieChartView: {
-
-      borderWidth: 3,
-      borderColor: 'red',
+      
+      backgroundColor: 'white',
+      borderRadius: 20,
+      top: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
       
     },
 
@@ -461,6 +556,18 @@ const styles = StyleSheet.create({
       textAlign: 'center',
       fontSize: 17,
 
+    },
+    shadow: {
+      shadowColor: '#7F5DF0',
+      shadowOffset: {
+  
+        width: 0,
+        height: 10,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 3.5,
+      elevation: 5,
+  
     },
 
 });
