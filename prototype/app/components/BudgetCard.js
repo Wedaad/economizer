@@ -4,7 +4,7 @@ import { Bar as ProgressBar } from 'react-native-progress';
 import firestore from '@react-native-firebase/firestore';
 import { useAppConext } from '../context/AppContext';
 
-export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, budgetType, budgets }) {
+export default function BudgetCard({ budgetName, category, amountSpent, amountAllocated, budgetType, budgetId }) {
 
     let current_date = new Date();
     const { currentUserID } = useAppConext();
@@ -17,78 +17,269 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     }
 
+    function getFirstDayOfMonth(year, month) {
+        return new Date(year, month, 1);
+    }
 
-    const renderCategoryIcon = (category) => {
-        switch (category) {
+    // function which checks whether the current date is the first day of the month
+    const isFirstDayOfMonth = (date = new Date()) => {
+
+        const today = new Date(date)
+        const firstDay = getFirstDayOfMonth(today.getFullYear(), today.getMonth());
+
+        return today.getDate() === firstDay.getDate();
+
+    }
+
+    const renderBudgetCard = (category) => {
+  
+        switch (category.name) {
 
             case 'Restaurants & Food':
                 return (
-                    
-                    <Image source={require('../assets/icons/restaurant.png')} style={{width: 90, height: 90, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
-                   
+
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#F5E423'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/restaurant.png')} style={{width: 90, height: 90, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                        
+                    </View>
+                      
                 )
 
             case 'Entertainment':
                 return (
                    
-                    <Image source={require('../assets/icons/party-emoji.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#EA40DB'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/party-emoji.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                        
+                    </View>
                    
                 )
             
             case 'Shopping':
                 return (
+
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#32FABA'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/shopping.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                    
+                    </View>
                    
-                    <Image source={require('../assets/icons/shopping.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
-                  
                 )
             
             case 'Groceries':
                 return (
+
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#74EB4A'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
             
-                    <Image source={require('../assets/icons/groceries.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/groceries.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                            
+                    </View>
                    
                 )
             
             case 'Travel & Holidays':
                 return (
-                   
-                    <Image source={require('../assets/icons/plane.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#32A3FA'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/plane.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                            
+                    </View>
                  
                 )
             
             case 'Health & Fitness':
                 return (
-                    
-                    <Image source={require('../assets/icons/gym.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#D66D65'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/gym.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                            
+                    </View>
                     
                 )
 
-            case 'Utilities & Bills':
+            case 'Utilities, Rent & Bills':
                 return (
-                    
-                    <Image source={require('../assets/icons/bills.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#F5E423'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/bills.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                            
+                    </View>
                 
                 )
             
-            case 'Rent':
+            case 'Presents & Gifts':
                 return (
 
-                    <Image source={require('../assets/icons/rent.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
-                    
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#D62965'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/gifts.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                            
+                    </View>
                 )
             
-            case 'Rent':
+            case 'Transport':
                 return (
 
-                    <Image source={require('../assets/icons/transport.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#E3B4FF'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/transport.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                            
+                    </View>
+                    
                     
                 )
+            default:
+                return (
+
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#E3B4FF'},styles.budgetCard, styles.shadow]}>
+                        <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
+            
+                        <View style={styles.budgetCardItems}>
+                            <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
+                        </View>
+                            
+            
+                        <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
+            
+                        <Image source={require('../assets/icons/no-category.png')} style={{width: 100, height: 100, resizeMode: 'contain', bottom: 5, alignSelf: 'center'}}/>
+            
+                        <View style={styles.progressBar}>
+                            <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
+                        </View>
+                            
+                    </View>
+                   
+                    
+                )
+        }
+
+
     }
+
+    if(budgetType === 'weekly' && isSunday(current_date)) {
+        resetBudgets(budgetId);
         
+    } 
 
+    if (budgetType === 'monthly' && isFirstDayOfMonth(current_date)) {
+
+        resetBudgets(budgetId);
     }
 
-    // resets budgets to their initial state on a weekly basis
+    // resets budgets to their initial state on a weekly/monthly basis
     const resetBudgets = (budgetId) => {
 
         try {
@@ -98,7 +289,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
             budgetCollectionRef.update({
                 budgetName: budgetName,
-                category: category,
+                category: category.name,
                 allocatedAmount: amountAllocated,
                 amountSpent: 0,
                 budgetType: budgetType,
@@ -111,16 +302,21 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     }
 
-    useEffect (() => {
-        budgets.forEach(budget => {
+    // useEffect (() => {
+    //     budgets.forEach(budget => {
 
-            if(budget.budgetType === 'weekly' && isSunday(current_date)) {
-                resetBudgets(budget.budgetId);
+    //         if(budgetType === 'weekly' && isSunday(current_date)) {
+    //             resetBudgets(budget.budgetId);
                 
-            }
-        })
+    //         } 
 
-    }, [budgets])
+    //         if (budgetType === 'monthly' && isFirstDayOfMonth(current_date)) {
+
+    //             resetBudgets(budget.budgetId);
+    //         }
+    //     })
+
+    // }, [budgets])
     
 
     const getBudgetProgress = (amountSpent, amountAllocated) => {
@@ -148,23 +344,9 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     return (
 
-        <View style={[styles.budgetCard, styles.shadow]}>
-            <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category}</Text>
-
-            <View style={styles.budgetCardItems}>
-                <Text style={styles.budgetCardCategoryText}>{budgetName}</Text>
-            </View>
-                
-
-            <Text style={styles.budgetCardAmountText}>&euro;{amountSpent}/&euro;{amountAllocated}</Text>
-
-            {renderCategoryIcon(category)}
-
-            <View style={styles.progressBar}>
-                <ProgressBar progress={amountSpent/amountAllocated} width={120} unfilledColor={'white'} color={getBudgetProgress(amountSpent, amountAllocated)}/>
-            </View>
-                
-        </View>
+        <>
+            {renderBudgetCard(category)}
+        </>
        
 
     );
@@ -173,7 +355,6 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 const styles = StyleSheet.create({
 
     budgetCard: {
-
         height: '95%',
         borderRadius: 15,
         backgroundColor: '#fafafa',
