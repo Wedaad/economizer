@@ -10,15 +10,23 @@
 */ 
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, Image } from 'react-native';
 import { PlaidLink, LinkSuccess, LinkExit } from 'react-native-plaid-link-sdk';
+import { useAppConext } from '../context/AppContext';
+import firestore from '@react-native-firebase/firestore';
 
-const LinkAccountScrceen = ({navigation, route}: any) => {
+const LinkAccountScrceen = () => {
 
     const [linkToken, setLinkToken] = useState("");
+    const { currentUserID, getAccessToken, accessToken } = useAppConext();
+    const [isLoading, setIsLoading] = useState(true);
 
+    // console.log("Access token on link account screen:", accessToken)
+    
     const generateLinkToken = useCallback(async () => {
         console.log("Awaiting generating of token");
+
+        // http://192.168.1.5:8085
         await fetch('http://192.168.1.5:8085/link/token/create', {
 
             method: 'POST',
@@ -26,8 +34,8 @@ const LinkAccountScrceen = ({navigation, route}: any) => {
 
                 "Content-Type": "application/json"
             },
-
-            body: JSON.stringify({ address: "192.168.1.5" })
+            // passing the current user's document ID to the Node JS server
+            body: JSON.stringify({ userID: currentUserID })
             })
             .then((response) => response.json())
             .then((data) => {
@@ -37,71 +45,116 @@ const LinkAccountScrceen = ({navigation, route}: any) => {
             .catch((err) => {
 
                 console.log("Generating token error: " + err);
+
             });
         }, [setLinkToken])
 
-            useEffect(() => {
+        useEffect(() => {
 
-                if (linkToken == "") {
-                    console.log("Token = ''");
-                    generateLinkToken();
-                }
-            }, [linkToken]);
-    
-    return (
+            if (linkToken == "") {
+                console.log("Token = ''");
+                generateLinkToken();
+            }
+            getAccessToken(currentUserID);
+        }, [linkToken]);
 
-        <View style={styles.screenLayout}>
-            <View>
-                <Text style={styles.subTitle}>Hi <Text style={styles.subTitle}>{route.params.username}</Text></Text>
-                <Text style={styles.title}>Link eConomizer to your bank account by presing the button below</Text>
-            </View>
+        // if the user logged in has an access token
+        if(accessToken) {
 
-            <PlaidLink
-                tokenConfig={{ token: linkToken, noLoadingState: false }}
-                onSuccess={ async (success: LinkSuccess) => {
-                    console.log("Awating exchange of tokens");
+            return (
+                <View style={styles.screenLayout}>
+                    <View>
+                        <Text style={styles.title}>Bank Account Linked</Text>
+                        <Text style={styles.subTitle}>You have successfully linked your eConomizer account to your personal bank account!</Text>
+                    </View>
 
-                    await fetch("http://192.168.1.5:8085/item/public_token/exchange", {
+                    <View style={{alignItems: 'center', marginTop: 90}}>
+                        <Image source={require('../assets/icons/link.png')} style={{width: 300, height: 300, resizeMode: 'contain'}}/>
+                    </View>
+                </View>
 
-                        method: "POST",
+            )
 
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
+        } else if(linkToken) { // if a link token has been generated and the user hasn't linked a bank account
 
-                        body: JSON.stringify({ public_token: success.publicToken}),
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
+            return (
+                
+                <View style={styles.screenLayout}>
+                    <View>
+                        <Text style={styles.title}>Add Bank Account</Text>
+                        <Text style={styles.subTitle}>In order to see transactions from your bank account link your eConomizer
+                        account to your bank account by pressing the button below</Text>
+                    </View>
 
-                    console.log(success + ": " + success.publicToken);   
-                    navigation.navigate('Trasactions', {public_token: success.publicToken}); // Switch the trasaction screen
-                }}
-                onExit={(response: LinkExit) => {
-                    console.log(response);
-                }}
-            >
-                <Text style={styles.linkAccountText}>Link Account</Text>
-            </PlaidLink>
-        </View>
-    );
+                    <View>
+                        <Image source={require('../assets/icons/purple-euro-bank.png')} style={{width: 350, height: 350, resizeMode: 'contain', alignSelf: 'center', marginTop: 35}}/>
+                    </View>
+        
+                    <PlaidLink
+                        tokenConfig={{ token: linkToken, noLoadingState: false }}
+                        onSuccess={ async (success: LinkSuccess) => {
+                            console.log("Awating exchange of tokens");
+                            
+                            // "http://192.168.1.5:8085/item/public_token/exchange"
+                            await fetch("http://192.168.1.5:8085/item/public_token/exchange", {
+        
+                                method: "POST",
+        
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                
+                                // passing the public token and the current user's document ID to the server
+                                body: JSON.stringify({ public_token: success.publicToken, userID: currentUserID}),
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            });
+        
+                            console.log(success + ": " + success.publicToken); 
+                            console.log("Bank account added successfully added!");
+                            
+                            // navigation.navigate('Trasactions', {public_token: success.publicToken}); // Switch the trasaction screen
+                        }}
+                        onExit={(response: LinkExit) => {
+                            console.log(response);
+                        }}
+                    >
+                        <Text style={styles.linkAccountText}>Add Bank Account</Text>
+                    </PlaidLink>
+                </View>
+            )
+
+        } else { // if a link token hasn't been generated or error from the server
+
+            return (
+
+                <View style={styles.screenLayout}>
+                    <View>
+                        <Text style={styles.title}>Error</Text>
+                        <Text style={styles.subTitle}>Error in generating a link token from the server, Please try again.</Text>
+                    </View>
+
+                    <View style={{alignItems: 'center', marginTop: 90}}>
+                        <Image source={require('../assets/icons/error-404.png')} style={{width: 300, height: 300, resizeMode: 'contain'}}/>
+                    </View>
+                </View>
+            )
+        }
+
 };
   
 const styles = StyleSheet.create({
-    screenLayout: {
-        // borderWidth: 4,
-        // borderColor: 'orange',
+    screenLayout:{
         padding: 20,
         flex: 1,
         backgroundColor: 'white'
     },
 
     title: {
-        // borderWidth: 4,
-        // borderColor: 'red',
-        marginTop: 50, 
-        fontSize: 22,
+        fontFamily: 'GTWalsheimPro-Regular',
+        marginTop: 10, 
+        fontSize: 25,
         textAlign: "center",
         
     },
@@ -109,24 +162,33 @@ const styles = StyleSheet.create({
     subTitle: {
 
         margin: 10, 
-        fontSize: 22,
+        fontSize: 17,
+        fontFamily: 'GTWalsheimPro-Regular',
         textAlign: "center",
-        fontWeight: "bold",
 
+    },
+
+    addAccountButton: {
+
+        position: 'absolute',
+        padding: 10,
+        alignSelf: 'center',
+        backgroundColor: '#8B19FF',
+        borderRadius: 10,
+        marginTop: 60,
+        color: 'white'
     },
 
     linkAccountText: {
 
-        marginTop: 100, 
-        fontSize: 22,
-        fontWeight: "bold",
+        marginTop: 60, 
+        fontFamily: 'GTWalsheimPro-Regular',
+        fontSize: 20,
         textAlign: "center",
-        borderWidth: 5,
-        borderColor: "#BE7CFF",
-        backgroundColor: "#BE7CFF",
+        borderRadius: 10,
+        backgroundColor: '#8B19FF',
         color: "white",
-        paddingTop: 10,
-        padding: 5,
+        padding: 10,
     },
 
 });
