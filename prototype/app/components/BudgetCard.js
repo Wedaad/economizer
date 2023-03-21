@@ -244,7 +244,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
             default:
                 return (
 
-                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#E3B4FF'},styles.budgetCard, styles.shadow]}>
+                    <View style={[{borderLeftWidth: 4, borderLeftColor: '#DDDEDE'},styles.budgetCard, styles.shadow]}>
                         <Text style={{color: '#8B19FF', marginBottom: 5}}>Category: {category.name}</Text>
             
                         <View style={styles.budgetCardItems}>
