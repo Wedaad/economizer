@@ -11,8 +11,8 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
     const [budgetName, setBudgetName] = useState('');
     const [description, setDescription] = useState('');
     const [budgetId, setBudgetId] = useState('');
-    const [date, setDate] = useState(new Date())
-    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
+    const [date, setDate] = useState(new Date());
+    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
     // populates the dropdown list with all the budget names
     let selectOptions = budgets.map((budget) => {
@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent:'space-between',
+        marginTop: 5,
         margin: 20,
     },
     
