@@ -1,8 +1,8 @@
 /*
-    index.js – Configures the Plaid client and uses Express to defines routes that call Plaid endpoints in the Sandbox environment.
+    index.js – Configures the Plaid client and uses Express to define routes that call Plaid endpoints
     index.js: 
     - uses Express JS to create a server running on port 8085 
-    - Express JS server used to define routes that call the Plaid API endpoints (sandbox environment)
+    - Express JS server used to define routes that call the Plaid API endpoints
     - Plaid client is also configured 
     - Environment variables are used to keep API Keys secure
 
@@ -32,11 +32,11 @@ const PORT = 8085;
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
 const PLAID_SECRET = process.env.PLAID_SECRET;
 const PLAID_ENV = process.env.PLAID_ENV || 'development';
-const PLAID_ANDROID_PACKAGE_NAME = process.env.PLAID_ANDROID_PACKAGE_NAME ;
+const PLAID_ANDROID_PACKAGE_NAME = process.env.PLAID_ANDROID_PACKAGE_NAME;
+let current_date = new Date().toJSON().slice(0, 10);
 
 app.use(
-    // FOR DEMO PURPOSES ONLY
-    // Use an actual secret key in production
+  
     session({secret: PLAID_SECRET, saveUninitialized: true, resave: true}),
 );
 
@@ -103,23 +103,37 @@ app.post('/item/public_token/exchange', async (req, res) => {
 
 // Retrieving user transactions
 app.post('/transactions/get', async(req, res) => {
-  console.log("Retrieving transactions...");
+  console.log("SERVER> Retrieving transactions...");
 
   const access_token = req.body.access_token;
   console.log("ACCESS TOKEN ON SERVER SIDE:", access_token);
-  let startDate = '2022-09-01';
-  let endDate = '2022-10-31'
+  let startDate = '2023-01-01';
 
   const transactions = await client.transactionsGet({
 
     access_token: access_token,
     start_date: startDate,
-    end_date: endDate
+    end_date: current_date,
+
   })
 
   res.json({Transactions: transactions.data});
 
 });
+
+// Retrieving the users bank balance
+app.post('/accounts/balance/get', async(req, res) => {
+  const access_token = req.body.access_token;
+
+  const balance = await client.accountsBalanceGet({
+
+    access_token: access_token,
+  
+  })
+
+  res.json({Balance: balance.data});
+
+})
   
 app.listen(PORT, () => {
 console.log(`Server running on ${PORT}`);
