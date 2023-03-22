@@ -1,16 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-native-modal';
-import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; 
+import { View, Text, TextInput, StyleSheet , TouchableOpacity } from 'react-native';
+import { Ionicons, AntDesign } from '@expo/vector-icons'; 
 import RadioButtonRN from 'radio-buttons-react-native';
+import CategoryList from '../components/CategoryList';
 
 
-export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetClick}) {
+export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetClick, isErrorVisible, errorMessage}) {
 
     const [budgetName, setBudgetName] = useState('');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState();
     const [budgetType, setBudgetType] = useState('');
     const [amountAllocated, setAmountAllocated] = useState(0);
+    const [categoryModalVisible, setCategoryModalVisible] = useState(false);
 
     const button_labels = [
 
@@ -44,13 +46,33 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
                     <View style={styles.addBudgetForm}>
                         <Text style={styles.labels}>Budget Name</Text>
                         <TextInput style={styles.textInput}
-                        onChangeText={(name) => setBudgetName(name)}
+                        onChangeText={(name) => {setBudgetName(name)}}
                         value={budgetName}/>
 
                         <Text style={styles.labels}>Category</Text>
-                        <TextInput style={styles.textInput}
-                        onChangeText={(category) => setCategory(category)}
-                        value={category}/>
+                        {
+                            category && (
+                                <Text style={styles.labels}>Chosen category is: {category.name}</Text>
+                            )
+                        }
+                        <TouchableOpacity onPress={() => setCategoryModalVisible(!categoryModalVisible)} style={{width: 140,...styles.addBudgetBtn}}>
+                            <Text style={{color:'white', fontFamily:"GTWalsheimPro-Regular"}}>Choose a category</Text>
+                        </TouchableOpacity>
+
+                        <Modal isVisible={categoryModalVisible} avoidKeyboard={true} onBackButtonPress={() => setCategoryModalVisible(false)} style={styles.categoryModalStyle}>
+                            <View style={styles.categoryModalViewStyle}>
+                                <View style={styles.categoryModalViewElements}>
+                                    <AntDesign name="arrowleft" size={30} color="black" onPress={() => setCategoryModalVisible(false)}/>
+                                    <Ionicons name="md-add-circle" size={30} color='#8B19FF' />
+                                </View>
+                                <Text style={{textAlign: 'center', fontSize: 30, fontFamily: "GTWalsheimPro-Bold"}}>Select a Category</Text>
+                                <Text style={{textAlign: 'center', fontFamily: "GTWalsheimPro-Regular", marginTop: 5, marginBottom: 10}}>Select a category you wish to associate with this transaction</Text>
+
+                                <View>
+                                    <CategoryList closeModal={setCategoryModalVisible} setCategoryChosen={setCategory}/>
+                                </View>
+                            </View>
+                        </Modal>
 
                         <Text style={styles.labels}>Amount Allocated</Text>
                         <TextInput style={styles.textInput}
@@ -61,13 +83,17 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
                         <Text style={styles.labels}>Choose a Budget Type:</Text>
                         <RadioButtonRN
                             data={button_labels}
-                            selectedBtn={(e) => {
-                                console.log("Budget Type chosen is:", e.label)
-                                setBudgetType(e.label);
-                            }}
+                            selectedBtn={(e) => setBudgetType(e.label)}
                             box={false}
                             circleSize={13}
                         />
+
+                        {
+                            isErrorVisible && (
+
+                                <Text style={{color: 'red', fontFamily: 'GTWalsheimPro-Regular', marginTop:10, fontSize: 17}}>Error: {errorMessage}</Text>
+                            )
+                        }
 
                         <View style={styles.addBudgetBtnView}>
                             <TouchableOpacity style={styles.addBudgetBtn} onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, budgetType,clearModalInputs())}>
@@ -86,7 +112,7 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
 const styles = StyleSheet.create({
 
     modalViewStyle: {
-        height: 550,
+        height: 600,
         backgroundColor: 'white',
         borderRadius: 15,
 
@@ -150,6 +176,26 @@ const styles = StyleSheet.create({
         color: 'white',
         backgroundColor: '#8B19FF',
         borderRadius: 10,
+    },
+
+    categoryModalStyle: {
+      
+        backgroundColor: 'white',
+       
+
+    },
+
+    categoryModalViewStyle: {
+        padding: 10,
+        backgroundColor: 'white',
+    },
+
+    categoryModalViewElements: {
+
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 5,
+
     },
 
 });
