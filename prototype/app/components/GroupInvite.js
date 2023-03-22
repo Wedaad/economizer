@@ -17,10 +17,7 @@ export default function GroupInvite({groupID}) {
             }
         });
 
-        console.log("LINK:", link); 
-
         return link;
-
     }
 
     const shareLink = async () => {
