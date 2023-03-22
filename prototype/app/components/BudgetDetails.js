@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from'react-native';
-import { Ionicons, AntDesign   } from '@expo/vector-icons';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
 import firestore from '@react-native-firebase/firestore';
 import { useAppConext } from '../context/AppContext';
 import Modal from 'react-native-modal';
 import BudgetTransactionCard from './BudgetTransactionCard';
+import GroupInvite from './GroupInvite';
 
-export default function BudgetDetails({isVisible, budgetName, allocatedAmount, budgetId, closeModal, amountSpent, filteredExpenses}) {
+export default function BudgetDetails({isVisible, budgetName, allocatedAmount, budgetId, closeModal, amountSpent, filteredExpenses, setBudgetDetailsModalVisible}) {
 
     const [editBudgetModalVisible, setEditBudgetModalVisible] = useState(false);
     const [deleteBudgetModalVisible, setDeleteBudgetModalVisible] = useState(false);
@@ -15,8 +16,23 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
     const { deleteBudget, currentUserID } = useAppConext();
     const [isErrorVisible, setIsErrorVisible] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [isGroupBudget, setIsGroupBudget] = useState(false);
 
-    console.log(budgetId);
+    //checking if the budgetId passed is a group budget
+    const isGroupBudgetCheck = async (budgetId) => {
+
+        const groupBudgetRef = firestore().collection('JointBudgets').doc(budgetId);
+        const groupBudget = await groupBudgetRef.get();
+
+        if(!groupBudget.exists) {
+
+            return
+        } else {
+
+            setIsGroupBudget(!isGroupBudget);
+        }
+
+    }
 
     const editBudget = (budgetId) => {
 
@@ -26,6 +42,7 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
 
         } else {
 
+            setBudgetDetailsModalVisible(false);
             const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
             .collection('Budgets').doc(budgetId);
 
@@ -41,11 +58,23 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
         }
     }
 
-    // function which deletes a budget
+    // function which deletes a budget and delete the associated transactions
     const removeBudget = (budgetId) => {
+        
+        setDeleteBudgetModalVisible(!deleteBudgetModalVisible);
+        setBudgetDetailsModalVisible(false);
 
         const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
         .collection('Budgets').doc(budgetId);
+
+        const budgetExpensesRef = firestore().collection('BudgetExpenses').where('budgetId', '==', budgetId);
+        budgetExpensesRef.get()
+        .then((expenseSnapshot) => {
+
+            expenseSnapshot.forEach((expense) => {
+                expense.ref.delete();
+            })
+        })
 
         budgetCollectionRef.delete()
         .then(() => {
@@ -55,9 +84,8 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
         .catch((error) => {
 
             console.log("ERROR: unable to remove budget from firestore: ",error);
-        }) 
-        deleteBudget({budgetId})
-        setDeleteBudgetModalVisible(!deleteBudgetModalVisible);
+        })
+
     }
 
     // function that clears the input fields
@@ -67,6 +95,11 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
         setIsErrorVisible(false);
         setEditAllocatedAmount(0);
     }
+
+    useEffect(() => {
+
+        isGroupBudgetCheck(budgetId);
+    }, []);
 
     return (
         <>
@@ -97,6 +130,13 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
                         <TouchableOpacity style={styles.editBudgetButton} onPress={() => setDeleteBudgetModalVisible(!deleteBudgetModalVisible)}>
                             <Text style={styles.buttonText}>Delete Budget</Text>
                         </TouchableOpacity>
+
+                        <View>
+                            <Text> </Text>
+                        </View>
+                        
+                        {isGroupBudget && <GroupInvite groupID={budgetId}/>}
+                      
                     </View>
 
                     <View>
