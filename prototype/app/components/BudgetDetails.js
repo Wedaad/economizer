@@ -13,7 +13,7 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
     const [deleteBudgetModalVisible, setDeleteBudgetModalVisible] = useState(false);
     const [editBudgetName, setEditBudgetName] = useState('');
     const [editAllocatedAmount, setEditAllocatedAmount] = useState(0);
-    const { deleteBudget, currentUserID } = useAppConext();
+    const { currentUserID } = useAppConext();
     const [isErrorVisible, setIsErrorVisible] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [isGroupBudget, setIsGroupBudget] = useState(false);
