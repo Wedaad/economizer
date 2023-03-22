@@ -1,6 +1,5 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, Image } from 'react-native';
-import firestore from '@react-native-firebase/firestore';
 
 export default function CategoryList({closeModal, setCategoryChosen, transactionId}) {
 
@@ -90,22 +89,6 @@ export default function CategoryList({closeModal, setCategoryChosen, transaction
     const selectCategory = (category, colour) => {
         console.log("setting category", category, " colour", colour)
         setCategoryChosen({name: category, colour: colour});
-        // setCategoryColour(colour);
-
-        console.log("TRANSACTION ID CATEGORY LIST:",transactionId)
-
-        // try {
-        //     console.log("In try")
-        //     firestore().collection('Transactions').doc(transactionId)
-        //     .set({transaction_category: category}, {merge: true})
-        //     .then(() => {"Updated transaction document"})
-            
-
-        // } catch(error) {
-
-        //     console.log(` Error: Updating document to include category ${category}`, error)
-        // }
-         
         closeModal(false);
 
     }
