@@ -1,17 +1,14 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Image, View, Text } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons, MaterialIcons, FontAwesome5, MaterialCommunityIcons  } from '@expo/vector-icons';
+import { Fontisto , MaterialIcons, FontAwesome5, MaterialCommunityIcons  } from '@expo/vector-icons';
 
 // importing screens
-import BudgetsScreen from '../screens/BudgetsScreen';
 import UserDashboardScreen from '../screens/UserDashboardScreen';
 import SignOutScreen from '../screens/SignOutScreen';
 import ViewTransactions from '../screens/ViewTransactions';
-import SharedBudgets from '../screens/SharedBudgets';
 import LinkAccountScrceen from '../screens/LinkAccountScreen';
-import AddBudgetModal from './AddBudgetModal';
+import SavingsScreen from '../screens/SavingsScreen';
 
 // creating tab navigator
 const Tab = createBottomTabNavigator(); 
@@ -42,13 +39,12 @@ const CustomAddBudgetButton = ({children, onPress}) => (
 
 export default function MenuBar(currentUser) {
 
-  console.log("USER ID (menubar.js): " + currentUser.id);
   return (
       <Tab.Navigator
       screenOptions={{
           tabBarStyle: {
             position: 'absolute',
-            bottom: 20,
+            bottom: 10,
             left: 15,
             right: 15,
             height: 65,
@@ -74,7 +70,37 @@ export default function MenuBar(currentUser) {
             </View>
           )
         }}/>
-        <Tab.Screen name="Transactions" component={LinkAccountScrceen}
+
+        <Tab.Screen name="Savings" component={SavingsScreen} 
+        options={{
+          tabBarIcon: ({focused, size, color}) => (
+            <View style={styles.tabIcon}>
+              <Fontisto 
+              name="wallet" 
+              size={size} 
+              color={color} />
+              <Text style={{color: focused ? '#8B19FF' : 'gray', fontSize: 11}}>SAVINGS</Text>
+            </View>
+          )
+        }}/>
+        <Tab.Screen name="Add Bank Account" component={LinkAccountScrceen}
+        options={{
+          tabBarIcon: ({size}) => (
+            <View style={styles.tabIcon}>
+              <MaterialCommunityIcons 
+              name="bank-plus" 
+              size={size} 
+              color={"white"} />
+            </View>
+          ),
+          tabBarButton: (props) =>
+            
+            <CustomAddBudgetButton {...props} />
+          
+        }} 
+        />
+
+        <Tab.Screen name="Transactions" component={ViewTransactions}
         options={{
           tabBarIcon: ({focused, size, color}) => (
             <View style={styles.tabIcon}>
@@ -85,41 +111,8 @@ export default function MenuBar(currentUser) {
               <Text style={{color: focused ? '#8B19FF' : 'gray', fontSize: 11}}>TRANSACTIONS</Text>
             </View>
           )
-        }} />
-
-        {/* Custom Add Budget button */}
-        <Tab.Screen name="Budgets" component={BudgetsScreen}
-        options={{
-          tabBarIcon: ({focused}) => (
-            <Image
-              source={require("../assets/plus_png.png")}
-              resizeMode="contain"
-              style={{
-                    width: 55,
-                    height: 55,
-                    tintColor: '#fff',
-                  }}
-            />
-          ),
-          tabBarButton: (props) =>
-            
-            <CustomAddBudgetButton {...props} />
-          
-        }} 
-        />
-        <Tab.Screen name="Shared Budgets" component={SharedBudgets} 
-        options={{
-          tabBarIcon: ({focused, size, color}) => (
-            <View style={styles.tabIcon}>
-              <MaterialCommunityIcons 
-              name="account-group" 
-              size={size} 
-              color={color} />
-              <Text style={{color: focused ? '#8B19FF' : 'gray', fontSize: 11}}>SHARED BUDGETS</Text>
-            </View>
-          )
         }}/>
-        {/* <Tab.Screen name="Transactions" component={ViewTransactions} /> */}
+
         <Tab.Screen name="Logout" component={SignOutScreen} 
         options={{
           tabBarIcon: ({focused, size, color}) => (
