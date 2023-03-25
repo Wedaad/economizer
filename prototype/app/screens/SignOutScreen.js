@@ -2,17 +2,15 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
-export default function SignOutScreen({navigation}) {
+export default function SignOutScreen() {
 
     const handleSOPress = () => {
-        console.log("Sign-out button was just pressed");
 
         auth()
         .signOut()
         .then(() => {
             console.log('User signed out!');
-            navigation.navigate("Home", {screen: "Home"});
-            });
+        });
     
     };
 
@@ -37,16 +35,12 @@ export default function SignOutScreen({navigation}) {
 
 const styles = StyleSheet.create({
     screenLayout: {
-        // borderWidth: 4,
-        // borderColor: 'orange',
         padding: 20,
         flex: 1,
         backgroundColor: 'white'
     },
 
     title: {
-        // borderWidth: 4,
-        // borderColor: 'red',
         fontFamily: 'GTWalsheimPro-Regular',
         marginTop: 10, 
         fontSize: 25,
