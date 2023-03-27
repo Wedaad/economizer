@@ -1,6 +1,5 @@
-import React, {useState} from 'react'; 
+import React from 'react'; 
 import { Text, StyleSheet, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function TransactionCard ({amount, merchant, date}) {
 
@@ -55,14 +54,7 @@ export default function TransactionCard ({amount, merchant, date}) {
 
         return (
             
-            // <View style={{borderLeftColor: "#8B19FF", borderLeftWidth: 3,...styles.transactionCard}}>
             <View style={{borderLeftColor: "#5CD94E", borderLeftWidth: 3,...styles.transactionCard}}>
-                {/* <View style={styles.iconContainer}> */}
-                    {/* <MaterialCommunityIcons 
-                    name={"bank-transfer-in"}
-                    size={24} 
-                    color="black"/> */}
-                {/* </View> */}
                 <View style={styles.dateContainer}>
                     <View>
                         <Text style={{fontSize: 20,fontFamily: "GTWalsheimPro-Bold"}}>{day}</Text>
@@ -101,13 +93,9 @@ const styles = StyleSheet.create({
 
     iconContainer: {
         margin: 5,
-        // borderWidth: 2,
-
     },
 
     dateContainer: {
-        // borderWidth: 2,
-        // borderColor: "limegreen",
         padding: 10,
         backgroundColor: 'white',
         borderRadius: 10,
@@ -122,11 +110,6 @@ const styles = StyleSheet.create({
     },
 
     amountContainer: {
-        // margin: 5,
-        // left: 150,
-        // alignItems: 'flex-end',
-        // borderWidth: 2,
-        // borderColor: 'red',
         justifyContent: 'center'
     },
 
