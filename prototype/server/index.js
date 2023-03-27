@@ -61,7 +61,7 @@ const client = new PlaidApi(config);
 //Creates a Link token and returns it to LinkAccountScreen
 app.post('/link/token/create', async (req, res) => {
 
-    console.log("Creating link token!!");
+    console.log("Creating link token...");
     let payload = {
         user: {client_user_id: req.body.userID},
         client_name: 'eConomizer',
