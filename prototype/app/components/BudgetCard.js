@@ -269,23 +269,23 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     }
 
-    if(budgetType === 'weekly' && isSunday(current_date)) {
-        resetBudgets(budgetId);
-        
-    } 
-
-    if (budgetType === 'monthly' && isFirstDayOfMonth(current_date)) {
-
-        resetBudgets(budgetId);
-    }
-
+    
     // resets budgets to their initial state on a weekly/monthly basis
     const resetBudgets = (budgetId) => {
-
+        console.log("reset:", "NAME:", budgetName, "AMOUNT ALLOCATED:", amountAllocated, "BUDGET ID:", budgetId, "CATEGORY:", category.name, "TYPE:", budgetType)
         try {
 
             const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
             .collection('Budgets').doc(budgetId);
+
+            const jointBudgetCollectionRef = budgetCollectionRef.collection('JointBudgets').doc(budgetId)
+            jointBudgetCollectionRef.set({
+
+                allocatedAmount: amountAllocated,
+                amountSpent: 0,
+                budgetId: budgetId,
+                totalExpenses: 0,
+            }, {merge: true})
 
             budgetCollectionRef.update({
                 budgetName: budgetName,
@@ -293,6 +293,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
                 allocatedAmount: amountAllocated,
                 amountSpent: 0,
                 budgetType: budgetType,
+                totalExpenses: 0,
             })
             .then(() => "SUCCESSFULLY UPDATED & RESET THE BUDGET")
             
@@ -302,22 +303,16 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     }
 
-    // useEffect (() => {
-    //     budgets.forEach(budget => {
 
-    //         if(budgetType === 'weekly' && isSunday(current_date)) {
-    //             resetBudgets(budget.budgetId);
-                
-    //         } 
+    // if(budgetType === 'weekly' && isSunday(current_date)) {
+    //     resetBudgets(budgetId);
+        
+    // } 
 
-    //         if (budgetType === 'monthly' && isFirstDayOfMonth(current_date)) {
+    // if (budgetType === 'monthly' && isFirstDayOfMonth(current_date)) {
 
-    //             resetBudgets(budget.budgetId);
-    //         }
-    //     })
-
-    // }, [budgets])
-    
+    //     resetBudgets(budgetId);
+    // }
 
     const getBudgetProgress = (amountSpent, amountAllocated) => {
 
