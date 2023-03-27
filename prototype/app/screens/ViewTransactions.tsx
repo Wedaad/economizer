@@ -5,20 +5,20 @@
 */ 
 
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Platform } from 'react-native';
 import { useAppConext } from '../context/AppContext';
 import TransactionCard from '../components/TransactionCard';
-import firestore from '@react-native-firebase/firestore';
-import { Ionicons, MaterialCommunityIcons, AntDesign   } from '@expo/vector-icons';
+import { Ionicons, AntDesign   } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
 import moment from 'moment';
 import CategoryList from '../components/CategoryList';
 import BudgetList from '../components/BudgetList';
+import SavingsListModal from '../components/SavingsListModal';
 
 
 const ViewTransactions = () => {
 
-    const { accessToken, currentUserID } = useAppConext(); // getting the logged in user's document id from the app context
+    const { accessToken } = useAppConext(); // getting the logged in user's document id from the app context
     const [transactionPressed, setTransactionPressed] = useState(false);
     const [selectedTransactionDate, setSelectedTransactionDate] = useState('');
     const [buttonPressed, setButtonPressed] = useState(false);
@@ -27,6 +27,7 @@ const ViewTransactions = () => {
     const [selectedTransactionID, setSelectedTransactionID] = useState('');
     const [selectedTransactionAmount, setSelectedTransactionAmount] = useState(0);
     const [isAddtoBudgetModalVisible, setIsAddtoBudgetModalVisible] = useState(false)
+    const [isAddtoSavingsModalVisible, setIsAddtoSavingsModalVisible] = useState(false)
     const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
     const [currentAccountBalance, setCurrentAccountBalance] = useState(0);
     const [transactions, setTransactions] = useState();
@@ -38,9 +39,11 @@ const ViewTransactions = () => {
         category: String,
         transaction_id: String }[]>([]);
 
+
+    // retrieving the transactions from the Plaid API
     const getTransactions = (async () => {
 
-        await fetch("http://192.168.1.5:8085/transactions/get", {
+        await fetch("http://192.168.1.4:8085/transactions/get", {
 
             method: "POST",
 
@@ -48,7 +51,7 @@ const ViewTransactions = () => {
 
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ access_token: accessToken })
+            body: JSON.stringify({ access_token: accessToken }) // sending the access token to the API endpoint
         })
         .then((response) => response.json())
         .then((data) => {
@@ -81,9 +84,10 @@ const ViewTransactions = () => {
         .catch((err) => {console.log("getTrasaction Error: " + err)});
     });
 
+    // retrieving the current account balance from the Plaid API
     const getAccountBalance = async () => { 
     
-        await fetch("http://192.168.1.5:8085/accounts/balance/get", {
+        await fetch("http://192.168.1.4:8085/accounts/balance/get", {
     
         method: "POST",
         
@@ -92,7 +96,7 @@ const ViewTransactions = () => {
           "Content-Type": "application/json",
         },
     
-        body: JSON.stringify({ access_token: accessToken })
+        body: JSON.stringify({ access_token: accessToken }) // sending the access token to the API endpoint
     
         })
         .then((response) => response.json())
@@ -119,8 +123,6 @@ const ViewTransactions = () => {
 
 
     const onTransactionCardPressed = (name: any, amount: number, date: string, id: string) => {
-        console.log("Transaction card pressed:", name)
-        console.log("Transaction card pressed:", amount)
 
         if(name.startsWith("From")){
             
@@ -134,18 +136,32 @@ const ViewTransactions = () => {
         // Flipping the transaction signs
         if(amount < 0) {
 
-            setSelectedTransactionAmount(amount * 1)
+            setSelectedTransactionAmount(amount * -1)
 
         } else {
 
             setSelectedTransactionAmount(amount * -1)
         }
-        
-        setSelectedTransactionDate(moment(date).format("D-MM-YYYY"));
+
+
+        setSelectedTransactionDate(moment(date).format('MMMM Do YYYY, h:mm:ss a'));
         setSelectedTransactionID(id)
         setTransactionPressed(!transactionPressed)
-        
+    }
 
+    if(!accessToken) {
+
+        return (
+
+            <View style={styles.screenLayout}>
+                <Text style={styles.title}>Connect your Bank to eConomizer</Text>
+                <Text style={{fontFamily: "GTWalsheimPro-Regular", textAlign: 'center'}}>Connect your bank account in order to see your recent bank transactions</Text>
+
+                <View style={{alignSelf: "center", margin: 100}}>
+                    <Image source={require('../assets/icons/no-money.png')} style={{width: 500, height: 500, resizeMode: 'contain', alignSelf: 'center', marginTop: 35}}/>
+                </View>
+            </View> 
+        )
     }
 
     if(myTransactions.length === 0) { // if there are no transactions 
@@ -197,16 +213,8 @@ const ViewTransactions = () => {
 
 
                             <View style={{flexDirection:'row', alignSelf: 'center', marginTop: 25, justifyContent: 'space-between'}}>
-                                {/* <TouchableOpacity style={styles.addCategoryButton} onPress={() => {
-                                    console.log("Adding category to transaction")
-                                    setCategoryModalVisible(!categoryModalVisible)
-                                    
-                                }}>
-                                    <Text style={{color: 'white'}}>Add Category</Text>
-                                </TouchableOpacity> */}
 
                                 <TouchableOpacity style={styles.addCategoryButton} onPress={() => {
-                                    console.log("Adding transaction to a budget")
                                     setIsAddtoBudgetModalVisible(!isAddtoBudgetModalVisible);
                                     
                                 }}>
@@ -269,27 +277,20 @@ const ViewTransactions = () => {
                     </View>
 
                     <View style={{flexDirection:'row', alignSelf: 'center', marginTop: 25, justifyContent: 'space-between'}}>
-                        {/* <TouchableOpacity style={styles.addCategoryButton} onPress={() => {
-                            console.log("Adding category to transaction")
-                            setCategoryModalVisible(!categoryModalVisible)
-                            
-                        }}>
-                            <Text style={{color: 'white'}}>Add Category</Text>
-                        </TouchableOpacity> */}
 
                         <TouchableOpacity style={styles.addCategoryButton} onPress={() => {
-                            console.log("Adding category to transaction")
-                            setIsAddtoBudgetModalVisible(!isAddtoBudgetModalVisible)
+                            setIsAddtoSavingsModalVisible(!isAddtoSavingsModalVisible)
+                            console.log("isAddtoSavingsModalVisible: ", isAddtoSavingsModalVisible)
                             
                         }}>
-                            <Text style={{color: 'white'}}>Add to Budget</Text>
+                            <Text style={{color: 'white'}}>Add to Saving Goal</Text>
                         </TouchableOpacity>
                     </View>
 
                     {
-                        isAddtoBudgetModalVisible && 
-                            <BudgetList isVisible={isAddtoBudgetModalVisible} closeModal={() => {setIsAddtoBudgetModalVisible(false)}}
-                                transationAmount={selectedTransactionAmount*-1} transactionName={selectedTransactionName} transactionDate={selectedTransactionDate}
+                        isAddtoSavingsModalVisible && 
+                            <SavingsListModal isVisible={isAddtoSavingsModalVisible} closeModal={() => {setIsAddtoSavingsModalVisible(false)}}
+                                transationAmount={selectedTransactionAmount} transactionName={selectedTransactionName} transactionDate={selectedTransactionDate}
                                 setIsModalVisible={toggleModal}
                             />
                     }
@@ -314,34 +315,29 @@ const ViewTransactions = () => {
 
         return(
 
-            // <View style={styles.screenLayout}>
-                <ScrollView style={styles.screenLayout}>
+            <ScrollView style={styles.screenLayout}>
                 <Text style={styles.title}>Your Bank Transactions:</Text>
 
                 <View>
                     <Text style={{textAlign: 'center', fontSize: 20, fontFamily: "GTWalsheimPro-Regular", marginTop: 5, marginBottom: 10}}>Current Account Balance: &euro;{currentAccountBalance}</Text>
                 </View>
-                    {/* <View>
-                        <TouchableOpacity>
-                            <Text>Add Transaction to A Category</Text>
-                        </TouchableOpacity>
-                    </View> */}
-                    {myTransactions.map(({amount, name, transaction_id, date, category, merchant}, i) => {
-                        return (
-                            
-                            <TouchableOpacity key={i} onPress={() => {
-                                onTransactionCardPressed(name, parseInt(amount.toString()), date.toString(), transaction_id.toString())
-                            }}>
-                                <TransactionCard amount={amount} merchant={name} date={date}/>
-                            </TouchableOpacity>
-    
-    
-                        );
-                    })}
+
+                    {
+                        myTransactions.map(({amount, name, transaction_id, date}, i) => {
+                            return (
+                                
+                                <TouchableOpacity key={i} onPress={() => {
+                                    onTransactionCardPressed(name, parseFloat(amount.toString()), date.toString(), transaction_id.toString())
+                                }}>
+                                    <TransactionCard amount={amount} merchant={name} date={date}/>
+                                </TouchableOpacity>
+        
+        
+                            );
+                        })
+                    }
                     <View style={{height: 120, backgroundColor: 'white'}}></View>
-                </ScrollView>
-            // </View>
-    
+                </ScrollView>    
         );
 
 
@@ -351,8 +347,6 @@ const ViewTransactions = () => {
 
 const styles = StyleSheet.create({
     screenLayout: {
-        // borderWidth: 4,
-        // borderColor: 'orange',
         padding: 20,
         flex: 1,
         backgroundColor: 'white'
