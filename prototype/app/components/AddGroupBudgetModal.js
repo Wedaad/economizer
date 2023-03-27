@@ -25,6 +25,9 @@ export default function AddGroupBudgetModal({isVisible, closeModal, onCreateGrou
             label: 'monthly'
         },
 
+        // {
+        //     label: 'once-off'
+        // },
     ];
 
     // function that clears the input fields
@@ -64,7 +67,6 @@ export default function AddGroupBudgetModal({isVisible, closeModal, onCreateGrou
                         <View style={styles.categoryModalViewStyle}>
                             <View style={styles.categoryModalViewElements}>
                                 <AntDesign name="arrowleft" size={30} color="black" onPress={() => setCategoryModalVisible(false)}/>
-                                <Ionicons name="md-add-circle" size={30} color='#8B19FF' />
                             </View>
                             <Text style={{textAlign: 'center', fontSize: 30, fontFamily: "GTWalsheimPro-Bold"}}>Select a Category</Text>
                             <Text style={{textAlign: 'center', fontFamily: "GTWalsheimPro-Regular", marginTop: 5, marginBottom: 10}}>Select a category you wish to associate with this transaction</Text>
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
     addBudgetBtnView: {
 
         alignItems: 'center', 
-        margin: 20,
+        margin: 15,
 
     },
 
