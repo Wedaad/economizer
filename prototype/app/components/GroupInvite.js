@@ -7,6 +7,7 @@ import dynamicLinks from '@react-native-firebase/dynamic-links';
 export default function GroupInvite({groupID}) {
 
     const { currentUser } = useAppConext();
+
     const generateLink = async () => {
 
         const link = await dynamicLinks().buildLink({
@@ -17,6 +18,7 @@ export default function GroupInvite({groupID}) {
             }
         });
 
+        
         return link;
     }
 
@@ -27,6 +29,7 @@ export default function GroupInvite({groupID}) {
         try {
 
             shareURL = await generateLink();
+            
             
         } catch (error) {
             console.log("ERROR: When sharing link the following error occured: " + error)
