@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Fontisto , MaterialIcons, FontAwesome5, MaterialCommunityIcons  } from '@expo/vector-icons';
+import { useAppConext } from '../context/AppContext';
 
 // importing screens
 import UserDashboardScreen from '../screens/UserDashboardScreen';
@@ -14,7 +15,7 @@ import SavingsScreen from '../screens/SavingsScreen';
 const Tab = createBottomTabNavigator(); 
 
 // custom tab button for adding budget
-const CustomAddBudgetButton = ({children, onPress}) => (
+const CustomActiveAddBankButton = ({children, onPress}) => (
   <TouchableOpacity
     onPress={onPress}
     style={{
@@ -31,13 +32,39 @@ const CustomAddBudgetButton = ({children, onPress}) => (
       backgroundColor: '#8B19FF'
     }}>
       {children}
+      <Text style={{textAlign: 'center', color: 'white', marginBottom: 13}}>Add Bank</Text>
     </View>
   </TouchableOpacity>
 
 );
 
 
+const CustomInactiveAddBankButton = ({children, onPress}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={{
+      top: -30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...styles.shadow}}
+  >
+    <View style={{
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      elevation: 5,
+      backgroundColor: 'grey'
+    }}>
+      {children}
+      <Text style={{textAlign: 'center', color: 'white', marginBottom: 5, fontSize: 12}}>Account Linked</Text>
+    </View>
+  </TouchableOpacity>
+
+);
+
 export default function MenuBar(currentUser) {
+
+  const { accessToken } = useAppConext();
 
   return (
       <Tab.Navigator
@@ -57,7 +84,7 @@ export default function MenuBar(currentUser) {
           tabBarInactiveTintColor: 'gray',
       }}>
 
-        <Tab.Screen name="Dashboard" component={UserDashboardScreen} 
+        <Tab.Screen name="Dashboard" component={UserDashboardScreen}
         initialParams={{userID: currentUser.id}}
         options={{
           tabBarIcon: ({focused, size, color}) => (
@@ -83,22 +110,57 @@ export default function MenuBar(currentUser) {
             </View>
           )
         }}/>
-        <Tab.Screen name="Add Bank Account" component={LinkAccountScrceen}
-        options={{
-          tabBarIcon: ({size}) => (
-            <View style={styles.tabIcon}>
-              <MaterialCommunityIcons 
-              name="bank-plus" 
-              size={size} 
-              color={"white"} />
-            </View>
-          ),
-          tabBarButton: (props) =>
+
+        {
+
+          accessToken && (
             
-            <CustomAddBudgetButton {...props} />
-          
-        }} 
-        />
+            <Tab.Screen name="Add Bank Account" component={LinkAccountScrceen}
+            options={{
+              tabBarIcon: ({size}) => (
+                <View style={{marginTop: 10, ...styles.tabIcon}}>
+                  <FontAwesome5 
+                  name="link" 
+                  size={size} 
+                  color={"white"} />
+                </View>
+              ),
+              tabBarButton: (props) =>
+                
+                <CustomInactiveAddBankButton {...props} />
+              
+            }} 
+
+            />
+
+          )
+
+        }
+
+        {/* rendering a different icon if the  */}
+        {
+
+          !accessToken && (
+
+            <Tab.Screen name="Add Bank Account" component={LinkAccountScrceen}
+            options={{
+              tabBarIcon: ({size}) => (
+                <View style={{marginTop:10, ...styles.tabIcon}}>
+                  <MaterialCommunityIcons 
+                  name="bank-plus" 
+                  size={size} 
+                  color={"white"} />
+                </View>
+              ),
+              tabBarButton: (props) =>
+                
+                <CustomActiveAddBankButton {...props} />
+              
+            }} 
+
+            />
+          )
+        }
 
         <Tab.Screen name="Transactions" component={ViewTransactions}
         options={{
