@@ -24,6 +24,10 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
             label: 'monthly'
         },
 
+        // {
+        //     label: 'once-off'
+        // },
+
     ];
 
     // function that clears the input fields
@@ -63,7 +67,6 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
                             <View style={styles.categoryModalViewStyle}>
                                 <View style={styles.categoryModalViewElements}>
                                     <AntDesign name="arrowleft" size={30} color="black" onPress={() => setCategoryModalVisible(false)}/>
-                                    <Ionicons name="md-add-circle" size={30} color='#8B19FF' />
                                 </View>
                                 <Text style={{textAlign: 'center', fontSize: 30, fontFamily: "GTWalsheimPro-Bold"}}>Select a Category</Text>
                                 <Text style={{textAlign: 'center', fontFamily: "GTWalsheimPro-Regular", marginTop: 5, marginBottom: 10}}>Select a category you wish to associate with this transaction</Text>
@@ -94,8 +97,8 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
                                 <Text style={{color: 'red', fontFamily: 'GTWalsheimPro-Regular', marginTop:10, fontSize: 17}}>Error: {errorMessage}</Text>
                             )
                         }
-
-                        <View style={styles.addBudgetBtnView}>
+                        
+                        <View style={styles.addBudgetBtnView}>              {/* Calling the create budget function and passing in the budget details entered by the user */}
                             <TouchableOpacity style={styles.addBudgetBtn} onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, budgetType,clearModalInputs())}>
                                 <Text style={styles.addBudgetBtnText}>Create Budget</Text>
                             </TouchableOpacity>
