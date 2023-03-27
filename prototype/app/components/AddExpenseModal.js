@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SelectList } from 'react-native-dropdown-select-list';
 import DatePicker from 'react-native-date-picker'
 
-export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick, budgets}) {
+export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClick, budgets, isErrorVisible, errorMessage}) {
 
     const [amount, setAmount] = useState(0);
     const [budgetName, setBudgetName] = useState('');
@@ -87,16 +87,24 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
                             
                         </View>
 
+
                         <View style={styles.addExpenseBtnView}>
 
                             <TouchableOpacity onPress={() => setIsDatePickerOpen(true)} style={{backgroundColor: '#8B19FF', padding: 10, borderRadius: 10,}}>
                                 <Text style={{fontFamily:"GTWalsheimPro-Regular", color: 'white'}}>Pick a date for this transaction</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, budgetName, description, budgetId, date, clearModalInputs())}}>
+                            <TouchableOpacity style={styles.addExpenseBtn}  onPress={() => {onAddExpenseClick(amount, description, budgetId, date, clearModalInputs())}}>
                                 <Text style={styles.addExpenseBtnText}>Add Expense</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {
+                            isErrorVisible && (
+
+                                <Text style={{color: 'red', fontFamily: 'GTWalsheimPro-Regular', margin:10, fontSize: 17}}>Error: {errorMessage}</Text>
+                            )
+                        }
                             
                     </View>
             </Modal>
@@ -108,7 +116,7 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
 const styles = StyleSheet.create({
 
     modalViewStyle: {
-        height: 600,
+        height: 650,
         backgroundColor: 'white',
         borderRadius: 15,
 
