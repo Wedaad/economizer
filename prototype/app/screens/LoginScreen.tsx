@@ -3,7 +3,7 @@
     in Firebase's Auth service then the user will login successfully
 */ 
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, Pressable, ImageBackground, ScrollView, SafeAreaView, Alert} from 'react-native';
+import { StyleSheet, View, Text, TextInput, Pressable, ImageBackground, SafeAreaView} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 const screenBackground = require("../assets/LRScreenBackground3.png")
@@ -11,7 +11,6 @@ function LoginScreen({navigation}:any) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [isVisible, setIsVisible] = useState(false);
 
@@ -42,15 +41,11 @@ function LoginScreen({navigation}:any) {
         .then((response) => {
 
             const user = response.user.uid
-            console.log(user);
-            navigation.navigate("Dashboard", {user_id: user, username: username});  
         })
         .catch(error => {
 
             if(error.code == 'auth/invalid-email') {
 
-                // Alert.alert('Login Error',
-                // 'Invalid email format. Please enter in a correct email address.')
                 setIsVisible(true);
                 setErrorMsg('Invalid email address. Please enter a correct email address.');
 
@@ -60,14 +55,10 @@ function LoginScreen({navigation}:any) {
 
                 setIsVisible(true);
                 setErrorMsg('Incorrect password.');
-                // Alert.alert('Login Error',
-                // 'Incorrect password.')
             }
 
             if(error.code == 'auth/user-not-found') {
 
-                // Alert.alert('Login Error',
-                // 'User not Found. Create an account to login.')
                 setIsVisible(true);
                 setErrorMsg('User not Found. Create an account to login.');
 
@@ -218,7 +209,7 @@ const styles = StyleSheet.create({
     errorMsg: {
 
         color: "red",
-        fontSize: 10,
+        fontSize: 15,
         marginLeft: 35,
         fontFamily: 'GTWalsheimPro-Regular',
     }
