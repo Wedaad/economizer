@@ -5,9 +5,10 @@
 */ 
 
 import React, {useState} from 'react';
-import {StyleSheet, View, Text, Pressable, TextInput, SafeAreaView, ImageBackground } from 'react-native';
+import {StyleSheet, View, Text, Pressable, TextInput, SafeAreaView, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 function SignUpScreen({navigation}:any) {
 
@@ -43,7 +44,7 @@ function SignUpScreen({navigation}:any) {
         }
 
         auth()
-        .createUserWithEmailAndPassword(email, password)
+        .createUserWithEmailAndPassword(email, password) // create a user with email and password and logs in the user
         .then((userInfo) => {
 
             const id = userInfo.user.uid;
@@ -55,8 +56,6 @@ function SignUpScreen({navigation}:any) {
                 email,
                 username,
             };
-            
-            // console.log(username);
 
             const userCollection = firestore().collection('Users') // Users collection reference
             .doc(id);
@@ -64,7 +63,6 @@ function SignUpScreen({navigation}:any) {
             userCollection.set(user_data) // adding the user info entered to the Users collection
 
             .then(() => {
-                alert("Registration Successful");
                 navigation.navigate("Login"); // change the screen to the login screen once registration is successful 
             })
         })
@@ -95,59 +93,120 @@ function SignUpScreen({navigation}:any) {
 
     return (
         /* Holds main screen contents */
-        <SafeAreaView style={styles.screenLayout}>
-            <ImageBackground source={screenBackground} style={styles.background}>
-            <View>
-                <Text style={styles.title}>Create Account</Text>
-                    <View style={styles.formContainer}>
-                        <Text style={styles.labels}>Full Name</Text>
-                            <TextInput 
-                            style={styles.textInput} 
-                            placeholder='Full Name'
-                            onChangeText={(text) => setName(text)} // setting the value of fullname to the fullname entered
-                            value={name}/>
+        // <SafeAreaView style={styles.screenLayout}>
+        //     <ImageBackground source={screenBackground} style={styles.background}>
+            // <KeyboardAwareScrollView>
+            // <View>
+            //     <Text style={styles.title}>Create Account</Text>
+            //         <View style={styles.formContainer}>
+            //             <Text style={styles.labels}>Full Name</Text>
+            //                 <TextInput 
+            //                 style={styles.textInput} 
+            //                 placeholder='Full Name'
+            //                 onChangeText={(text) => setName(text)} // setting the value of fullname to the fullname entered
+            //                 value={name}/>
 
-                        <Text style={styles.labels}>Username</Text>
-                        <TextInput 
-                        style={styles.textInput} 
-                        placeholder='Username'
-                        onChangeText={(text) => setUsername(text)} // setting the value of username to the username entered
-                        value={username}/>
+            //             <Text style={styles.labels}>Username</Text>
+            //             <TextInput 
+            //             style={styles.textInput} 
+            //             placeholder='Username'
+            //             onChangeText={(text) => setUsername(text)} // setting the value of username to the username entered
+            //             value={username}/>
 
-                        <Text style={styles.labels}>Email</Text>
-                        <TextInput style={styles.textInput} 
-                        placeholder='Email'
-                        onChangeText={(text) => setEmail(text)} // setting the value of email to the email entered
-                        value={email}/>
+            //             <Text style={styles.labels}>Email</Text>
+            //             <TextInput style={styles.textInput} 
+            //             placeholder='Email'
+            //             onChangeText={(text) => setEmail(text)} // setting the value of email to the email entered
+            //             value={email}/>
 
-                        <Text style={styles.labels}>Password</Text>
-                        <TextInput style={styles.textInput} 
-                        secureTextEntry={true}
-                        placeholder='Password'
-                        onChangeText={(text) => setPassword(text)} // setting the value of password to the password entered
-                        value={password}/>
+            //             <Text style={styles.labels}>Password</Text>
+            //             <TextInput style={styles.textInput} 
+            //             secureTextEntry={true}
+            //             placeholder='Password'
+            //             onChangeText={(text) => setPassword(text)} // setting the value of password to the password entered
+            //             value={password}/>
 
-                        <Text style={styles.labels}>Confirm Password</Text>
-                        <TextInput style={styles.textInput} 
-                        secureTextEntry={true}
-                        placeholder='Confirm Password'
-                        onChangeText={(text) => setConfirmPassword(text)} // setting the value of confirm password to the password entered
-                        value={confirmPassword}/>
+            //             <Text style={styles.labels}>Confirm Password</Text>
+            //             <TextInput style={styles.textInput} 
+            //             secureTextEntry={true}
+            //             placeholder='Confirm Password'
+            //             onChangeText={(text) => setConfirmPassword(text)} // setting the value of confirm password to the password entered
+            //             value={confirmPassword}/>
 
-                    {isVisible && (
-                        <Text style={styles.errorMsg}>{errorMsg}</Text>
-                    )}
+            //         {isVisible && (
+            //             <Text style={styles.errorMsg}>{errorMsg}</Text>
+            //         )}
 
-            </View>
+            // </View>
 
-            <View style={styles.btn_container}>
-               <Pressable style={styles.signup_button} onPress={onSignUpPress}>
-                    <Text style={styles.signup_button_text}>Sign Up</Text>
-                </Pressable>
-            </View>
+            // <View style={styles.btn_container}>
+            //    <Pressable style={styles.signup_button} onPress={onSignUpPress}>
+            //         <Text style={styles.signup_button_text}>Sign Up</Text>
+            //     </Pressable>
+            // </View>
 
-                <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
-            </View>
+            //     <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
+            // </View>
+            // </KeyboardAwareScrollView>
+        //     </ImageBackground>
+        // </SafeAreaView>
+
+
+            <SafeAreaView style={styles.screenLayout}>
+                <ImageBackground source={screenBackground} style={styles.background}>
+                    <KeyboardAwareScrollView>
+                        <View>
+                            <Text style={styles.title}>Create Account</Text>
+                            <View style={styles.formContainer}>
+                                <Text style={styles.labels}>Full Name</Text>
+                                    <TextInput 
+                                    style={styles.textInput} 
+                                    placeholder='Full Name'
+                                    onChangeText={(text) => setName(text)} // setting the value of fullname to the fullname entered
+                                    value={name}/>
+
+                                <Text style={styles.labels}>Username</Text>
+                                <TextInput 
+                                style={styles.textInput} 
+                                placeholder='Username'
+                                onChangeText={(text) => setUsername(text)} // setting the value of username to the username entered
+                                value={username}/>
+
+                                <Text style={styles.labels}>Email</Text>
+                                <TextInput style={styles.textInput} 
+                                placeholder='Email'
+                                onChangeText={(text) => setEmail(text)} // setting the value of email to the email entered
+                                value={email}/>
+
+                                <Text style={styles.labels}>Password</Text>
+                                <TextInput style={styles.textInput} 
+                                secureTextEntry={true}
+                                placeholder='Password'
+                                onChangeText={(text) => setPassword(text)} // setting the value of password to the password entered
+                                value={password}/>
+
+                                <Text style={styles.labels}>Confirm Password</Text>
+                                <TextInput style={styles.textInput} 
+                                secureTextEntry={true}
+                                placeholder='Confirm Password'
+                                onChangeText={(text) => setConfirmPassword(text)} // setting the value of confirm password to the password entered
+                                value={confirmPassword}/>
+
+                                {isVisible && (
+                                    <Text style={styles.errorMsg}>{errorMsg}</Text>
+                                )}
+                            </View>
+
+                            <View style={styles.btn_container}>
+                                <Pressable style={styles.signup_button} onPress={onSignUpPress}>
+                                    <Text style={styles.signup_button_text}>Sign Up</Text>
+                                </Pressable>
+                            </View>
+
+                            <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
+                    
+                        </View>
+                </KeyboardAwareScrollView>
             </ImageBackground>
         </SafeAreaView>
     );
@@ -174,7 +233,7 @@ const styles = StyleSheet.create({
         marginTop: 40, 
         padding: 10,
         fontSize: 30,
-        fontFamily: 'Rubik-Regular',
+        fontFamily: 'GTWalsheimPro-Regular',
     },
 
     formContainer: {
@@ -200,13 +259,13 @@ const styles = StyleSheet.create({
         fontSize: 15,
         padding: 10,
         marginLeft: 25,
-        fontFamily: 'Rubik-Regular',
+        fontFamily: 'GTWalsheimPro-Regular',
     },
 
     text: {
 
         textAlign: 'center',
-        fontFamily: 'Rubik-Regular',
+        fontFamily: 'GTWalsheimPro-Regular',
     },
 
     btn_container: {
@@ -227,7 +286,7 @@ const styles = StyleSheet.create({
         color: "red",
         fontSize: 10,
         marginLeft: 35,
-        fontFamily: 'Rubik-Regular',
+        fontFamily: 'GTWalsheimPro-Regular',
     },
 
     signup_button: {
@@ -244,7 +303,7 @@ const styles = StyleSheet.create({
     signup_button_text: {
         fontSize: 16,
         lineHeight: 21,
-        fontWeight: 'bold',
+        fontFamily: 'GTWalsheimPro-Regular',
         letterSpacing: 0.25,
         color: 'white',
     },
