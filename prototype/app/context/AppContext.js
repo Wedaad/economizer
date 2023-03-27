@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import nextId from "react-id-generator";
 import firestore from '@react-native-firebase/firestore';
 
@@ -13,42 +13,48 @@ export function AppProvider({children}) {
 
     const [expenses, setExpenses] = useState([]);
     const [budgets, setBudgets] = useState([]);
-    const [currentUser, setCurrentUser] = useState();
-    const [currentUserID, setCurrentUserID] = useState();
+    const [currentUser, setCurrentUser] = useState('');
+    const [currentUserID, setCurrentUserID] = useState('');
+    const [accessToken, setAccessToken] = useState(accessToken);
 
+    // retrieving the access token stored in the database 
+    const getAccessToken = async (userID) => {
+
+        const currentUserDocument = await firestore().collection('Users').doc(userID).get();
+        const userData = currentUserDocument.data();
+        // console.log(userData);
+        setAccessToken(userData.access_token) 
+
+    }
 
     // getting the logged in user details from firestore (User collection)
     const getCurrentUserDetails = async (userID) => {
-        console.log("context userid: " + userID);
+        
         await firestore().collection('Users').doc(userID).get()
         .then((user) => {
-            // console.log(user);
-            setCurrentUser(user._data.username);
-            setCurrentUserID(user._data.user_id);
-            console.log("Current User: " + currentUser);
-            console.log("CurrentUserID: " + currentUserID);
+           
+            setCurrentUser(user.data().username);
+            setCurrentUserID(user.data().user_id);
+
+        })
+        .catch((error) => {
+
+            console.log("CONTEXT ERROR:",error);
+            return
         })
     }
 
-    function addBudget({budgetName, category, amountAllocated}) {
+    // function addBudget({budgetName, category, amountAllocated, budgetType}) {
 
-        console.log("Adding budget from context :)");
-        console.log("Context budgetName: " + budgetName);
-        console.log("Context category: " + category);
-        console.log("Context amountAllocated: " + amountAllocated);
-
-        setBudgets([...budgets, { budgetId: nextId("budget-id-"), budgetName, category, amountAllocated}])
-    }
+    //     setBudgets([...budgets, { budgetId: nextId("budget-id-"), budgetName, category, amountAllocated, budgetType}])
+  
+    // }
 
     //change to budgetId
-    function addExpense({ budgetName, amount, desc }) {
-
-        console.log("Adding expense from context :)");
-        console.log("Context budgetId: " + budgetName);
-        console.log("Context amount: " + amount);
-        console.log("Context desc: " + desc);
+    function addExpense({ amount, desc, budgetName }) {
 
         setExpenses([...expenses, { expenseId: nextId(), amount, desc, budgetName }])
+        expenses.forEach(expense => console.log("Expense Context details: " + expense.amount, expense.desc, expense.budgetName));
     }
 
     function getExpenses(budgetName) {
@@ -57,18 +63,26 @@ export function AppProvider({children}) {
     }
 
     function deleteBudget({budgetId}) {
-
-        console.log("ID in context: " + budgetId)
         setBudgets(budgets => {
             return budgets.filter(budget => budget.budgetId !== budgetId)
         })
 
+        console.log("Budegts in context after DELETING a budget: ", budgets);
+
     }
+
+    // getAccessToken(currentUserID);
+    // getCurrentUserDetails(currentUserID);
 
     return (
 
-        <AppContext.Provider value={{budgets, expenses, currentUser, currentUserID, addBudget, addExpense,
-        getExpenses, deleteBudget, getCurrentUserDetails}}>
+        // <AppContext.Provider value={{budgets, expenses, currentUser, currentUserID, accessToken, addBudget, addExpense,
+        // getExpenses, deleteBudget, getCurrentUserDetails, getAccessToken, setBudgets}}>
+        //     {children}
+        // </AppContext.Provider>
+
+        <AppContext.Provider value={{budgets, expenses, currentUser, currentUserID, accessToken, addExpense,
+            getExpenses, deleteBudget, getCurrentUserDetails, getAccessToken, setBudgets}}>
             {children}
         </AppContext.Provider>
 
