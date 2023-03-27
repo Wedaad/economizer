@@ -1,33 +1,20 @@
 import React from 'react';
 import {StyleSheet, View, Text, Button, Image, Pressable  } from 'react-native';
-import { useFonts } from 'expo-font';
 
 function HomeScreen({navigation}: any) {
 
-    const [loaded] = useFonts({
-        Rubik: require('../assets/fonts/Rubik-Regular.ttf'),
-
-    });
-
     const handleSPress = () => {
-        console.log("SignUp button was just pressed")
         navigation.navigate("SignUp");
     
     };
 
     const handleLPress = () => {
-        console.log("Login button was just pressed")
         navigation.navigate("Login");
     
     };
 
-    if(!loaded) {
-
-        return null;
-    }
-
-
     return (
+        
             /* Holds main screen contents */
             <>
             <View style={styles.screenLayout}>
@@ -52,8 +39,6 @@ function HomeScreen({navigation}: any) {
 const styles = StyleSheet.create({
 
     screenLayout: {
-        // borderWidth: 4,
-        // borderColor: 'orange',
         flex: 1,
         backgroundColor: 'white',
         paddingTop: 30,
@@ -61,8 +46,6 @@ const styles = StyleSheet.create({
     },
 
     btncontainer: {
-        // borderWidth: 4,
-        // borderColor: 'green',
         marginTop: 200,
         flexDirection: 'column',
         alignItems: 'center',
@@ -94,6 +77,7 @@ const styles = StyleSheet.create({
     },
 
     signup_button_text: {
+        fontFamily: 'GTWalsheimPro-Regular',
         fontSize: 16,
         lineHeight: 21,
         fontWeight: 'bold',
@@ -102,6 +86,7 @@ const styles = StyleSheet.create({
     },
 
     login_button_text: {
+        fontFamily: 'GTWalsheimPro-Regular',
         fontSize: 16,
         lineHeight: 21,
         fontWeight: 'bold',
