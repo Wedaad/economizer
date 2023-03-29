@@ -1,10 +1,13 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Image, Pressable, TextInput, ScrollView} from 'react-native';
-import { Ionicons, AntDesign, MaterialCommunityIcons, MaterialIcons  } from '@expo/vector-icons';
+import { Ionicons, AntDesign, MaterialIcons  } from '@expo/vector-icons';
 import SavingCard from '../components/SavingCard';
 import { useAppConext } from '../context/AppContext';
 import GroupInvite from '../components/GroupInvite';
+import { Bar as ProgressBar } from 'react-native-progress';
 import firestore from '@react-native-firebase/firestore';
+import BudgetTransactionCard from '../components/BudgetTransactionCard';
+import AddMoneyModal from '../components/AddMoneyModal';
 
 export default function SharedBudgets() {
 
@@ -14,39 +17,63 @@ export default function SharedBudgets() {
     const [personalSavingsPressed, setPersonalSavingsPressed] = useState(false);
     const [groupSavingsPressed, setGroupSavingsPressed] = useState(false);
     const [goalName, setGoalName] = useState('');
-    const [goalType, setGoalType] = useState('personal');
-    const [selectedGoalName, setSelectedGoalName] = useState('');
-    const [selectedGoalAmount, setSelectedGoalAmount] = useState(0);
     const [goalAmount, setGoalAmount] = useState(0);
+    const [selectedGoalName, setSelectedGoalName] = useState('');
+    const [selectedGoalID, setSelectedGoalID] = useState('');
+    const [selectedGoalAmount, setSelectedGoalAmount] = useState(0);
+    const [selectedGoalAmountSaved, setSelectedGoalAmountSaved] = useState(0);
     const [goals, setGoals] = useState([]); // stores all the goals in an array
+    const [goalTransactions, setGoalTransactions] = useState([]); // stores all the goal transactions in an array
+    const [isAddMoneyModalVisible, setAddMoneyModalVisible] = useState(false);
+
+    let amountSaved = 0;
 
     // function which handles the functionality for a personal saving goal
-    const createPersonalSavingGoal = (name, amount) => {
-        setButtonPressed(!buttonPressed);
-        console.log("creating saving goal");
-        console.log("Personal Goal Name:", name + " Goal Amount: ", amount);
-    }
+    const createPersonalSavingGoal = (name, amount, goalType) => {
 
-
-    // function which handles the functionality for a group saving goal
-    const createGroupSavingGoal = (name, amount) => {
         setButtonPressed(!buttonPressed);
-        setGoalType('Group');
-        console.log("creating saving goal");
-        console.log("Goal Name:", name + " Goal Amount: ", amount);
-        // setGoals([...goals, {goalName: name, goalAmount: amount, type: 'Group'}]);
-        
+
         try {
-
-             // writing saving goal to the database
-            const savingsCollectRef = firestore().collection('Users').doc(currentUserID)
-            .collection('Savings').doc();
+            // writing saving goal to the database
+            const savingsCollectRef = firestore().collection('Savings').doc();
 
             savingsCollectRef.set({
                 goalAmount: amount,
                 goalName: name,
-                goalType: goalType
-            })
+                goalType: goalType,
+                goalID: savingsCollectRef.id,
+                amountSaved: 0,
+                userID: currentUserID,
+
+            }, {merge: true})
+            .then(() => console.log("Savings goal has been added, with document ID:", savingsCollectRef.id))   
+
+        } catch (error) {
+
+            console.log("Error adding budget to firestore: " + error)
+        }
+    }
+
+
+    // function which handles the functionality for a group saving goal
+    const createGroupSavingGoal = (name, amount, goalType, goalMembers) => {
+
+        setButtonPressed(!buttonPressed);
+        
+        try {
+
+            // writing saving goal to the database
+            const savingsCollectRef = firestore().collection('Savings').doc();
+
+            savingsCollectRef.set({
+                goalAmount: amount,
+                goalName: name,
+                goalType: goalType,
+                goalMembers: goalMembers,
+                goalID: savingsCollectRef.id,
+                amountSaved: 0,
+                // userID: currentUserID,
+            }, {merge: true})
             .then(() => console.log("Savings goal has been added, with document ID:", savingsCollectRef.id))   
 
         } catch (error) {
@@ -54,44 +81,112 @@ export default function SharedBudgets() {
             console.log("Error adding budget to firestore: " + error)
         }
        
-
     }
     
     // reading the saving goals from the savings 
     const getSavings = async () => {
-        await firestore().collection('Users').doc(currentUserID).collection('Savings').get()
-        .then((savingSnapshot) => {
-            
-            // console.log("Total number of saving goals stored in firestore:", savingSnapshot.size);
-            
-            const newData = savingSnapshot.docs
-            .map((savingGoal) => ({
 
-                ...savingGoal.data(), id:savingGoal.id
-            }))
-            
-            setGoals(newData);
-        })
+        const savingsCollectionRef  = firestore().collection('Savings');
+        const isAdmin = savingsCollectionRef.where('userID', '==', currentUserID).get();
+        const isMember = savingsCollectionRef.where('goalMembers', 'array-contains', currentUserID).get();
+
+        const [adminQuerySnapshot, memberQuerySnapshot] = await Promise.all([isAdmin, isMember]);
+
+        const adminArrayData = adminQuerySnapshot.docs;
+        const memberArrayData = memberQuerySnapshot.docs;
+
+        const userData = adminArrayData.concat(memberArrayData);
+
+        return userData;
+
     }
-    
-    getSavings();
 
-    const onSavingCardPressed = (name, amount, goalType) => {
-        console.log("Saving card pressed! Type of savings: " + goalType)
-        console.log("Saving card pressed! For saving goal: " + name)
-        console.log("Saving card pressed! Goal: " + amount)
+    // retrieving the saving goals from Firestore
+    getSavings().then(goalSnapshot => {
+
+        const goalData = goalSnapshot
+        .map((savingGoal) => ({
+
+            ...savingGoal.data(), id:savingGoal.id
+        }));
+
+        setGoals(goalData);  // setting goal data
+
+    })
+
+    const onSavingCardPressed = (name, amount, id, amountSaved) => {
         setSelectedGoalName(name);
         setSelectedGoalAmount(amount);
+        setSelectedGoalAmountSaved(amountSaved);
+        setSelectedGoalID(id);
         setSavingsCardPressed(!savingsCardPressed);
+        getSavingsTransactions(id);
+
     }
 
-    // console.log("Goals[]:", goals);
-    // console.log("Goals[].length:", goals.length);
+    const onAddMoneyPressed = (amount, description, goalID, date) => {
 
+        const transactionCollectionRef = firestore().collection('Transactions').doc();
+        const goalCollectionRef = firestore().collection('Savings').doc(goalID);
+
+        goals.forEach (goal => {
+
+            if (goal.goalID === goalID) {
+                goal.amountSaved += parseFloat(amount);
+                amountSaved = goal.amountSaved;
+            }
+        })
+
+        try {   
+
+            // updating the amount saved in the savings document
+            goalCollectionRef.set({
+
+                amountSaved: parseFloat(amountSaved),
+
+            }, {merge: true})
+            .then(() => console.log("Amount saved has been updated"));
+            
+            // writing the transaction to firestore
+            transactionCollectionRef.set({
+                amount: amount,
+                goalID: goalID,
+                description: description,
+                date: date,
+                userID: currentUserID,
+
+            }, {merge: true})
+            .then(() => console.log("Transaction has been added, with document ID:", transactionCollectionRef.id))
+
+        } catch (error) {
+            console.log("Error adding saving transaction to firestore: " + error)
+        }
+       
+        setAddMoneyModalVisible(false);
+    }
+
+    // Retrieving transactions from Firestore
+    const getSavingsTransactions = async (goalID) => {
+
+        await firestore().collection('Transactions').where('goalID', '==', goalID).get()
+        .then(transactionSnapshot => {
+
+            const transactionData = transactionSnapshot.docs
+            .map((transaction) => ({
+                
+                amount: transaction.data().amountSaved,
+                description: transaction.data().description,
+                ...transaction.data(), id:transaction.id
+            }));
+
+            setGoalTransactions(transactionData); // setting transaction data 
+        }) 
+        
+    }
+ 
     if(buttonPressed) { // if the user wants to create a saving goal
 
         if (personalSavingsPressed) { // if the user wants to create a personal saving goal
-
             return (
 
                 <View style={styles.screenLayout}>
@@ -117,7 +212,7 @@ export default function SharedBudgets() {
                         value={goalAmount}/>
                     </View>
 
-                    <TouchableOpacity style={styles.addSavingsContainer} onPress={() => createPersonalSavingGoal(goalName, goalAmount)}>
+                    <TouchableOpacity style={styles.addSavingsContainer} onPress={() => createPersonalSavingGoal(goalName, goalAmount, 'personal')}>
                         <View style={styles.addSavingsButton}>
                             <Text style={styles.buttonText}>Create Savings Goal</Text>
                         </View>
@@ -127,8 +222,9 @@ export default function SharedBudgets() {
         } 
 
         if(groupSavingsPressed) { // if the user chooses to create a group savings goal
-
+            
             return (
+
                 <View style={styles.screenLayout}>
                     <Ionicons name="ios-arrow-back" size={30} color="black" onPress={() => {
                         setButtonPressed(true);
@@ -152,7 +248,7 @@ export default function SharedBudgets() {
                         value={goalAmount}/>
 
                         <View style={styles.addSavingsButtonView}>
-                            <TouchableOpacity style={styles.addSavingsButton} onPress={() => createGroupSavingGoal(goalName, goalAmount)}>
+                            <TouchableOpacity style={styles.addSavingsButton} onPress={() => createGroupSavingGoal(goalName, goalAmount, "Group", [`${currentUserID}`])}>
                                     <Text style={styles.buttonText}>Create Savings Goal</Text>
                             </TouchableOpacity>
                         </View>
@@ -161,7 +257,7 @@ export default function SharedBudgets() {
             )
         }
 
-        return ( // when the user presses create a saving goal
+        return ( // when the user presses add a saving goal
             
             <>
                 <View style={styles.screenLayout}>
@@ -177,7 +273,6 @@ export default function SharedBudgets() {
 
                     <Text style={styles.subTitle}>Start saving by yourself or with others!</Text>
 
-                    
                     <View style={styles.optionView}>
                         <Pressable onPress={() => setPersonalSavingsPressed(!personalSavingsPressed)} style={({pressed}) => [{
                                 
@@ -239,31 +334,101 @@ export default function SharedBudgets() {
         if (savingsCardPressed) {
 
             return (
-                <View style={styles.screenLayout}>
+                <ScrollView style={styles.screenLayout}>
                     <View>
                         <Ionicons name="ios-arrow-back" size={30} color="black" onPress={() => setSavingsCardPressed(!savingsCardPressed)}/>
                     </View>
+
+                    <Text style={{textAlign: 'center', fontSize: 30, fontFamily: "GTWalsheimPro-Bold"}}>Saving Goal</Text>
+                    <Text style={{textAlign: 'center', fontSize: 17, fontFamily: "GTWalsheimPro-Regular"}}>Add funds to saving goal to reach your target!</Text>
 
                     <View>
                         <Image source={require('../assets/icons/euro-vault.png')} style={{width: 230, height: 230, resizeMode: 'contain', alignSelf: 'center', marginTop: 35}}/>
                     </View>
 
                     <View style={{ marginTop: 10}}>
-                        <Text style={styles.title}>{selectedGoalName}</Text>
+                        <Text style={styles.title}>Goal Name: {selectedGoalName}</Text>
+                    </View>
+
+                    <View style={{alignItems: 'center'}}>
+
                     </View>
 
 
-                    <View style={{display:'flex', flexDirection: 'row', alignSelf: 'center', margin: 10}}>
-                        <GroupInvite/>
-                        <TouchableOpacity style={styles.addFundsButton}>
+                    <View style={{display:'flex', flexDirection: 'row', alignSelf: 'center'}}>
+                        <GroupInvite groupID={selectedGoalID}/>
+                        <TouchableOpacity style={styles.addFundsButton} onPress={() => setAddMoneyModalVisible(!isAddMoneyModalVisible)}>
                             <MaterialIcons name="add" size={24} color="white" />
-                            <Text style={{top: 2, fontFamily: 'GTWalsheimPro-Regular', color: "white", fontSize: 15}}>Add Funds</Text>
+                            <Text style={{top: 4, fontFamily: 'GTWalsheimPro-Regular', color: "white", fontSize: 15}}>Add Money</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <Text>TARGET: {selectedGoalAmount}</Text>
-                    <Text>PROGRESS BAR</Text>
-                </View>
+                    <View style={styles.progressBarView}>
+                        <Text  style={{textAlign: 'center', fontFamily: 'GTWalsheimPro-Regular', fontSize: 25}}>TARGET: &euro;{selectedGoalAmount}</Text>
+                        <ProgressBar progress={selectedGoalAmountSaved/selectedGoalAmount} width={300} unfilledColor={'white'} color={'#8B19FF'} style={{margin: 20}}/>
+                    </View>
+
+                    <Text style={{fontFamily: 'GTWalsheimPro-Regular', fontSize: 20}}>Transactions</Text>
+
+                    <View style={styles.transactionsView}>
+
+                        {/* if the user has no transactions for a particular saving goal */}
+                        {
+                            goalTransactions.length === 0 && (
+                            
+                            <Text style={{fontFamily: 'GTWalsheimPro-Regular', fontSize: 20}}>You haven't made any transactions for this saving goal. 
+                            Start adding money and reach your target!</Text>)
+                        }
+
+
+                        {/* if the user has transactions for a particular saving goal */}
+                        {
+
+                            goalTransactions.length > 0 && (
+                                goalTransactions.map((transaction, index) => (
+                                    <BudgetTransactionCard key={index} amount={transaction.amount} description={transaction.description} />
+                                ))
+                            )
+                        }
+                    </View>
+
+                    {/* if the user presses the add money button - modal will display */}
+                
+                    {
+                        isAddMoneyModalVisible && 
+                        <AddMoneyModal isVisible={isAddMoneyModalVisible} onClose={() => setAddMoneyModalVisible(!isAddMoneyModalVisible)} 
+                            goalID={selectedGoalID} onAddMoneyClick={onAddMoneyPressed}
+                        />
+                        
+                    }
+
+                    <View style={{height: 180, backgroundColor: '#fafafa'}}>
+                        {
+                            selectedGoalAmountSaved > 0 && (
+
+                                <View style={{position: 'absolute', top: 0, alignSelf: 'center', justifyContent: 'center', margin: 20}}>
+                                   
+                                    <Text style={{textAlign: 'center', fontSize: 20, fontFamily: "GTWalsheimPro-Regular"}}>TOTAL AMOUNT SAVED: &euro;{selectedGoalAmountSaved}</Text>
+                                    <Text style={{fontFamily: 'GTWalsheimPro-Regular', fontSize: 20, textAlign: 'center', margin: 10}}>Target hasn't been reached yet. You need &euro;{selectedGoalAmount-selectedGoalAmountSaved} more to reach your target!</Text>
+                                   
+                                </View>
+
+                            )
+                        }
+
+                        {
+                            selectedGoalAmountSaved < 0 && (
+
+                                <View style={{position: 'absolute', top: 0, alignSelf: 'center', justifyContent: 'center', margin: 20}}>
+                                    <Text style={{fontFamily: 'GTWalsheimPro-Regular', fontSize: 20, textAlign: 'center'}}>Target hasn't been reached yet. You need €X more to reach your target!</Text>
+                                </View>
+
+                            )
+                        }
+
+                    </View>
+                    <View style={{height: 100, backgroundColor: '#fafafa'}}></View>
+                </ScrollView>
             )
         }
 
@@ -281,162 +446,163 @@ export default function SharedBudgets() {
 
                         return (
                            
-                            <Pressable onPress={() => onSavingCardPressed(goal.goalName, goal.goalAmount, "Group")}>
-                                <SavingCard key={i} goalName={goal.goalName} goalAmount={goal.goalAmount} type={goalType}/>
+                            <Pressable key={i} onPress={() => onSavingCardPressed(goal.goalName, goal.goalAmount, goal.goalType, goal.goalID, goal.amountSaved)}>
+                                <SavingCard goalName={goal.goalName} goalAmount={goal.goalAmount} type={goal.goalType}/>
                             </Pressable>
                         )
                     })
                 }
                 </View>
+                <View style={{height: 140, backgroundColor: '#fafafa'}}></View>
             </ScrollView>
         )
     }
 }
 
 const styles = StyleSheet.create({
-  screenLayout: {
-      padding: 20,
-      flex: 1,
-      backgroundColor: 'white',
-  },
-
-  screenText: {
-    fontFamily: 'GTWalsheimPro-Regular',
-    fontSize: 17,
-  },
-
-  title: {
-      fontFamily: 'GTWalsheimPro-Regular',
-      marginTop: 10, 
-      fontSize: 25,
-      textAlign: "center",
-      bottom: 5,
+    screenLayout: {
+        padding: 20,
+        flex: 1,
+        backgroundColor: '#fafafa',
     },
 
-  subTitle: {
+    screenText: {
+        fontFamily: 'GTWalsheimPro-Regular',
+        fontSize: 17,
+    },
 
-      margin: 10, 
-      fontSize: 17,
-      fontFamily: 'GTWalsheimPro-Regular',
-      textAlign: "center",
+    title: {
+        fontFamily: 'GTWalsheimPro-Regular',
+        marginTop: 10, 
+        fontSize: 25,
+        textAlign: "center",
+        bottom: 5,
+        },
 
-  },
+    subTitle: {
+        margin: 10, 
+        fontSize: 17,
+        fontFamily: 'GTWalsheimPro-Regular',
+        textAlign: "center",
 
-  buttonView: {
+    },
 
-      marginTop: 70,
-      alignItems: 'center',
-  },
+    buttonView: {
+        marginTop: 70,
+        alignItems: 'center',
+    },
 
-  addSavingsButtonView: {
-
-    alignItems: 'center', 
+    addSavingsButtonView: {
+        alignItems: 'center', 
         margin: 20,
 
-  },
+    },
 
-  addSavingsButton: {
+    addSavingsButton: {
+        position: 'absolute',
+        padding: 10,
+        backgroundColor: '#8B19FF',
+        borderRadius: 10,
+        alignSelf: 'center',
+        margin: 15
+    },
 
-      position: 'absolute',
-      padding: 10,
-      backgroundColor: '#8B19FF',
-      borderRadius: 10,
-      alignSelf: 'center'
-  },
+    addGoalButton: {
+        padding: 10,
+        backgroundColor: '#8B19FF',
+        borderRadius: 10,
+        alignSelf: 'center'
+    },
 
-  addGoalButton: {
+    buttonText: {
+        fontFamily: 'GTWalsheimPro-Regular',
+        fontSize: 15,
+        color: "white",
+        justifyContent: 'flex-end',
+        padding: 5,        
+    },
 
-    padding: 10,
-    backgroundColor: '#8B19FF',
-    borderRadius: 10,
-    alignSelf: 'center'
-},
+    headerContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
 
-  buttonText: {
-      fontFamily: 'GTWalsheimPro-Regular',
-      fontSize: 15,
-      color: "white",
-      justifyContent: 'flex-end',
-      padding: 5,
-      // borderWidth: 1
-    
-  },
+    iconView: {
+        right: 50,
+    },
 
-  headerContainer: {
+    optionView: {
+        marginTop: 35,
+    },
 
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center'
-  },
+    optionCard: {
+        borderWidth: 2, 
+        borderColor: '#8B19FF',
+        borderRadius: 15,
+        padding: 25,
+        display: 'flex',
+        flexDirection: 'row',
+        margin: 5,
+        
+    },
 
-  iconView: {
-    right: 50,
-  },
+    icon: {
+        position: 'absolute',
+        left: 300,
+        bottom: 25,
+    },
 
-  optionView: {
+    textInputView: {
+        marginTop: 20,
 
-    // borderWidth: 2,
-    // borderColor: 'blue',
-    marginTop: 35,
-    // backgroundColor: 'white',
-  },
+    },
 
-  optionCard: {
-    borderWidth: 2, 
-    borderColor: '#8B19FF',
-    borderRadius: 15,
-    padding: 25,
-    display: 'flex',
-    flexDirection: 'row',
-    margin: 5,
-    
+    textInput: {
+        margin: 5,
+        borderColor: '#9B9B9B',
+        color: 'black',
+        borderWidth: 1.5,
+        borderRadius: 20,
+        padding: 10,
+        backgroundColor: '#fafafa'
 
-  },
+    },
 
-  icon: {
+    savingCardView: {
+        display: 'flex', 
+        flexDirection: 'row', 
+        justifyContent: 'flex-start', 
+        flexWrap: 'wrap'
 
-    // borderWidth: 2,
-    // borderColor: 'aqua',
-    position: 'absolute',
-    left: 300,
-    bottom: 25,
-  },
+    },
 
-  textInputView: {
-      marginTop: 20,
+    addFundsButton: {
+        display: 'flex', 
+        flexDirection: 'row',
+        borderWidth: 2,
+        borderColor: '#8B19FF',
+        padding: 10, 
+        borderRadius: 15,
+        marginLeft: 5,
+        backgroundColor: '#8B19FF',
 
-  },
+    },
 
-  textInput: {
-    margin: 5,
-    borderColor: '#9B9B9B',
-    color: 'black',
-    borderWidth: 1.5,
-    borderRadius: 20,
-    padding: 10,
-    backgroundColor: '#fafafa'
+    progressBarView: {
+        margin: 20,
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 20,
 
-  },
+    },
 
-  savingCardView: {
-    display: 'flex', 
-    flexDirection: 'row', 
-    justifyContent: 'flex-start', 
-    flexWrap: 'wrap'
-
-  },
-
-  addFundsButton: {
-    display: 'flex', 
-    flexDirection: 'row',
-    borderWidth: 2,
-    borderColor: '#8B19FF',
-    padding: 10, 
-    borderRadius: 15,
-    width: 170,
-    backgroundColor: '#8B19FF',
-    marginLeft: 10,
-
-  },
+    transactionsView: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 20,
+        marginTop: 15,
+    }
 
 });
