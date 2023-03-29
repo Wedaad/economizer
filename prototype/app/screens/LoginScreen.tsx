@@ -6,9 +6,9 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, Pressable, ImageBackground, SafeAreaView} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
-const screenBackground = require("../assets/LRScreenBackground3.png")
 function LoginScreen({navigation}:any) {
-
+    
+    const screenBackground = require("../assets/LRScreenBackground3.png")
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
@@ -21,14 +21,14 @@ function LoginScreen({navigation}:any) {
 
     const onLoginPress = () => {
 
-        if(!email) {
+        if(!email) { // if no email is entered
 
             setIsVisible(true);
             setErrorMsg("Email field must be filled in.");
             return
         }
 
-        if (!password) {
+        if (!password) { // if no password is entered
 
             setIsVisible(true);
             setErrorMsg("Password must be filled.");
@@ -42,30 +42,27 @@ function LoginScreen({navigation}:any) {
 
             const user = response.user.uid
         })
-        .catch(error => {
+        .catch(error => { // displaying error messages for various errors
 
-            if(error.code == 'auth/invalid-email') {
+            if(error.code == 'auth/invalid-email') { // if the email is invalid
 
                 setIsVisible(true);
                 setErrorMsg('Invalid email address. Please enter a correct email address.');
 
             } 
 
-            if(error.code == 'auth/wrong-password') {
+            if(error.code == 'auth/wrong-password') { // if the password is invalid
 
                 setIsVisible(true);
                 setErrorMsg('Incorrect password.');
             }
 
-            if(error.code == 'auth/user-not-found') {
+            if(error.code == 'auth/user-not-found') { // if the user doesn't exist
 
                 setIsVisible(true);
                 setErrorMsg('User not Found. Create an account to login.');
 
             }
-
-            console.log("Error: " + error.code);
-           
 
         })
 
@@ -73,8 +70,7 @@ function LoginScreen({navigation}:any) {
 
     return (
         <SafeAreaView style={styles.screenLayout}>
-            {/* <ScrollView style={styles.scrollable}> */}
-                <ImageBackground source={screenBackground} style={styles.background}>
+            <ImageBackground source={screenBackground} style={styles.background}>
                 <Text style={styles.title}>Login</Text>
 
                 <View style={styles.formContainer}>
@@ -105,8 +101,7 @@ function LoginScreen({navigation}:any) {
                 </View>
                 
                 <Text style={styles.text}>Don't have an account?<Text style={styles.signUpLink} onPress={onSignUpLinkPress}> Sign-Up Here</Text></Text>
-                </ImageBackground>
-            {/* </ScrollView> */}
+            </ImageBackground>
         </SafeAreaView>
 
     );
@@ -121,11 +116,6 @@ const styles = StyleSheet.create({
     },
 
     background: {
-        flex: 1,
-
-    },
-
-    scrollable: {
         flex: 1,
 
     },
