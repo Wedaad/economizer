@@ -8,15 +8,19 @@ import { NavigationContainer } from '@react-navigation/native';
 import MenuBar from './app/components/MenuBar';
 import auth from '@react-native-firebase/auth';
 import { AppProvider } from './app/context/AppContext';
+import firestore from '@react-native-firebase/firestore';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 export default function App() {
 
     // Set an initializing state whilst Firebase connects
     const [initializing, setInitializing] = useState(true);
-    const [user, setUser] = useState();
+    // const [user, setUser] = useState({});
+    const [user, setUser] = useState({uid: ''});
     const Stack = createNativeStackNavigator();
 
     //  Handle user state changes
+    // from firebase react native docs: https://rnfirebase.io/auth/usage
     function onAuthStateChanged(user: any) {
 
       setUser(user);
@@ -25,16 +29,48 @@ export default function App() {
 
         setInitializing(false);
       }
-    }
+    } 
+
+    // listening for dynamic link clicks
+    // from react-native-dynamic-links documentation https://rnfirebase.io/dynamic-links/usage#listening-for-dynamic-links
+    const handleDynamicLink = (link) => {
+
+      const groupID = link.url.split("/")[4];
+      const jointBudgetsRef = firestore().collection('JointBudgets').doc(groupID);
+      const savingsCollectRef = firestore().collection('Savings').doc(groupID);
+
+      if(link.url) { // if link.url exists and not null
+
+          if(user.uid === '') {
+            console.log("error: user ID is empty");
+
+          } else {
+       
+            savingsCollectRef.update({
+              goalMembers: firestore.FieldValue.arrayUnion(user.uid), // updating the savings goal document
+          
+            })
+
+            jointBudgetsRef.update({
+                budgetMembers: firestore.FieldValue.arrayUnion(user.uid), // updating the joint budget document
+        
+            })
+
+          }
+      }
+  }
+
 
     useEffect(() => {
 
       const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-      
-
+      // from react-native-dynamic-links documentation https://rnfirebase.io/dynamic-links/usage#listening-for-dynamic-links
+      const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
+   
       return () => {
       
         subscriber // unsubscribe on unmount
+        unsubscribe();
       }
       }, []);
 
@@ -48,7 +84,6 @@ export default function App() {
     if (!user) {
       return (
         <>
-          <AppProvider>
           <NavigationContainer>
             <Stack.Navigator>
               {/* HOME SCREEN */}
@@ -69,16 +104,16 @@ export default function App() {
                 options={{ title: 'Login' }} />
             </Stack.Navigator>
           </NavigationContainer>
-          </AppProvider>
         </>
       );
 
     } else { // user is logged in
-    
+      
         return (
           <AppProvider>
             <NavigationContainer>
-              <MenuBar id={user.uid}/>
+              {/* Bottom tab navigator (menubar for navigation)*/}
+              <MenuBar id={user.uid}/>  
             </NavigationContainer>
           </AppProvider>
         );
