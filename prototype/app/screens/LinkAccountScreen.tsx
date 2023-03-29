@@ -13,21 +13,17 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Text, View, StyleSheet, Image } from 'react-native';
 import { PlaidLink, LinkSuccess, LinkExit } from 'react-native-plaid-link-sdk';
 import { useAppConext } from '../context/AppContext';
-import firestore from '@react-native-firebase/firestore';
 
 const LinkAccountScrceen = () => {
 
     const [linkToken, setLinkToken] = useState("");
     const { currentUserID, getAccessToken, accessToken } = useAppConext();
-    const [isLoading, setIsLoading] = useState(true);
-
-    // console.log("Access token on link account screen:", accessToken)
     
     const generateLinkToken = useCallback(async () => {
         console.log("Awaiting generating of token");
 
         // http://192.168.1.5:8085
-        await fetch('http://192.168.1.5:8085/link/token/create', {
+        await fetch('http://192.168.1.9:8085/link/token/create', {
 
             method: 'POST',
             headers: {
@@ -47,7 +43,7 @@ const LinkAccountScrceen = () => {
                 console.log("Generating token error: " + err);
 
             });
-        }, [setLinkToken])
+        }, [setLinkToken]) 
 
         useEffect(() => {
 
@@ -96,7 +92,7 @@ const LinkAccountScrceen = () => {
                             console.log("Awating exchange of tokens");
                             
                             // "http://192.168.1.5:8085/item/public_token/exchange"
-                            await fetch("http://192.168.1.5:8085/item/public_token/exchange", {
+                            await fetch("http://192.168.1.9:8085/item/public_token/exchange", {
         
                                 method: "POST",
         
@@ -114,7 +110,6 @@ const LinkAccountScrceen = () => {
                             console.log(success + ": " + success.publicToken); 
                             console.log("Bank account added successfully added!");
                             
-                            // navigation.navigate('Trasactions', {public_token: success.publicToken}); // Switch the trasaction screen
                         }}
                         onExit={(response: LinkExit) => {
                             console.log(response);
