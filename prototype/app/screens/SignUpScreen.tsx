@@ -5,7 +5,7 @@
 */ 
 
 import React, {useState} from 'react';
-import {StyleSheet, View, Text, Pressable, TextInput, SafeAreaView, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import {StyleSheet, View, Text, Pressable, TextInput, SafeAreaView, ImageBackground } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -23,7 +23,6 @@ function SignUpScreen({navigation}:any) {
 
     const onLoginLinkPress = () => {
 
-        console.log("Login link clicked");
         navigation.navigate("Login")
     }
 
@@ -93,73 +92,14 @@ function SignUpScreen({navigation}:any) {
 
     return (
         /* Holds main screen contents */
-        // <SafeAreaView style={styles.screenLayout}>
-        //     <ImageBackground source={screenBackground} style={styles.background}>
-            // <KeyboardAwareScrollView>
-            // <View>
-            //     <Text style={styles.title}>Create Account</Text>
-            //         <View style={styles.formContainer}>
-            //             <Text style={styles.labels}>Full Name</Text>
-            //                 <TextInput 
-            //                 style={styles.textInput} 
-            //                 placeholder='Full Name'
-            //                 onChangeText={(text) => setName(text)} // setting the value of fullname to the fullname entered
-            //                 value={name}/>
-
-            //             <Text style={styles.labels}>Username</Text>
-            //             <TextInput 
-            //             style={styles.textInput} 
-            //             placeholder='Username'
-            //             onChangeText={(text) => setUsername(text)} // setting the value of username to the username entered
-            //             value={username}/>
-
-            //             <Text style={styles.labels}>Email</Text>
-            //             <TextInput style={styles.textInput} 
-            //             placeholder='Email'
-            //             onChangeText={(text) => setEmail(text)} // setting the value of email to the email entered
-            //             value={email}/>
-
-            //             <Text style={styles.labels}>Password</Text>
-            //             <TextInput style={styles.textInput} 
-            //             secureTextEntry={true}
-            //             placeholder='Password'
-            //             onChangeText={(text) => setPassword(text)} // setting the value of password to the password entered
-            //             value={password}/>
-
-            //             <Text style={styles.labels}>Confirm Password</Text>
-            //             <TextInput style={styles.textInput} 
-            //             secureTextEntry={true}
-            //             placeholder='Confirm Password'
-            //             onChangeText={(text) => setConfirmPassword(text)} // setting the value of confirm password to the password entered
-            //             value={confirmPassword}/>
-
-            //         {isVisible && (
-            //             <Text style={styles.errorMsg}>{errorMsg}</Text>
-            //         )}
-
-            // </View>
-
-            // <View style={styles.btn_container}>
-            //    <Pressable style={styles.signup_button} onPress={onSignUpPress}>
-            //         <Text style={styles.signup_button_text}>Sign Up</Text>
-            //     </Pressable>
-            // </View>
-
-            //     <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
-            // </View>
-            // </KeyboardAwareScrollView>
-        //     </ImageBackground>
-        // </SafeAreaView>
-
-
-            <SafeAreaView style={styles.screenLayout}>
-                <ImageBackground source={screenBackground} style={styles.background}>
-                    <KeyboardAwareScrollView>
-                        <View>
-                            <Text style={styles.title}>Create Account</Text>
-                            <View style={styles.formContainer}>
-                                <Text style={styles.labels}>Full Name</Text>
-                                    <TextInput 
+        <SafeAreaView style={styles.screenLayout}>
+            <ImageBackground source={screenBackground} style={styles.background}>
+                <KeyboardAwareScrollView>
+                    <View>
+                        <Text style={styles.title}>Create Account</Text>
+                        <View style={styles.formContainer}>
+                            <Text style={styles.labels}>Full Name</Text>
+                                <TextInput 
                                     style={styles.textInput} 
                                     placeholder='Full Name'
                                     onChangeText={(text) => setName(text)} // setting the value of fullname to the fullname entered
@@ -204,8 +144,7 @@ function SignUpScreen({navigation}:any) {
                             </View>
 
                             <Text style={styles.text}>Already have an account? <Text onPress={onLoginLinkPress} style={styles.loginLink}>Login Here</Text></Text>
-                    
-                        </View>
+                    </View>
                 </KeyboardAwareScrollView>
             </ImageBackground>
         </SafeAreaView>
@@ -216,19 +155,14 @@ const styles = StyleSheet.create({
 
     screenLayout: {
         flex: 1,
-        // borderWidth: 4,
-        // borderColor: 'orange',
         backgroundColor: 'white',
     },
     
     background: {
         flex: 1,
-        // borderWidth: 4,
-        // borderColor: 'pink',
     },
 
     title: {
-
         marginLeft: 30,
         marginTop: 40, 
         padding: 10,
@@ -237,12 +171,10 @@ const styles = StyleSheet.create({
     },
 
     formContainer: {
-
         margin: 20,
     },
 
     textInput: {
-
         alignSelf: 'center',
         height: 50,
         marginBottom: 15,
@@ -255,7 +187,6 @@ const styles = StyleSheet.create({
     },
 
     labels: {
-
         fontSize: 15,
         padding: 10,
         marginLeft: 25,
@@ -263,13 +194,11 @@ const styles = StyleSheet.create({
     },
 
     text: {
-
         textAlign: 'center',
         fontFamily: 'GTWalsheimPro-Regular',
     },
 
     btn_container: {
-
         width: 300,
         alignSelf: 'center',
         marginBottom: 15,
@@ -308,6 +237,5 @@ const styles = StyleSheet.create({
         color: 'white',
     },
 });
-
 
 export default SignUpScreen;
