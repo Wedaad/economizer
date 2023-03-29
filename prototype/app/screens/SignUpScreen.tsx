@@ -65,22 +65,24 @@ function SignUpScreen({navigation}:any) {
                 navigation.navigate("Login"); // change the screen to the login screen once registration is successful 
             })
         })
-        .catch((error) => {
-
+        .catch((error) => { // error handling
+ 
             console.log(error.code)
 
-            if(error.code == 'auth/invalid-email') {
+            if(error.code == 'auth/invalid-email') { // if the email is invalid
 
                 setIsVisible(true);
                 setErrorMsg('Invalid email address. Please enter a correct email address.');
 
             } 
-            if(error.code == 'auth/email-already-in-use') {
+
+            if(error.code == 'auth/email-already-in-use') { // if the email is already in use
 
                 setIsVisible(true);
                 setErrorMsg('An account already exists with this email address. Please Login.');
             }
-            if(error.code == 'auth/weak-password') {
+
+            if(error.code == 'auth/weak-password') { // if the password is weak
 
                 setIsVisible(true);
                 setErrorMsg('Password must be more than 6 characters long.');
