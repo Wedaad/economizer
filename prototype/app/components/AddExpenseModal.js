@@ -113,6 +113,7 @@ export default function AddExpenseModal({isVisible, closeModal, onAddExpenseClic
     )
 }
 
+// styling for expense modal
 const styles = StyleSheet.create({
 
     modalViewStyle: {
