@@ -24,10 +24,6 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
             label: 'monthly'
         },
 
-        // {
-        //     label: 'once-off'
-        // },
-
     ];
 
     // function that clears the input fields
