@@ -31,6 +31,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
 
     }
 
+    // rendering the budget card for specific a category depending on the category name
     const renderBudgetCard = (category) => {
   
         switch (category.name) {
@@ -241,7 +242,7 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
                     
                     
                 )
-            default:
+            default: // no catgetory passed defaults to uncategorized
                 return (
 
                     <View style={[{borderLeftWidth: 4, borderLeftColor: '#DDDEDE'},styles.budgetCard, styles.shadow]}>
@@ -304,15 +305,15 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
     }
 
 
-    // if(budgetType === 'weekly' && isSunday(current_date)) {
-    //     resetBudgets(budgetId);
+    if(budgetType === 'weekly' && isSunday(current_date)) {
+        resetBudgets(budgetId);
         
-    // } 
+    } 
 
-    // if (budgetType === 'monthly' && isFirstDayOfMonth(current_date)) {
+    if (budgetType === 'monthly' && isFirstDayOfMonth(current_date)) {
 
-    //     resetBudgets(budgetId);
-    // }
+        resetBudgets(budgetId);
+    }
 
     const getBudgetProgress = (amountSpent, amountAllocated) => {
 
@@ -340,13 +341,14 @@ export default function BudgetCard({ budgetName, category, amountSpent, amountAl
     return (
 
         <>
-            {renderBudgetCard(category)}
+            {renderBudgetCard(category)} 
         </>
        
 
     );
 }
 
+// styles for budget card
 const styles = StyleSheet.create({
 
     budgetCard: {
