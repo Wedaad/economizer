@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
-import nextId from "react-id-generator";
+import React, { useContext, useState } from 'react';
 import firestore from '@react-native-firebase/firestore';
 
 const AppContext = React.createContext(); // creating the context
@@ -11,8 +10,6 @@ export function useAppConext() {
 
 export function AppProvider({children}) {
 
-    const [expenses, setExpenses] = useState([]);
-    const [budgets, setBudgets] = useState([]);
     const [currentUser, setCurrentUser] = useState('');
     const [currentUserID, setCurrentUserID] = useState('');
     const [accessToken, setAccessToken] = useState(accessToken);
@@ -22,7 +19,6 @@ export function AppProvider({children}) {
 
         const currentUserDocument = await firestore().collection('Users').doc(userID).get();
         const userData = currentUserDocument.data();
-        // console.log(userData);
         setAccessToken(userData.access_token) 
 
     }
@@ -44,45 +40,11 @@ export function AppProvider({children}) {
         })
     }
 
-    // function addBudget({budgetName, category, amountAllocated, budgetType}) {
-
-    //     setBudgets([...budgets, { budgetId: nextId("budget-id-"), budgetName, category, amountAllocated, budgetType}])
-  
-    // }
-
-    //change to budgetId
-    function addExpense({ amount, desc, budgetName }) {
-
-        setExpenses([...expenses, { expenseId: nextId(), amount, desc, budgetName }])
-        expenses.forEach(expense => console.log("Expense Context details: " + expense.amount, expense.desc, expense.budgetName));
-    }
-
-    function getExpenses(budgetName) {
-        // change to budgetId
-        return expenses.filter(expense => expense.budgetName === budgetName);
-    }
-
-    function deleteBudget({budgetId}) {
-        setBudgets(budgets => {
-            return budgets.filter(budget => budget.budgetId !== budgetId)
-        })
-
-        console.log("Budegts in context after DELETING a budget: ", budgets);
-
-    }
-
-    // getAccessToken(currentUserID);
-    // getCurrentUserDetails(currentUserID);
-
+    
     return (
 
-        // <AppContext.Provider value={{budgets, expenses, currentUser, currentUserID, accessToken, addBudget, addExpense,
-        // getExpenses, deleteBudget, getCurrentUserDetails, getAccessToken, setBudgets}}>
-        //     {children}
-        // </AppContext.Provider>
 
-        <AppContext.Provider value={{budgets, expenses, currentUser, currentUserID, accessToken, addExpense,
-            getExpenses, deleteBudget, getCurrentUserDetails, getAccessToken, setBudgets}}>
+        <AppContext.Provider value={{currentUser, currentUserID, accessToken, getAccessToken, getCurrentUserDetails}}>
             {children}
         </AppContext.Provider>
 
