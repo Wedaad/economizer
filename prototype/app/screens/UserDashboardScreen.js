@@ -15,7 +15,6 @@ import { VictoryPie } from 'victory-native';
 export default function UserDashboardScreen({route}) {
 
   const userID = route.params.userID
-  // const { getCurrentUserDetails, currentUser, getExpenses, addExpense, addBudget, accessToken } = useAppConext();
   const { getCurrentUserDetails, currentUser, getAccessToken } = useAppConext();
   const [isAddBudgetModalVisible, setAddBudgetModalVisible] = useState(false);
   const [isAddGroupBudgetModalVisible, setAddGroupBudgetModalVisible] = useState(false);
@@ -32,44 +31,43 @@ export default function UserDashboardScreen({route}) {
   const [budgetIDPressed, setBudgetIDPressed] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isErrorVisible, setIsErrorVisible] = useState(false);
-
+  const date = new Date()
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   let amountSpent = 0;
   let total = 0;
-  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const date = new Date()
   let current_month = months[date.getMonth()];
 
   // function which creates budgets and writes the data to Firestore
   const createBudget = (budgetName, category, amountAllocated, budgetType) => {
 
-    if(budgetName === '' && amountAllocated === 0 && budgetType === '' && category === '') {
+    if(budgetName === '' && amountAllocated === 0 && budgetType === '' && category === '') { // if the user doesn't fill out any of the text inputs
 
       setIsErrorVisible(true);
       setErrorMsg("Please fill in all the fields to create a budget");
       return
 
     } 
-    else if ( category === '') {
+    else if (category === '') { // if the category field is empty
       
       setIsErrorVisible(true);
       setErrorMsg("A category must be selected");
       return
 
     } 
-    else if (budgetName === '') {
+    else if (budgetName === '') { // if the budget name field is empty
       
       setIsErrorVisible(true);
       setErrorMsg("A budget name must be entered");
       return
 
-    } else if (amountAllocated === 0) {
+    } else if (amountAllocated === 0) { // if the user doesn't allocate an amout to the budget
       
       setIsErrorVisible(true);
       setErrorMsg("An amount must be entered");
       return
 
-    } else if (budgetType === ''){
-
+    } else if (budgetType === ''){ // if the budget type is empty
+ 
       setIsErrorVisible(true);
       setErrorMsg("A budget type must be selected");
       return
@@ -107,35 +105,36 @@ export default function UserDashboardScreen({route}) {
     }
   }
 
+  // creating a group budget
   const createGroupBudget = (budgetName, category, amountAllocated, budgetType, budgetMembers) => {
 
-    if(budgetName === '' && amountAllocated === 0 && budgetType === '' && category === '') {
+    if(budgetName === '' && amountAllocated === 0 && budgetType === '' && category === '') { // if the user doesn't fill out any of the text inputs
 
       setIsErrorVisible(true);
       setErrorMsg("Please fill in all the fields to create a budget.");
       return
 
     } 
-    else if (category === '') {
+    else if (category === '') { // if the category field is empty
       
       setIsErrorVisible(true);
       setErrorMsg("A category must be selected.");
       return
 
     } 
-    else if (budgetName === '') {
+    else if (budgetName === '') { // if the budget name field is empty
       
       setIsErrorVisible(true);
       setErrorMsg("A budget name must be entered.");
       return
 
-    } else if (amountAllocated === 0) {
+    } else if (amountAllocated === 0) { // if the user doesn't allocate an amout to the budget
       
       setIsErrorVisible(true);
       setErrorMsg("An amount must be entered.");
       return
 
-    } else if (budgetType === ''){
+    } else if (budgetType === ''){ // if the budget type is empty
 
       setIsErrorVisible(true);
       setErrorMsg("A budget type must be selected.");
@@ -175,7 +174,7 @@ export default function UserDashboardScreen({route}) {
 
   }
     
-
+  // getting the budgets from firestore
   const getBudgets = async () => {
 
     const budgetsCollectionbRef = firestore().collection('Users').doc(userID).collection('Budgets');
@@ -183,7 +182,7 @@ export default function UserDashboardScreen({route}) {
     const personalBudgets = budgetsCollectionbRef.get();
     const groupBudgets = groupBudgetsCollectionRef.where('budgetMembers', 'array-contains', userID).get();
 
-    const [personalBudgetsSnapshot, groupBudgetsSnapshot] = await Promise.all([personalBudgets, groupBudgets]);
+    const [personalBudgetsSnapshot, groupBudgetsSnapshot] = await Promise.all([personalBudgets, groupBudgets]); // logical OR
 
     const personalBudgetsData = personalBudgetsSnapshot.docs
     const groupBudgetsData = groupBudgetsSnapshot.docs
@@ -194,6 +193,7 @@ export default function UserDashboardScreen({route}) {
 
   }
 
+  // adding an expense to the database 
   const submitAddExpense = async (amount, desc, budgetId, date) => {
 
     budgets.forEach(budget => {
@@ -213,25 +213,25 @@ export default function UserDashboardScreen({route}) {
     const budgetDoc = await budgetCollectionRef.get();
     const groupBudgetDoc = await groupBudgetCollectionRef.get();
 
-    if(amount === 0 && desc === '' && budgetId === '') {
+    if(amount === 0 && desc === '' && budgetId === '') { // if the user doesn't fill out text input fields
 
       setIsErrorVisible(true);
       setErrorMsg("Please fill in all the fields to add a transaction.");
       return
 
-    } else if (amount === 0) {
+    } else if (amount === 0) { // if the amount field is empty
 
       setIsErrorVisible(true);
       setErrorMsg("An amount must be entered.");
       return
 
-    } else if (desc === '') {
+    } else if (desc === '') { // if the description field is empty
 
       setIsErrorVisible(true);
       setErrorMsg("Please add a description for this transaction.");
       return
 
-    } else if (budgetId === '') {
+    } else if (budgetId === '') { // if the budget id field is empty
 
       setIsErrorVisible(true);
       setErrorMsg("Pick a budget for this transaction to be added to.");
@@ -272,8 +272,9 @@ export default function UserDashboardScreen({route}) {
     
       } 
       
+      // checking if the group budget exists
       if (groupBudgetDoc.exists) {
-        
+        // writitng the group budget to firestore 
         try {
         
     
@@ -304,16 +305,15 @@ export default function UserDashboardScreen({route}) {
 
       }
 
-      // addExpense({amount, budgetName, desc});
       setExpenseModalVisible(!isExpenseModalVisible);
 
     }
 
   }
 
+  // retrieving the 4 most recent transactions from the BudgetExpenses collection
   const getBudgetExpenses = async (userID) => {
 
-    // retrieving the 4 most recent transactions from the BudgetExpenses collection
     await firestore().collection('BudgetExpenses').where('userId', '==', userID).orderBy('date').limit(4).get()
     .then((expenseSnapshot) => {
 
@@ -329,9 +329,9 @@ export default function UserDashboardScreen({route}) {
     
   }
   
+  // retrieving the 4 most recent transactions for a specific budget in Firestore
   const getSpecificExpenses = (budgetId) => {
 
-      // retrieving the 4 most recent transactions for a specific budget in Firestore
       firestore().collection('BudgetExpenses').where('budgetId', '==', budgetId).orderBy('date', 'asc')
       .limit(4).get()
       .then((querySnapshot) => {
@@ -362,10 +362,10 @@ export default function UserDashboardScreen({route}) {
           
   }
 
+  // generating the data for the donught chart
   const getChartData = () => {
 
     let chartData = budgets.map((budget) => {
-      // console.log("Budgets:", budget);
 
       return {
         
@@ -411,6 +411,7 @@ export default function UserDashboardScreen({route}) {
     setBudgetDetailsModalVisible(false);
   }
 
+  // method which renders the header of the screen
   const renderHeader = () => {
 
     return (
@@ -422,6 +423,7 @@ export default function UserDashboardScreen({route}) {
     )
   }
 
+  // method which renders the donut chart
   const renderDonutChart = () => {
 
     let chartData = getChartData();
@@ -459,7 +461,6 @@ export default function UserDashboardScreen({route}) {
             <VictoryPie
               data={chartData}
               colorScale={colourScales}
-              // labels={({datum}) => `${datum.y}%`}
               innerRadius={100}
               style={{
                 data: {
@@ -515,6 +516,7 @@ export default function UserDashboardScreen({route}) {
     )
   }
 
+  // method that renders budget option modal
   const renderBudgetOptionScreen = () => {
 
     return (
@@ -568,6 +570,7 @@ export default function UserDashboardScreen({route}) {
     )
   }
 
+  // method which renders the budget card view
   const renderBudgetCardView = () => {
      return (
 
@@ -615,6 +618,7 @@ export default function UserDashboardScreen({route}) {
 
   }
 
+  // method which renders the recent transactions 
   const renderRecentTransactionsView = () => {
 
     return (
@@ -656,6 +660,7 @@ export default function UserDashboardScreen({route}) {
     )
   }
 
+  // method that renders the add budget modal
   const renderAddBudgetModal = () => {
 
     return (
@@ -670,6 +675,7 @@ export default function UserDashboardScreen({route}) {
     )
   }
 
+  // method which renders the group add budget modal
   const renderAddGroupBudgetModal = () => {
 
     return (
@@ -680,6 +686,7 @@ export default function UserDashboardScreen({route}) {
     )
   }
 
+  // method which renders add expense modal 
   const renderAddExpenseModal = () => {
 
     return (
@@ -691,6 +698,7 @@ export default function UserDashboardScreen({route}) {
     )
   }
 
+  // method which renders the budget details modal
   const renderBudgetDetailsModal = () => {
 
     if(isbudgetCardPressed) {
@@ -708,6 +716,7 @@ export default function UserDashboardScreen({route}) {
   
   }
 
+  // method which renders the category ledgend
   const renderCategoryLegend = () => {
 
     let categories = getChartData();
@@ -744,6 +753,7 @@ export default function UserDashboardScreen({route}) {
   }
 
 
+  // rendering the flat list screen layout
   const renderItem = ({item}) => {
 
     return (
@@ -849,6 +859,7 @@ export default function UserDashboardScreen({route}) {
   )
 }
 
+// styling for userdashboard screen
 const styles = StyleSheet.create({
 
     screenLayout: {
@@ -866,7 +877,6 @@ const styles = StyleSheet.create({
     },
 
     modalSubtitle: {
-
       margin: 10, 
       fontSize: 17,
       fontFamily: 'GTWalsheimPro-Regular',
@@ -889,7 +899,6 @@ const styles = StyleSheet.create({
     },
 
     addBudgetButton: {
-
       position: 'absolute',
       left: 115,
       padding: 5,
@@ -898,7 +907,6 @@ const styles = StyleSheet.create({
     },
 
     addTransactionButton: {
-
       position: 'absolute',
       left: 20,
       padding: 5,
@@ -907,13 +915,11 @@ const styles = StyleSheet.create({
     },
 
     text: {
-
       fontFamily: 'GTWalsheimPro-Regular',
       fontSize: 25,
     },
 
     monthView: {
-
       top: 170,
       position: 'absolute',
 
@@ -926,11 +932,8 @@ const styles = StyleSheet.create({
     },
 
     budgetCardView: {
-
-      // borderWidth: 3,
       borderRadius: 20,
       backgroundColor: 'white',
-      // borderColor: 'yellow',
       height: 300,
       padding: 10,
       marginTop: 20,
@@ -945,7 +948,6 @@ const styles = StyleSheet.create({
     },
 
     pieChartView: {
-      
       backgroundColor: 'white',
       borderWidth: 2,
       borderColor: 'yellow',
@@ -999,11 +1001,7 @@ const styles = StyleSheet.create({
     },
   
     optionView: {
-  
-      // borderWidth: 2,
-      // borderColor: 'blue',
       marginTop: 15,
-      // backgroundColor: 'white',
     },
   
     optionCard: {
@@ -1019,16 +1017,12 @@ const styles = StyleSheet.create({
     },
   
     icon: {
-  
-      // borderWidth: 2,
-      // borderColor: 'aqua',
       position: 'absolute',
       left: 300,
       bottom: 25,
     },
 
     categoryListView: {
-
       display: 'flex',
       flexDirection: 'row',
       backgroundColor: 'white',
