@@ -4,7 +4,7 @@ import { MaterialCommunityIcons, Ionicons  } from '@expo/vector-icons';
 
 
 export default function SavingCard({goalName, goalAmount, type}) {
-
+    // the goal type is personal then a different icon is rendered on the saving card
     if(type === 'personal') {
         return (
 
@@ -42,6 +42,7 @@ export default function SavingCard({goalName, goalAmount, type}) {
 
 }
 
+// styles for saving card
 const styles = StyleSheet.create({
 
     savingCard: {
