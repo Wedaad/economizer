@@ -72,6 +72,7 @@ export default function AddMoneyModal({isVisible, onClose, goalID, onAddMoneyCli
 
 }
 
+// styling for add money modal
 const styles = StyleSheet.create({
 
     modalViewStyle: {
