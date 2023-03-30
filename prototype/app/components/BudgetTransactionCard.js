@@ -12,6 +12,7 @@ export default function BudgetTransactionCard({amount, description}) {
   )
 }
 
+// styling for budget transaction card
 const styles = StyleSheet.create({
 
     transactionCard: {
