@@ -93,6 +93,7 @@ export default function BudgetList({isVisible, closeModal, transationAmount, tra
     
         } 
         
+         // writing the amount spent to the Joint Budgets subcollection in firestore
         if (groupBudgetDoc.exists) {
           
           try {
