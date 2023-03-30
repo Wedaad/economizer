@@ -6,15 +6,17 @@ import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 export default function GroupInvite({groupID}) {
 
+    // getting the current user from the app context
     const { currentUser } = useAppConext();
 
     const generateLink = async () => {
 
+        // creating dynamic link with REST API and attaching the budget ID (group ID) passed as a parameter
         const link = await dynamicLinks().buildLink({
-            link: encodeURI(`https://economizer.page.link/join-group/${groupID}`),
+            link: encodeURI(`https://economizer.page.link/join-group/${groupID}`), 
             domainUriPrefix: "https://economizer.page.link",
             android: {
-                packageName: "com.economizer.prototype"
+                packageName: "com.economizer.prototype" // android package name
             }
         });
 
@@ -52,14 +54,15 @@ export default function GroupInvite({groupID}) {
         }
     }
 
-  return (
-    <View>
-        <TouchableOpacity style={styles.addGroupMemeberButton} onPress={shareLink}>
-            <AntDesign name="adduser" size={24} color="white" />
-            <Text style={{top: 2, fontFamily: 'GTWalsheimPro-Regular', color: "white", textAlign: 'center'}}>Add Group Member</Text>
-            </TouchableOpacity>
-    </View>
-  )
+    // render add group member button
+    return (
+        <View>
+            <TouchableOpacity style={styles.addGroupMemeberButton} onPress={shareLink}>
+                <AntDesign name="adduser" size={24} color="white" />
+                <Text style={{top: 2, fontFamily: 'GTWalsheimPro-Regular', color: "white", textAlign: 'center'}}>Add Group Member</Text>
+                </TouchableOpacity>
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({
