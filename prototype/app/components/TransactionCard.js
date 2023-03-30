@@ -25,7 +25,7 @@ export default function TransactionCard ({amount, merchant, date}) {
      
     }
 
-    if (amount < 0) {
+    if (amount < 0) { // if the amount retrieved is an outgoing transaction
 
         return (
 
@@ -50,7 +50,7 @@ export default function TransactionCard ({amount, merchant, date}) {
 
 
         )
-    } else {
+    } else { // incoming transaction
 
         return (
             
@@ -80,6 +80,7 @@ export default function TransactionCard ({amount, merchant, date}) {
 
 }
 
+// styles for transaction card on the transaction screen
 const styles = StyleSheet.create({
 
     transactionCard: {
