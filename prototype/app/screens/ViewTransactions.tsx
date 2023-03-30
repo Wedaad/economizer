@@ -15,7 +15,6 @@ import CategoryList from '../components/CategoryList';
 import BudgetList from '../components/BudgetList';
 import SavingsListModal from '../components/SavingsListModal';
 
-
 const ViewTransactions = () => {
 
     const { accessToken } = useAppConext(); // getting the logged in user's document id from the app context
@@ -38,8 +37,7 @@ const ViewTransactions = () => {
         name: String,
         category: String,
         transaction_id: String }[]>([]);
-
-
+    
     // retrieving the transactions from the Plaid API
     const getTransactions = (async () => {
 
@@ -345,6 +343,7 @@ const ViewTransactions = () => {
 
 };
 
+// styling for transaction screen
 const styles = StyleSheet.create({
     screenLayout: {
         padding: 20,
