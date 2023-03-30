@@ -24,10 +24,6 @@ export default function AddGroupBudgetModal({isVisible, closeModal, onCreateGrou
         {
             label: 'monthly'
         },
-
-        // {
-        //     label: 'once-off'
-        // },
     ];
 
     // function that clears the input fields
