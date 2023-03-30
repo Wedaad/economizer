@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet, SafeAreaView, Image
 
 export default function CategoryList({closeModal, setCategoryChosen, transactionId}) {
 
+    // predefined categories - category id, category name, category icon, category colour
+    // category name and colour are stored in Firestore
     const categoryList = [
         {
             id: 1,
@@ -93,6 +95,7 @@ export default function CategoryList({closeModal, setCategoryChosen, transaction
 
     }
 
+    // rendering flat list of categories
     const categoryItem = ({item}) => {
        return (
         <View>
@@ -117,6 +120,7 @@ export default function CategoryList({closeModal, setCategoryChosen, transaction
   )
 }
 
+// styles for category list
 const styles = StyleSheet.create({
 
     categoryView: {
