@@ -34,7 +34,7 @@ export default function App() {
     // from react-native-dynamic-links documentation https://rnfirebase.io/dynamic-links/usage#listening-for-dynamic-links
     const handleDynamicLink = (link) => {
 
-      const groupID = link.url.split("/")[4];
+      const groupID = link.url.split("/")[4]; // getting the budget ID from the link passed in 
       const jointBudgetsRef = firestore().collection('JointBudgets').doc(groupID);
       const savingsCollectRef = firestore().collection('Savings').doc(groupID);
 
