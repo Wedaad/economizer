@@ -24,29 +24,61 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
         const groupBudgetRef = firestore().collection('JointBudgets').doc(budgetId);
         const groupBudget = await groupBudgetRef.get();
 
-        if(!groupBudget.exists) {
-
-            return
-        } else {
+        if(groupBudget.exists) {
 
             setIsGroupBudget(!isGroupBudget);
+        } else {
+            
+            return
         }
 
     }
 
     const editBudget = (budgetId) => {
-
-        if(editBudgetName === '' && editAllocatedAmount === 0){ // if the user has not entered a name or amount, then changes are not written to Firestore
-
-            setEditBudgetModalVisible(!editBudgetModalVisible);
-
-        } else {
-
-            setBudgetDetailsModalVisible(false);
-            const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
+        
+        const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
             .collection('Budgets').doc(budgetId);
 
-            //updating the budget
+        if(!editBudgetName && !allocatedAmount){ // if the user has not entered a name or amount, then changes are not written to Firestore
+            setIsErrorVisible(true);
+            setErrorMsg("New budget details must be entered before editing the budget.")
+            
+        } else if (editBudgetName) {
+
+            setIsErrorVisible(false);
+            setEditBudgetModalVisible(!editBudgetModalVisible);
+            setBudgetDetailsModalVisible(false)
+
+            //updating the budget's name
+            budgetCollectionRef.update({
+                budgetName: editBudgetName
+            })
+            .then(() => console.log('Budget updated successfully'))
+
+            clearModalInputs();
+            setEditBudgetModalVisible(!editBudgetModalVisible);
+    
+
+        } else if (editAllocatedAmount) {
+
+            setIsErrorVisible(false);
+
+            //updating the budget's allocated amount
+            budgetCollectionRef.update({
+                allocatedAmount: editAllocatedAmount
+            })
+            .then(() => console.log('Budget updated successfully'))
+
+            clearModalInputs();
+            setEditBudgetModalVisible(!editBudgetModalVisible);
+    
+
+        } else { //both name and amount are not empty -both fields will be edited
+            
+            setEditBudgetModalVisible(!editBudgetModalVisible);
+            setBudgetDetailsModalVisible(false);
+
+            //updating the budget's name and allocated amount
             budgetCollectionRef.update({
                 budgetName: editBudgetName,
                 allocatedAmount: editAllocatedAmount
@@ -67,6 +99,13 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
         const budgetCollectionRef = firestore().collection('Users').doc(currentUserID)
         .collection('Budgets').doc(budgetId);
 
+        // removing the current user's ID from the budget document
+        const jointBudgetCollectionRef = firestore().collection('JointBudgets').doc(budgetId);
+        jointBudgetCollectionRef.update({
+            budgetMembers: firestore.FieldValue.arrayRemove(currentUserID)
+        })
+
+        // deleting associated expenses of the budget to be deleted
         const budgetExpensesRef = firestore().collection('BudgetExpenses').where('budgetId', '==', budgetId);
         budgetExpensesRef.get()
         .then((expenseSnapshot) => {
@@ -76,6 +115,7 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
             })
         })
 
+        // deleting the budget itself
         budgetCollectionRef.delete()
         .then(() => {
 
@@ -222,16 +262,9 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
                             <View>
                                 <Text style={styles.labels}>Edit Budget Name</Text>
                                 <TextInput style={styles.textInput}
-                                onChangeText={(newName) => {
-                                   
-                                    if(newName === '') { 
-                                        setEditBudgetName(budgetName);
-                                    }
-                                    else {
-                                        setEditBudgetName(newName)
-                                    }
-                                }}
+                                onChangeText={(name) => setEditBudgetName(name)}
                                 value={editBudgetName}
+                                placeholder={budgetName}
                                 />
 
                                 <Text style={styles.labels}>Edit Allocated Amount</Text>
@@ -255,10 +288,11 @@ export default function BudgetDetails({isVisible, budgetName, allocatedAmount, b
                                 }}
                                 keyboardType='numeric'
                                 value={editAllocatedAmount}
+                                placeholder={allocatedAmount.toString()}
                                 />
                             </View>
 
-                            {isErrorVisible && (<Text style={{color: 'red', fontFamily: 'GTWalsheimPro-Regular'}}>Error: {errorMsg}</Text>)}
+                            {isErrorVisible && (<Text style={{color: 'red', fontFamily: 'GTWalsheimPro-Regular', marginTop: 5}}>Error: {errorMsg}</Text>)}
 
                             <View style={{marginTop: 20, alignSelf: 'center'}}>
                                 <TouchableOpacity style={styles.Button}  onPress={() => editBudget(budgetId)}>
