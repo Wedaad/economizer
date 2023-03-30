@@ -15,6 +15,7 @@ import SavingsScreen from '../screens/SavingsScreen';
 const Tab = createBottomTabNavigator(); 
 
 // custom tab button for adding budget
+// creating the custom center button of the menu bar when a bank account is not linked to economizer
 const CustomActiveAddBankButton = ({children, onPress}) => (
   <TouchableOpacity
     onPress={onPress}
@@ -38,7 +39,7 @@ const CustomActiveAddBankButton = ({children, onPress}) => (
 
 );
 
-
+// creating the custom center button of the menu bar when a bank account is linked to economizer
 const CustomInactiveAddBankButton = ({children, onPress}) => (
   <TouchableOpacity
     onPress={onPress}
@@ -62,10 +63,12 @@ const CustomInactiveAddBankButton = ({children, onPress}) => (
 
 );
 
+// passing the current user
 export default function MenuBar(currentUser) {
 
-  const { accessToken } = useAppConext();
+  const { accessToken } = useAppConext(); // getting the access token from app context
 
+  // returning the menu bar UI
   return (
       <Tab.Navigator
       screenOptions={{
@@ -137,7 +140,7 @@ export default function MenuBar(currentUser) {
 
         }
 
-        {/* rendering a different icon if the  */}
+        {/* rendering a different icon if there is no access token */}
         {
 
           !accessToken && (
@@ -192,6 +195,7 @@ export default function MenuBar(currentUser) {
   );
 }
 
+// styles for menu bar
 const styles = StyleSheet.create({
 
   menubar: {
