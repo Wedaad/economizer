@@ -156,7 +156,7 @@ const ViewTransactions = () => {
                 <Text style={{fontFamily: "GTWalsheimPro-Regular", textAlign: 'center'}}>Connect your bank account in order to see your recent bank transactions</Text>
 
                 <View style={{alignSelf: "center", margin: 100}}>
-                    <Image source={require('../assets/icons/no-money.png')} style={{width: 500, height: 500, resizeMode: 'contain', alignSelf: 'center', marginTop: 35}}/>
+                    <Image source={require('../assets/icons/no-money.png')} style={{width: 400, height: 400, resizeMode: 'contain', alignSelf: 'center'}}/>
                 </View>
             </View> 
         )

@@ -23,7 +23,7 @@ const LinkAccountScrceen = () => {
         console.log("Awaiting generating of token");
 
         // http://192.168.1.5:8085
-        await fetch('http://192.168.1.9:8085/link/token/create', {
+        await fetch('http://192.168.1.4:8085/link/token/create', {
 
             method: 'POST',
             headers: {
@@ -92,7 +92,7 @@ const LinkAccountScrceen = () => {
                             console.log("Awating exchange of tokens");
                             
                             // "http://192.168.1.5:8085/item/public_token/exchange"
-                            await fetch("http://192.168.1.9:8085/item/public_token/exchange", {
+                            await fetch("http://192.168.1.4:8085/item/public_token/exchange", {
         
                                 method: "POST",
         

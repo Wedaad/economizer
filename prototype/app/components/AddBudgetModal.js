@@ -94,7 +94,8 @@ export default function AddBudgetModal({isVisible, closeModal, onCreateBudgetCli
                             )
                         }
                         
-                        <View style={styles.addBudgetBtnView}>              {/* Calling the create budget function and passing in the budget details entered by the user */}
+                        <View style={styles.addBudgetBtnView}>              
+                            {/* Calling the create budget function and passing in the budget details entered by the user */}
                             <TouchableOpacity style={styles.addBudgetBtn} onPress={() => onCreateBudgetClick(budgetName, category, amountAllocated, budgetType,clearModalInputs())}>
                                 <Text style={styles.addBudgetBtnText}>Create Budget</Text>
                             </TouchableOpacity>

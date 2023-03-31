@@ -29,7 +29,7 @@ export default function App() {
         setInitializing(false);
       }
     } 
-
+    console.log(user);
     // listening for dynamic link clicks
     // from react-native-dynamic-links documentation https://rnfirebase.io/dynamic-links/usage#listening-for-dynamic-links
     const handleDynamicLink = (link) => {
@@ -39,7 +39,7 @@ export default function App() {
       const savingsCollectRef = firestore().collection('Savings').doc(groupID);
 
       if(link.url) { // if link.url exists and not null
-
+          console.log(user.uid);
           if(user.uid === '') {
             console.log("error: user ID is empty");
 
@@ -57,8 +57,7 @@ export default function App() {
 
           }
       }
-  }
-
+    }
 
     useEffect(() => {
 
@@ -71,7 +70,9 @@ export default function App() {
         subscriber // unsubscribe on unmount
         unsubscribe();
       }
-      }, []);
+    }, []);
+
+    
 
     if (initializing) {
       
@@ -107,6 +108,8 @@ export default function App() {
       );
 
     } else { // user is logged in
+
+
       
         return (
           <AppProvider>

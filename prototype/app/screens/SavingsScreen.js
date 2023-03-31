@@ -117,15 +117,15 @@ export default function SharedBudgets() {
     const onSavingCardPressed = (name, amount, id, amountSaved) => {
         setSelectedGoalName(name);
         setSelectedGoalAmount(amount);
-        setSelectedGoalAmountSaved(amountSaved);
         setSelectedGoalID(id);
         setSavingsCardPressed(!savingsCardPressed);
         getSavingsTransactions(id);
-
+        setSelectedGoalAmountSaved(parseFloat(amountSaved));
+        
     }
-
+    
     const onAddMoneyPressed = (amount, description, goalID, date) => {
-
+        setAddMoneyModalVisible(false);
         const transactionCollectionRef = firestore().collection('Transactions').doc();
         const goalCollectionRef = firestore().collection('Savings').doc(goalID);
 
@@ -162,7 +162,6 @@ export default function SharedBudgets() {
             console.log("Error adding saving transaction to firestore: " + error)
         }
        
-        setAddMoneyModalVisible(false);
     }
 
     // Retrieving transactions from Firestore
@@ -362,7 +361,6 @@ export default function SharedBudgets() {
                             <Text style={{top: 4, fontFamily: 'GTWalsheimPro-Regular', color: "white", fontSize: 15}}>Add Money</Text>
                         </TouchableOpacity>
                     </View>
-
                     <View style={styles.progressBarView}>
                         <Text  style={{textAlign: 'center', fontFamily: 'GTWalsheimPro-Regular', fontSize: 25}}>TARGET: &euro;{selectedGoalAmount}</Text>
                         <ProgressBar progress={selectedGoalAmountSaved/selectedGoalAmount} width={300} unfilledColor={'white'} color={'#8B19FF'} style={{margin: 20}}/>
@@ -446,7 +444,7 @@ export default function SharedBudgets() {
 
                         return (
                            
-                            <Pressable key={i} onPress={() => onSavingCardPressed(goal.goalName, goal.goalAmount, goal.goalType, goal.goalID, goal.amountSaved)}>
+                            <Pressable key={i} onPress={() => onSavingCardPressed(goal.goalName, goal.goalAmount, goal.goalID, goal.amountSaved)}>
                                 <SavingCard goalName={goal.goalName} goalAmount={goal.goalAmount} type={goal.goalType}/>
                             </Pressable>
                         )
