@@ -70,7 +70,7 @@ export default function App() {
         subscriber // unsubscribe on unmount
         unsubscribe();
       }
-    }, []);
+    }, [user]);
 
     
 
