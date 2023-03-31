@@ -1,0 +1,31 @@
+{
+  "cli": {
+    "version": ""
+  },
+  "build": {
+    "development": {
+      "distribution": "",
+      "android": {
+        "gradleCommand": ""
+      },
+      "ios": {
+        "buildConfiguration": "",
+        "resourceClass": ""
+      }
+    },
+    "preview": {
+      "distribution": "",
+      "ios": {
+        "resourceClass": ""
+      }
+    },
+    "production": {
+      "ios": {
+        "resourceClass": ""
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

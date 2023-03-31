@@ -10,7 +10,9 @@
       "image": "./app/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
-      "plugins": ["./withAndroidPlaid"]
+      "plugins": [
+        "./withAndroidPlaid"
+      ]
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -30,6 +32,11 @@
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0a144852-0bf7-4a28-ba50-7978bec91706"
+      }
     }
   }
 }
